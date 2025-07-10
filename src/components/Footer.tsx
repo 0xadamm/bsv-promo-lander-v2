@@ -32,36 +32,24 @@ const socialLinks = [
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 pt-8 lg:pt-12">
-      <div className="container-wide py-8 lg:py-12 pb-12 lg:pb-16">
-        <div className="flex flex-col lg:grid lg:grid-cols-3 items-center gap-6 lg:gap-0">
-          
-          {/* Left - Navigation Links */}
-          <div className="flex flex-col md:flex-row items-center justify-center lg:justify-start space-y-4 md:space-y-0 md:space-x-12 order-2 lg:order-1">
-            {navItems.slice(0, 2).map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-gray-400 hover:text-white transition-colors font-medium"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-
-          {/* Center - Logo */}
-          <div className="flex items-center justify-center order-1 lg:order-2">
+      <div className="container-wide pt-8 lg:pt-12 pb-12 lg:pb-16">
+        
+        {/* Mobile Layout */}
+        <div className="flex flex-col items-center space-y-6 lg:hidden">
+          {/* Logo */}
+          <div className="flex items-center justify-center">
             <Image
               src="/blue-scorpion-venom-logo-h-white.png"
               alt="Blue Scorpion Logo"
               width={120}
               height={40}
-              className="h-8 w-auto lg:h-10"
+              className="h-8 w-auto"
             />
           </div>
 
-          {/* Right - Navigation */}
-          <div className="flex flex-col md:flex-row items-center justify-center lg:justify-end space-y-4 md:space-y-0 md:space-x-12 order-3">
-            {navItems.slice(2).map((item) => (
+          {/* Navigation Links */}
+          <div className="flex flex-col items-center space-y-4">
+            {navItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
@@ -71,35 +59,78 @@ export default function Footer() {
               </a>
             ))}
           </div>
+
+          {/* Social Links */}
+          <div className="flex items-center space-x-6">
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-white transition-colors"
+                aria-label={`Follow us on ${social.name}`}
+              >
+                {social.icon}
+              </a>
+            ))}
+          </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-8 pt-6 pb-4 border-t border-gray-800">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        {/* Desktop Layout */}
+        <div className="hidden lg:flex lg:items-center lg:justify-between">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Image
+              src="/blue-scorpion-venom-logo-h-white.png"
+              alt="Blue Scorpion Logo"
+              width={120}
+              height={40}
+              className="h-10 w-auto"
+            />
+          </div>
+
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-12">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-gray-400 hover:text-white transition-colors font-medium"
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+
+          {/* Social Links */}
+          <div className="flex items-center space-x-6">
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-white transition-colors"
+                aria-label={`Follow us on ${social.name}`}
+              >
+                {social.icon}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Disclaimers */}
+        <div className="mt-8 pt-6 pb-4 lg:pb-8 border-t border-gray-800">
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
             
             {/* Copyright */}
             <div className="text-gray-500 text-sm">
               © {new Date().getFullYear()} Blue Scorpion. All rights reserved.
             </div>
 
-            {/* Social Links */}
-            <div className="flex items-center space-x-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-white transition-colors"
-                  aria-label={`Follow us on ${social.name}`}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-
             {/* Disclaimer */}
-            <div className="text-gray-500 text-xs text-center md:text-right max-w-xs">
+            <div className="text-gray-500 text-xs text-center lg:text-right max-w-xs">
               *These statements have not been evaluated by the FDA.
             </div>
           </div>
