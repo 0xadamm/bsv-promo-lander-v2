@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Menu, X, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface NavItem {
   label: string;
@@ -20,12 +21,30 @@ const navItems: NavItem[] = [
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);
+  const [backgroundPosition, setBackgroundPosition] = useState("center bottom");
 
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      const scrollY = window.scrollY;
+      const heroHeight = window.innerHeight;
+      const navbarHeight = 80; // h-16 = 64px on mobile, h-20 = 80px on desktop
+
+      // Show hero background when navbar is about to leave hero section
+      const showBackground = scrollY > heroHeight - navbarHeight;
+      setIsScrolledPastHero(showBackground);
+
+      if (showBackground) {
+        // Calculate how much the hero should appear to have scrolled up
+        const scrollBeyondTrigger = scrollY - (heroHeight - navbarHeight);
+        const maxScroll = navbarHeight; // Hero can scroll up to navbar height
+        const scrollProgress = Math.min(scrollBeyondTrigger / maxScroll, 1);
+
+        // Position the background so it appears to scroll up from bottom
+        const yOffset = (1 - scrollProgress) * 100; // 100% to 0%
+        setBackgroundPosition(`center ${yOffset}%`);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -52,52 +71,89 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200"
-          : "bg-transparent"
+      className={`fixed top-[10px] left-[10px] right-[10px] z-50 transition-all duration-300 rounded-2xl lg:rounded-3xl overflow-hidden ${
+        isScrolledPastHero ? "backdrop-blur-md shadow-lg" : ""
       }`}
+      style={
+        isScrolledPastHero
+          ? {
+              backgroundImage: `url('/blue-scorpion-venom-hero.png')`,
+              backgroundSize: "cover",
+              backgroundPosition: backgroundPosition,
+              backgroundRepeat: "no-repeat",
+            }
+          : {}
+      }
     >
-      <div className="container-wide">
+      {/* Blue tint overlay - only when scrolled past hero */}
+      {isScrolledPastHero && (
+        <div className="absolute inset-0 bg-[#324785]/80" />
+      )}
+
+      <div className="container-wide relative z-10">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <div className="flex items-center">
-            <a
-              href="#"
-              className="text-xl lg:text-2xl font-bold text-brand-primary hover:text-brand-accent transition-colors"
-            >
-              Blue Scorpion
-            </a>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-gray-700 hover:text-brand-primary transition-colors font-medium relative group"
-              >
-                {item.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-primary transition-all duration-300 group-hover:w-full"></span>
-              </a>
-            ))}
-          </div>
-
-          {/* CTA Button and Mobile Menu Toggle */}
-          <div className="flex items-center space-x-4">
-            <button className="bg-brand-primary text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg hover:bg-brand-accent transition-all duration-300 transform hover:scale-105 flex items-center space-x-2 font-semibold">
-              <ShoppingBag size={18} />
-              <span>Shop Now</span>
-            </button>
-
+          {/* Left Side - Mobile Hamburger / Desktop Navigation */}
+          <div className="flex items-center justify-start w-24 lg:w-auto lg:flex-1">
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-2 rounded-lg transition-colors hover:bg-white/10 text-white"
               aria-label="Toggle mobile menu"
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-8">
+              {navItems.slice(0, 3).map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-white hover:text-white/80 transition-colors font-medium relative group"
+                >
+                  {item.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Center Logo */}
+          <div className="flex items-center justify-center flex-shrink-0">
+            <a
+              href="#"
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            >
+              <Image
+                src="/blue-scorpion-venom-logo-h-white.png"
+                alt="Blue Scorpion Logo"
+                width={120}
+                height={40}
+                className="h-8 w-auto lg:h-12"
+              />
+            </a>
+          </div>
+
+          {/* Right Side - CTA Button / Desktop Navigation */}
+          <div className="flex items-center justify-end w-24 lg:w-auto lg:flex-1 space-x-4">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-8">
+              {navItems.slice(3).map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-white hover:text-white/80 transition-colors font-medium relative group"
+                >
+                  {item.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
+                </a>
+              ))}
+            </div>
+
+            {/* CTA Button - Always visible */}
+            <button className="bg-[#324785] text-white px-3 py-1.5 lg:px-6 lg:py-3 rounded-lg hover:bg-[#2a3d70] transition-all duration-300 transform hover:scale-105 flex items-center justify-center font-semibold text-sm lg:text-base">
+              <ShoppingBag size={16} className="lg:w-[18px] lg:h-[18px]" />
+              <span className="hidden lg:inline lg:ml-2">Shop Now</span>
             </button>
           </div>
         </div>
@@ -122,17 +178,39 @@ export default function Navbar() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: "100%" }}
               transition={{ type: "tween", duration: 0.3 }}
-              className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 lg:hidden"
+              className="fixed top-0 right-0 h-full w-80 shadow-2xl z-50 lg:hidden overflow-hidden"
+              style={
+                isScrolledPastHero
+                  ? {
+                      backgroundImage: `url('/blue-scorpion-venom-hero.png')`,
+                      backgroundSize: "cover",
+                      backgroundPosition: backgroundPosition,
+                      backgroundRepeat: "no-repeat",
+                    }
+                  : {}
+              }
             >
-              <div className="p-6">
+              {/* Background overlay for mobile menu */}
+              <div
+                className={`absolute inset-0 ${
+                  isScrolledPastHero ? "bg-[#324785]/90" : "bg-[#324785]/95"
+                }`}
+              />
+              <div className="p-6 relative z-10">
                 {/* Mobile Menu Header */}
                 <div className="flex items-center justify-between mb-8">
-                  <div className="text-xl font-bold text-brand-primary">
-                    Blue Scorpion
+                  <div className="flex items-center space-x-2">
+                    <Image
+                      src="/blue-scorpion-venom-logo-h-white.png"
+                      alt="Blue Scorpion Logo"
+                      width={120}
+                      height={32}
+                      className="h-8 w-auto"
+                    />
                   </div>
                   <button
                     onClick={() => setIsMenuOpen(false)}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white"
                     aria-label="Close mobile menu"
                   >
                     <X size={24} />
@@ -149,7 +227,7 @@ export default function Navbar() {
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="block text-gray-700 hover:text-brand-primary transition-colors font-medium py-3 px-4 rounded-lg hover:bg-gray-50"
+                      className="block text-white hover:text-white/80 transition-colors font-medium py-3 px-4 rounded-lg hover:bg-white/10"
                     >
                       {item.label}
                     </motion.a>
@@ -157,22 +235,22 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile CTA */}
-                <div className="mt-8 pt-8 border-t border-gray-200">
+                <div className="mt-8 pt-8 border-t border-white/20">
                   <button className="w-full bg-brand-primary text-white py-3 rounded-lg hover:bg-brand-accent transition-all duration-300 flex items-center justify-center space-x-2 font-semibold">
                     <ShoppingBag size={18} />
-                    <span>Shop Now</span>
+                    <span>Order Now</span>
                   </button>
                 </div>
 
                 {/* Social Links */}
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div className="text-sm text-gray-500 mb-4">Follow Us</div>
+                <div className="mt-6 pt-6 border-t border-white/20">
+                  <div className="text-sm text-white/60 mb-4">Follow Us</div>
                   <div className="flex space-x-4">
                     <a
                       href="https://instagram.com/bluescorpion"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-400 hover:text-brand-primary transition-colors"
+                      className="text-white/60 hover:text-white transition-colors"
                     >
                       <svg
                         className="w-5 h-5"
@@ -186,7 +264,7 @@ export default function Navbar() {
                       href="https://facebook.com/bluescorpion"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-400 hover:text-brand-primary transition-colors"
+                      className="text-white/60 hover:text-white transition-colors"
                     >
                       <svg
                         className="w-5 h-5"
@@ -200,7 +278,7 @@ export default function Navbar() {
                       href="https://twitter.com/bluescorpion"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-400 hover:text-brand-primary transition-colors"
+                      className="text-white/60 hover:text-white transition-colors"
                     >
                       <svg
                         className="w-5 h-5"

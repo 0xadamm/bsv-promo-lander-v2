@@ -1,197 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Instagram,
-  ExternalLink,
-  Play,
-  Heart,
-  MessageCircle,
-  Send,
-  Bookmark,
-} from "lucide-react";
 import { instagramPosts } from "@/lib/data";
-
-interface InstagramPostProps {
-  post: {
-    id: string;
-    image: string;
-    url: string;
-    alt: string;
-  };
-  index: number;
-}
-
-function InstagramPost({ post, index }: InstagramPostProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Static engagement numbers to avoid hydration mismatch
-  const engagementData = [
-    { likes: 3247, comments: 156 },
-    { likes: 1892, comments: 87 },
-    { likes: 4521, comments: 203 },
-    { likes: 2156, comments: 142 },
-    { likes: 3891, comments: 178 },
-    { likes: 2743, comments: 91 },
-  ];
-
-  const { likes, comments } = engagementData[index] || engagementData[0];
-
-  // Determine if this should look like a video post
-  const isVideoPost = index % 3 === 0; // Every 3rd post looks like a video
-
-  return (
-    <div
-      className="group relative overflow-hidden rounded-xl bg-gray-100 aspect-[9/16] cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <a
-        href={post.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block w-full h-full relative"
-        aria-label={`View Instagram post: ${post.alt}`}
-      >
-        {/* Main Image */}
-        <img
-          src={post.image}
-          alt={post.alt}
-          onLoad={() => setIsLoaded(true)}
-          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
-            isLoaded ? "opacity-100" : "opacity-0"
-          }`}
-        />
-
-        {/* Loading placeholder */}
-        {!isLoaded && (
-          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-        )}
-
-        {/* Video overlay for video-style posts */}
-        {isVideoPost && (
-          <div className="absolute inset-0 bg-black/10">
-            {/* Play button overlay */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div
-                className={`
-                bg-black/50 backdrop-blur-sm rounded-full p-3 transform transition-all duration-300
-                ${isHovered ? "scale-110 bg-black/70" : "scale-100"}
-              `}
-              >
-                <Play
-                  size={24}
-                  className="text-white ml-0.5"
-                  fill="currentColor"
-                />
-              </div>
-            </div>
-
-            {/* Video duration badge */}
-            <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-              {[45, 72, 38, 91, 56, 63][index] || 45}s
-            </div>
-          </div>
-        )}
-
-        {/* Instagram Stories-style ring */}
-        <div className="absolute inset-0 rounded-xl">
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="w-full h-full bg-black rounded-xl"></div>
-          </div>
-        </div>
-
-        {/* Engagement overlay */}
-        <div
-          className={`
-          absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent
-          transition-opacity duration-300
-          ${isHovered ? "opacity-100" : "opacity-0"}
-        `}
-        >
-          {/* Top overlay with Instagram branding */}
-          <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 p-[2px]">
-                  <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">BS</span>
-                  </div>
-                </div>
-                <span className="text-white text-sm font-semibold">
-                  bluescorpion
-                </span>
-              </div>
-              <Instagram size={20} className="text-white" />
-            </div>
-          </div>
-
-          {/* Bottom overlay with engagement */}
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="space-y-3">
-              {/* Action buttons */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <Heart
-                    size={24}
-                    className="text-white hover:text-red-500 transition-colors"
-                  />
-                  <MessageCircle
-                    size={24}
-                    className="text-white hover:text-blue-400 transition-colors"
-                  />
-                  <Send
-                    size={24}
-                    className="text-white hover:text-blue-400 transition-colors"
-                  />
-                </div>
-                <Bookmark
-                  size={24}
-                  className="text-white hover:text-yellow-400 transition-colors"
-                />
-              </div>
-
-              {/* Engagement stats */}
-              <div className="space-y-1">
-                <div className="text-white text-sm font-semibold">
-                  {likes.toLocaleString()} likes
-                </div>
-                {comments > 0 && (
-                  <div className="text-gray-300 text-sm">
-                    View all {comments} comments
-                  </div>
-                )}
-              </div>
-
-              {/* Caption preview */}
-              <div className="text-white text-sm">
-                <span className="font-semibold">bluescorpion</span>{" "}
-                <span className="text-gray-200">
-                  {isVideoPost
-                    ? "End your pain with Blue Scorpion! ✨"
-                    : "Pain relief that works 💫"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* External link indicator */}
-        <div className="absolute top-3 left-3 bg-black/60 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <ExternalLink size={12} className="text-white" />
-        </div>
-
-        {/* Shimmer effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-      </a>
-    </div>
-  );
-}
+import InstagramCard from "./iglinks/InstagramCard";
 
 export default function InstagramLinks() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [unmutedVideoId, setUnmutedVideoId] = useState<string | null>(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -245,7 +61,11 @@ export default function InstagramLinks() {
           <div className="flex items-center justify-center space-x-2 text-brand-primary">
             <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-[2px]">
               <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
-                <Instagram size={14} className="text-brand-primary" />
+                <div className="w-3.5 h-3.5 text-brand-primary">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </div>
               </div>
             </div>
             <span className="font-semibold">@bluescorpion</span>
@@ -262,7 +82,12 @@ export default function InstagramLinks() {
         >
           {instagramPosts.map((post, index) => (
             <motion.div key={post.id} variants={itemVariants}>
-              <InstagramPost post={post} index={index} />
+              <InstagramCard 
+                post={post} 
+                index={index} 
+                unmutedVideoId={unmutedVideoId}
+                setUnmutedVideoId={setUnmutedVideoId}
+              />
             </motion.div>
           ))}
         </motion.div>
@@ -315,7 +140,11 @@ export default function InstagramLinks() {
             rel="noopener noreferrer"
             className="inline-flex items-center space-x-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
-            <Instagram size={24} />
+            <div className="w-6 h-6 text-white">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.40z"/>
+              </svg>
+            </div>
             <span>Follow @bluescorpion</span>
           </a>
         </motion.div>

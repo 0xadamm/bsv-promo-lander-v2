@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Play, Star, Calendar } from "lucide-react";
+import Image from "next/image";
 import { videoTestimonials } from "@/lib/data";
 
 interface TestimonialCardProps {
@@ -126,11 +127,15 @@ function TestimonialCard({
 
       {/* Profile Header */}
       <div className="flex items-start gap-3 mb-4">
-        <img
-          src={avatar}
-          alt={`${name} avatar`}
-          className="w-12 h-12 rounded-full object-cover border-2 border-gray-100"
-        />
+        <div className="relative w-12 h-12">
+          <Image
+            src={avatar}
+            alt={`${name} avatar`}
+            fill
+            className="rounded-full object-cover border-2 border-gray-100"
+            sizes="48px"
+          />
+        </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="font-semibold text-gray-900 text-sm truncate">

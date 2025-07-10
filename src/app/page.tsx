@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import InstagramLinks from "@/components/InstagramLinks";
 import WallOfLove from "@/components/WallOfLove";
@@ -9,26 +10,30 @@ export default function Home() {
     <main className="min-h-screen">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="pt-20 lg:pt-24 pb-16 lg:pb-24 bg-gradient-to-b from-brand-light to-white">
-        <div className="container-wide">
-          <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold text-brand-primary mb-6">
-              End Your Pain with{" "}
-              <span className="gradient-text">Blue Scorpion</span>
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-              Revolutionary pain & inflammation relief with scientifically
-              proven anti-inflammatory technology. Feel relief in just hours and
-              join thousands of pain-free customers.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-brand-primary text-white px-8 py-4 rounded-lg hover:bg-brand-accent transition-all duration-300 transform hover:scale-105 text-lg font-semibold">
-                Get Relief Now - $89.99
-              </button>
-              <button className="border-2 border-brand-primary text-brand-primary px-8 py-4 rounded-lg hover:bg-brand-primary hover:text-white transition-all duration-300 text-lg font-semibold">
-                Watch Stories
-              </button>
+      {/* Hero Section - Floating Screen */}
+      <section className="relative min-h-screen w-full flex items-center justify-center p-[10px]">
+        <div className="relative w-full h-[calc(100vh-20px)] rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl">
+          <Image
+            src="/blue-scorpion-venom-hero.png"
+            alt="Blue Scorpion Pain Relief Hero"
+            fill
+            priority
+            className="object-cover object-center"
+          />
+
+          {/* Color tint overlay */}
+          <div className="absolute inset-0 bg-[#324785]/70" />
+
+          {/* Hero Text */}
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="text-center px-6 lg:px-12">
+              <h1 className="text-2xl lg:text-4xl xl:text-5xl font-bold text-white mb-4">
+                See What Our Customers Say About Us
+              </h1>
+              <p className="text-lg lg:text-xl text-white/90 max-w-2xl mx-auto">
+                Real results from real people who trust Blue Scorpion for their
+                pain relief needs
+              </p>
             </div>
           </div>
         </div>
