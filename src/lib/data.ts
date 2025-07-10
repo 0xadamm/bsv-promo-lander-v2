@@ -65,37 +65,37 @@ export interface NewsArticle {
 export const instagramPosts: InstagramPost[] = [
   {
     id: "1",
-    image: "/images/instagram/post1.jpg",
+    image: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/cuttino-story-JSmbCvvyIyYb1EbudQ6X5yyfFznhdR.mp4",
     url: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/cuttino-story-JSmbCvvyIyYb1EbudQ6X5yyfFznhdR.mp4",
     alt: "Cuttino's Blue Scorpion pain relief testimonial video",
   },
   {
     id: "2",
-    image: "/images/instagram/post2.jpg",
+    image: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/isaiah-story-tYnbQYuSq5vxK43FwXEvYBpkSeykon.mp4",
     url: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/isaiah-story-tYnbQYuSq5vxK43FwXEvYBpkSeykon.mp4",
     alt: "Isaiah's Blue Scorpion pain relief testimonial video",
   },
   {
     id: "3",
-    image: "/images/instagram/post3.jpg",
+    image: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/lyneve-story-hA0mdhrCufvMIqoA4yPus8AiYggjdn.mp4",
     url: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/lyneve-story-hA0mdhrCufvMIqoA4yPus8AiYggjdn.mp4",
     alt: "Lyneve's Blue Scorpion pain relief testimonial video",
   },
   {
     id: "4",
-    image: "/images/instagram/post4.jpg",
+    image: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/bio-hack-story-wCVl1sxj3vxeeD2FZl1OOey2ARBDrY.mp4",
     url: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/bio-hack-story-wCVl1sxj3vxeeD2FZl1OOey2ARBDrY.mp4",
     alt: "Bio Hack's Blue Scorpion pain relief testimonial video",
   },
   {
     id: "5",
-    image: "/images/instagram/post5.jpg",
+    image: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/frankmir-story-QBbKFDxgVY7hzO6IRL3i6Jxl3aNR1t.mp4",
     url: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/frankmir-story-QBbKFDxgVY7hzO6IRL3i6Jxl3aNR1t.mp4",
     alt: "Frankmir's Blue Scorpion pain relief testimonial video",
   },
   {
     id: "6",
-    image: "/images/instagram/post6.jpg",
+    image: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/brendan-story-oIvJCeENmbxoZobbZKxjFrmF6uLyvs.mp4",
     url: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/brendan-story-oIvJCeENmbxoZobbZKxjFrmF6uLyvs.mp4",
     alt: "Brendan's Blue Scorpion pain relief testimonial video",
   },

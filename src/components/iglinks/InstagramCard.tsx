@@ -108,36 +108,43 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
         aria-label={`View Instagram post: ${post.alt}`}
         onClick={handleVideoClick}
       >
-        {/* Main Image */}
-        <Image
-          src={post.image}
-          alt={post.alt}
-          fill
-          onLoad={() => setIsLoaded(true)}
-          className={`object-cover transition-all duration-500 group-hover:scale-110 ${
-            isLoaded ? "opacity-100" : "opacity-0"
-          }`}
-          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
-        />
-
-        {/* Loading placeholder */}
-        {!isLoaded && (
-          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-        )}
-
         {/* Video element for posts with video URLs */}
-        {hasVideoUrl && (
+        {hasVideoUrl ? (
           <video
             ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover z-20"
+            className="absolute inset-0 w-full h-full object-cover"
             muted={isMuted}
             loop
             playsInline
+            preload="metadata"
+            poster=""
+            onLoadedData={() => setIsLoaded(true)}
+            onLoadedMetadata={() => setIsLoaded(true)}
+            onCanPlay={() => setIsLoaded(true)}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           >
             <source src={post.url} type="video/mp4" />
           </video>
+        ) : (
+          <>
+            {/* Main Image for non-video posts */}
+            <Image
+              src={post.image}
+              alt={post.alt}
+              fill
+              onLoad={() => setIsLoaded(true)}
+              className={`object-cover transition-all duration-500 group-hover:scale-110 ${
+                isLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+            />
+          </>
+        )}
+
+        {/* Loading placeholder */}
+        {!isLoaded && (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
         )}
 
         {/* Video overlay for ALL video posts */}
@@ -203,33 +210,8 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
             </div>
           </div>
 
-          {/* Bottom overlay with simplified content */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/40 to-transparent p-4">
-            <div className="space-y-3">
-              {/* Action buttons */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <Heart
-                    size={24}
-                    className="text-red-500 hover:text-red-400 transition-colors"
-                    fill="currentColor"
-                  />
-                  <MessageCircle
-                    size={24}
-                    className="text-white hover:text-blue-400 transition-colors"
-                  />
-                  <Send
-                    size={24}
-                    className="text-white hover:text-blue-400 transition-colors"
-                  />
-                </div>
-                <Bookmark
-                  size={24}
-                  className="text-white hover:text-yellow-400 transition-colors"
-                />
-              </div>
-
-            </div>
+          {/* Bottom overlay - simplified */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/20 to-transparent p-4">
           </div>
         </div>
 
