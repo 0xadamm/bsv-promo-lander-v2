@@ -284,15 +284,6 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
                 />
               </div>
 
-              {/* Engagement stats */}
-              <div className="space-y-1">
-                <div className="text-white text-sm font-semibold">
-                  {Math.floor(Math.random() * 1000 + 500)} likes
-                </div>
-                <div className="text-white text-xs opacity-75">
-                  View all {Math.floor(Math.random() * 50 + 10)} comments
-                </div>
-              </div>
             </div>
           </div>
         </div>
