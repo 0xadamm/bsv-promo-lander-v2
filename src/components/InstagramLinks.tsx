@@ -80,7 +80,7 @@ export default function InstagramLinks() {
           viewport={{ once: true }}
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6"
         >
-          {instagramPosts.map((post, index) => (
+          {instagramPosts.map((post) => (
             <motion.div key={post.id} variants={itemVariants}>
               <InstagramCard 
                 post={post} 
