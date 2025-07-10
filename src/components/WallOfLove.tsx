@@ -2,9 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Play, Star } from "lucide-react";
+import { Play, Star, VolumeX, Volume2 } from "lucide-react";
 import Image from "next/image";
-import { videoTestimonials } from "@/lib/data";
 
 interface StampedReview {
   id: string;
@@ -23,10 +22,8 @@ interface StampedReview {
 }
 
 function TestimonialCard({
-  thumbnailImage,
   name,
   avatar,
-  duration,
   videoUrl,
   isVideo = false,
   testimonialText,
@@ -36,16 +33,28 @@ function TestimonialCard({
   photos,
 }: StampedReview) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const handlePlayClick = () => {
-    if (videoRef.current && isVideo) {
+  const handleVideoClick = (e: React.MouseEvent) => {
+    if (isVideo && videoRef.current) {
+      e.preventDefault();
       if (isPlaying) {
         videoRef.current.pause();
       } else {
         videoRef.current.play();
       }
-      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleMuteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isVideo && videoRef.current) {
+      const newMutedState = !isMuted;
+      setIsMuted(newMutedState);
+      videoRef.current.muted = newMutedState;
     }
   };
 
@@ -105,13 +114,13 @@ function TestimonialCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
             <h3 className="font-bold text-gray-900 text-sm truncate">{name}</h3>
-            <span className="text-gray-500 text-sm">{date}</span>
+            {!isVideo && <span className="text-gray-500 text-sm">{date}</span>}
           </div>
         </div>
       </div>
 
-      {/* Rating Stars */}
-      {rating && (
+      {/* Rating Stars - Only show for non-video testimonials */}
+      {!isVideo && rating && (
         <div className="flex items-center gap-1 mb-2">
           {[...Array(5)].map((_, i) => (
             <Star
@@ -125,17 +134,19 @@ function TestimonialCard({
         </div>
       )}
 
-      {/* Review Title */}
-      {title && (
+      {/* Review Title - Don't show for video testimonials */}
+      {!isVideo && title && (
         <h4 className="font-semibold text-gray-900 text-sm mb-2">{title}</h4>
       )}
 
-      {/* Review Text */}
-      <div className="mb-3">
-        <p className="text-gray-900 text-sm leading-relaxed">
-          {testimonialText}
-        </p>
-      </div>
+      {/* Review Text - Only show if not a video or if there's text content */}
+      {!isVideo && testimonialText && (
+        <div className="mb-3">
+          <p className="text-gray-900 text-sm leading-relaxed">
+            {testimonialText}
+          </p>
+        </div>
+      )}
 
       {/* Review Photos */}
       {photos && photos.length > 0 && (
@@ -159,40 +170,51 @@ function TestimonialCard({
 
       {/* Video Section (if applicable) */}
       {isVideo && videoUrl && (
-        <div className="relative mb-3 rounded-xl overflow-hidden border border-gray-200">
+        <div 
+          className="relative mb-3 rounded-xl overflow-hidden border border-gray-200 cursor-pointer group"
+          onClick={handleVideoClick}
+        >
           <video
             ref={videoRef}
-            className="w-full h-48 object-cover"
-            poster={thumbnailImage}
+            className="w-full aspect-[9/16] object-cover"
+            muted={isMuted}
+            loop
+            playsInline
+            preload="metadata"
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
             onEnded={() => setIsPlaying(false)}
-            playsInline
-            muted
+            onLoadedData={() => setIsLoaded(true)}
           >
             <source src={videoUrl} type="video/mp4" />
           </video>
 
+          {/* Loading placeholder */}
+          {!isLoaded && (
+            <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-xl" />
+          )}
+
+          {/* Play button overlay - only show when not playing */}
           {!isPlaying && (
-            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-              <button
-                onClick={handlePlayClick}
-                className="bg-white/95 hover:bg-white rounded-full p-3 shadow-lg transition-all duration-200 transform hover:scale-110"
-              >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-16 h-16 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center transform transition-all duration-300 shadow-lg group-hover:scale-110 group-hover:bg-black/80">
                 <Play
                   size={20}
-                  className="text-gray-800 ml-0.5"
+                  className="text-white translate-x-0.5"
                   fill="currentColor"
                 />
-              </button>
+              </div>
             </div>
           )}
 
-          {duration && (
-            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-              {duration}
-            </div>
-          )}
+          {/* Mute button */}
+          <button
+            onClick={handleMuteClick}
+            className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white p-2 rounded-full hover:bg-black/80 transition-colors z-10"
+            aria-label={isMuted ? "Unmute video" : "Mute video"}
+          >
+            {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
         </div>
       )}
     </motion.div>
@@ -205,65 +227,73 @@ export default function WallOfLove() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch reviews from Stamped.io API
+  // Fetch reviews and videos
   useEffect(() => {
-    const fetchReviews = async () => {
+    const fetchReviewsAndVideos = async () => {
       try {
         setLoading(true);
-        console.log("WallOfLove: Starting to fetch reviews...");
+        console.log("WallOfLove: Starting to fetch reviews and videos...");
 
-        console.log("WallOfLove: Fetching reviews from Stamped API...");
-        
-        const response = await fetch("/api/reviews?type=recent&limit=20");
-        console.log("WallOfLove: API response status:", response.status);
+        let allTestimonials: StampedReview[] = [];
 
-        const data = await response.json();
-        console.log("WallOfLove: API response data:", data);
+        // Fetch videos first (they work reliably)
+        try {
+          const videosResponse = await fetch("/api/videos");
+          console.log("WallOfLove: Videos API response status:", videosResponse.status);
+          
+          if (videosResponse.ok) {
+            const videosData = await videosResponse.json();
+            console.log("WallOfLove: Videos data:", videosData);
+            
+            if (videosData.success) {
+              console.log("WallOfLove: Successfully got videos:", videosData.data.length, "videos");
+              allTestimonials = [...allTestimonials, ...videosData.data];
+            }
+          }
+        } catch (videoError) {
+          console.error("WallOfLove: Error fetching videos:", videoError);
+        }
 
-        if (data.success) {
-          console.log("WallOfLove: Successfully got reviews:", data.data);
-          setReviews(data.data);
-        } else {
-          console.error("WallOfLove: API returned error:", data.message);
-          throw new Error(data.message || "Failed to fetch reviews");
+        // Fetch reviews with timeout handling
+        try {
+          const reviewsResponse = await fetch("/api/reviews?type=recent&limit=57", {
+            signal: AbortSignal.timeout(65000) // 65 second timeout
+          });
+          console.log("WallOfLove: Reviews API response status:", reviewsResponse.status);
+          
+          if (reviewsResponse.ok) {
+            const reviewsData = await reviewsResponse.json();
+            console.log("WallOfLove: Reviews data:", reviewsData);
+            
+            if (reviewsData.success) {
+              console.log("WallOfLove: Successfully got reviews:", reviewsData.data.length, "reviews");
+              console.log("WallOfLove: First review:", reviewsData.data[0]);
+              allTestimonials = [...allTestimonials, ...reviewsData.data];
+            }
+          }
+        } catch (reviewError) {
+          console.error("WallOfLove: Error fetching reviews (continuing with videos only):", reviewError);
+        }
+
+        console.log("WallOfLove: Total testimonials before shuffle:", allTestimonials.length);
+
+        // Shuffle the combined testimonials for variety
+        const shuffledTestimonials = allTestimonials.sort(() => Math.random() - 0.5);
+        setReviews(shuffledTestimonials);
+
+        // Don't show error if we have videos, even if reviews failed
+        if (allTestimonials.length === 0) {
+          throw new Error("No testimonials found");
         }
       } catch (err) {
-        console.error("WallOfLove: Error fetching reviews:", err);
-        setError(err instanceof Error ? err.message : "Failed to load reviews");
-
-        // Fallback to mock data if API fails
-        console.log("WallOfLove: Using fallback reviews");
-        const fallbackReviews = videoTestimonials.map((testimonial, index) => ({
-          id: testimonial.id,
-          name: testimonial.name,
-          avatar: "",
-          testimonialText: [
-            "Just tried Blue Scorpion and WOW! My chronic back pain is completely gone. Felt relief in just hours and after 2 weeks I'm pain-free for the first time in years!",
-            "As an athlete in my 40s, I deal with constant joint pain. Blue Scorpion changed everything! My knees feel 20 years younger",
-            "The anti-inflammatory formula is pure magic. Friends keep asking how I'm so active again - Blue Scorpion gave me my life back!",
-            "I've tried countless pain relief products. Blue Scorpion is the only one that actually delivered lasting results. Incredible relief!",
-            "The fast absorption, long-lasting relief, amazing results - everything about Blue Scorpion is perfect. Worth every penny!",
-            "My doctor was amazed at my mobility improvement. Blue Scorpion is now a permanent part of my pain management routine",
-          ][index % 6],
-          date: ["2h", "4h", "1d", "2d", "3d", "5d"][index % 6],
-          rating: Math.random() > 0.3 ? 5 : 4,
-          title: [
-            "Life-changing results!",
-            "Finally found relief",
-            "Amazing product",
-            "Highly recommend",
-            "Game changer",
-            "Worth every penny",
-          ][index % 6],
-          verified: Math.random() > 0.5,
-        }));
-        setReviews(fallbackReviews);
+        console.error("WallOfLove: Error fetching testimonials:", err);
+        setError(err instanceof Error ? err.message : "Failed to load testimonials");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchReviews();
+    fetchReviewsAndVideos();
   }, []);
 
   const testimonials = reviews;

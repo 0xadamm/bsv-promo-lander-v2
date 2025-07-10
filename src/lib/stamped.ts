@@ -67,6 +67,7 @@ class StampedAPI {
     } = {}
   ): Promise<StampedApiResponse> {
     try {
+      const startTime = Date.now();
       const params = new URLSearchParams();
 
       if (options.page) params.append("page", options.page.toString());
@@ -85,14 +86,18 @@ class StampedAPI {
 
       console.log("Stamped API: Making request to:", url);
       console.log("Stamped API: With headers:", this.getAuthHeaders());
+      console.log("Stamped API: Request started at:", new Date().toISOString());
 
       const response = await fetch(url, {
         method: "GET",
         headers: this.getAuthHeaders(),
-        signal: AbortSignal.timeout(15000), // 15 second timeout
+        signal: AbortSignal.timeout(60000), // 60 second timeout
       });
 
+      const duration = Date.now() - startTime;
       console.log("Stamped API: Response status:", response.status);
+      console.log("Stamped API: Request completed in:", duration, "ms");
+      console.log("Stamped API: Response received at:", new Date().toISOString());
       console.log(
         "Stamped API: Response headers:",
         Object.fromEntries(response.headers.entries())
@@ -155,11 +160,20 @@ class StampedAPI {
   }
 
   // Get recent reviews
-  async getRecentReviews(limit: number = 20): Promise<StampedReview[]> {
+  async getRecentReviews(limit: number = 57): Promise<StampedReview[]> {
+    // Get all reviews without pagination (faster)
     const response = await this.getReviews({
       per_page: limit,
     });
+    console.log("Stamped API: Got reviews with", response.data.length, "reviews");
     return response.data;
+  }
+
+  // Get all reviews progressively (for background loading)
+  async getAllReviewsProgressive(): Promise<StampedReview[]> {
+    const allReviews = await this.getAllReviews();
+    console.log("Stamped API: Got all", allReviews.length, "total reviews");
+    return allReviews;
   }
 
   // Get all reviews (paginated)
@@ -168,20 +182,21 @@ class StampedAPI {
     let currentPage = 1;
     let hasMorePages = true;
 
-    while (hasMorePages) {
+    while (hasMorePages && currentPage <= 5) { // Limit to 5 pages for safety
       try {
+        console.log(`Stamped API: Fetching page ${currentPage}`);
         const response = await this.getReviews({
           page: currentPage,
-          per_page: 50, // Maximum per page
         });
 
+        console.log(`Stamped API: Page ${currentPage} returned ${response.data.length} reviews`);
         allReviews = [...allReviews, ...response.data];
 
-        if (response.pagination) {
-          hasMorePages = currentPage < response.pagination.total_pages;
-          currentPage++;
-        } else {
+        // Check if we got fewer than 20 reviews (indicating last page)
+        if (response.data.length < 20) {
           hasMorePages = false;
+        } else {
+          currentPage++;
         }
       } catch (error) {
         console.error(`Error fetching page ${currentPage}:`, error);
@@ -189,6 +204,7 @@ class StampedAPI {
       }
     }
 
+    console.log(`Stamped API: Total reviews collected: ${allReviews.length}`);
     return allReviews;
   }
 }

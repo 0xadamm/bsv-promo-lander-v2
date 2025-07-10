@@ -1,40 +1,16 @@
 import { NextResponse } from "next/server";
 import { stampedAPI } from "@/lib/stamped";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get("type") || "recent";
-    const limit = parseInt(searchParams.get("limit") || "20");
+    console.log("API Route: Fetching ALL reviews progressively...");
 
-    console.log(
-      "API Route: Fetching reviews with type:",
-      type,
-      "limit:",
-      limit
-    );
-
-    let reviews;
-
-    switch (type) {
-      case "featured":
-        reviews = await stampedAPI.getFeaturedReviews(limit);
-        break;
-      case "recent":
-      default:
-        reviews = await stampedAPI.getRecentReviews(limit);
-        break;
-    }
-
-    console.log("API Route: Raw reviews from Stamped:", reviews.length, "total reviews");
-    console.log("API Route: Rating breakdown:", reviews.map(r => r.rating));
+    const reviews = await stampedAPI.getAllReviewsProgressive();
+    console.log("API Route: Raw reviews from Stamped (all pages):", reviews);
 
     // Transform reviews to match our component interface and filter for 3+ stars
     const transformedReviews = reviews
-      .filter(review => {
-        console.log("Filtering review with rating:", review.rating);
-        return review.rating >= 3;
-      }) // Only show 3+ star reviews
+      .filter(review => review.rating >= 3) // Only show 3+ star reviews
       .map((review, index) => ({
         id: review.id?.toString() || `review-${index}`,
         name: review.author || "Anonymous",
@@ -48,20 +24,20 @@ export async function GET(request: Request) {
         isVideo: false, // Stamped doesn't typically have video reviews
       }));
 
-    console.log("API Route: Transformed reviews:", transformedReviews);
-    console.log("API Route: Rating distribution:", transformedReviews.map(r => r.rating));
+    console.log("API Route: Transformed ALL reviews:", transformedReviews.length);
+    console.log("API Route: Rating distribution (all):", transformedReviews.map(r => r.rating));
 
     return NextResponse.json({
       success: true,
       data: transformedReviews,
     });
   } catch (error) {
-    console.error("Error fetching Stamped reviews:", error);
+    console.error("Error fetching ALL Stamped reviews:", error);
 
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to fetch reviews",
+        error: "Failed to fetch all reviews",
         message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }

@@ -4,7 +4,6 @@ import InstagramLinks from "@/components/InstagramLinks";
 import WallOfLove from "@/components/WallOfLove";
 import BeforeAfterGallery from "@/components/BeforeAfterGallery";
 import StarReviews from "@/components/StarReviews";
-
 export default function Home() {
   return (
     <main className="min-h-screen">
