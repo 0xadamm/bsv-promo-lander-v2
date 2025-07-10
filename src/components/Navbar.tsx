@@ -13,6 +13,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Instagram", href: "#instagram" },
   { label: "Wall of Love", href: "#testimonials" },
+  { label: "Before & After", href: "#before-after" },
   { label: "Press & News", href: "#press-news" },
 ];
 
@@ -246,7 +247,7 @@ export default function Navbar() {
                   <div className="text-sm text-white/60 mb-4">Follow Us</div>
                   <div className="flex space-x-4">
                     <a
-                      href="https://instagram.com/bluescorpion"
+                      href="https://instagram.com/bluescorpionvenom"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-white/60 hover:text-white transition-colors"
@@ -260,7 +261,7 @@ export default function Navbar() {
                       </svg>
                     </a>
                     <a
-                      href="https://facebook.com/bluescorpion"
+                      href="https://facebook.com/bluescorpionvenom"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-white/60 hover:text-white transition-colors"

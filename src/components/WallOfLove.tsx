@@ -186,7 +186,6 @@ function TestimonialCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
             <h3 className="font-bold text-gray-900 text-sm truncate">{name}</h3>
-            {!isVideo && <span className="text-gray-500 text-sm">{date}</span>}
           </div>
         </div>
       </div>

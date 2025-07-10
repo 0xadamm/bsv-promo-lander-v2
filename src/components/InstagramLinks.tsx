@@ -101,7 +101,7 @@ export default function InstagramLinks() {
           className="text-center mt-12"
         >
           <a
-            href="https://instagram.com/bluescorpion"
+            href="https://instagram.com/bluescorpionvenom"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center space-x-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
