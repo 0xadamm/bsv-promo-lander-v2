@@ -22,12 +22,11 @@ interface InstagramPost {
 
 interface InstagramCardProps {
   post: InstagramPost;
-  index: number;
   unmutedVideoId: string | null;
   setUnmutedVideoId: (id: string | null) => void;
 }
 
-export default function InstagramCard({ post, index, unmutedVideoId, setUnmutedVideoId }: InstagramCardProps) {
+export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId }: InstagramCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -47,14 +46,14 @@ export default function InstagramCard({ post, index, unmutedVideoId, setUnmutedV
   }, [isMuted, hasVideoUrl]);
 
   // Static engagement numbers to avoid hydration mismatch
-  const engagementData = [
-    { likes: 3247, comments: 156 },
-    { likes: 1892, comments: 87 },
-    { likes: 4521, comments: 203 },
-    { likes: 2156, comments: 142 },
-    { likes: 3891, comments: 178 },
-    { likes: 2743, comments: 91 },
-  ];
+  // const engagementData = [
+  //   { likes: 3247, comments: 156 },
+  //   { likes: 1892, comments: 87 },
+  //   { likes: 4521, comments: 203 },
+  //   { likes: 2156, comments: 142 },
+  //   { likes: 3891, comments: 178 },
+  //   { likes: 2743, comments: 91 },
+  // ];
 
   // const { likes, comments } = engagementData[index] || engagementData[0];
   

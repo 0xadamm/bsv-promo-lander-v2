@@ -84,7 +84,6 @@ export default function InstagramLinks() {
             <motion.div key={post.id} variants={itemVariants}>
               <InstagramCard 
                 post={post} 
-                index={index} 
                 unmutedVideoId={unmutedVideoId}
                 setUnmutedVideoId={setUnmutedVideoId}
               />
