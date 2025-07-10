@@ -38,36 +38,72 @@ function TestimonialCard({
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Force video to load metadata and seek to first frame on mobile
+  // Enhanced video loading with multiple fallback strategies
   useEffect(() => {
     if (videoRef.current && isVideo && videoUrl && !isLoaded) {
       const video = videoRef.current;
+      let timeoutId: NodeJS.Timeout;
       
       const handleLoadedMetadata = () => {
-        // Seek to first frame (0.1 seconds) to ensure thumbnail shows
+        // Multiple seek attempts for better compatibility
         video.currentTime = 0.1;
-        setIsLoaded(true);
+        
+        // Fallback timeout if seeking fails
+        timeoutId = setTimeout(() => {
+          video.currentTime = 0.01;
+          setTimeout(() => {
+            setIsLoaded(true);
+          }, 100);
+        }, 500);
       };
 
       const handleSeeked = () => {
+        clearTimeout(timeoutId);
         setIsLoaded(true);
       };
 
+      const handleCanPlay = () => {
+        if (!isLoaded) {
+          setIsLoaded(true);
+        }
+      };
+
+      const handleLoadedData = () => {
+        if (!isLoaded) {
+          setIsLoaded(true);
+        }
+      };
+
       const handleError = () => {
+        clearTimeout(timeoutId);
         setVideoError(true);
         setIsLoaded(true);
       };
 
+      // Add multiple event listeners for better compatibility
       video.addEventListener('loadedmetadata', handleLoadedMetadata);
       video.addEventListener('seeked', handleSeeked);
+      video.addEventListener('canplay', handleCanPlay);
+      video.addEventListener('loadeddata', handleLoadedData);
       video.addEventListener('error', handleError);
 
-      // Force load
+      // Force load with timeout fallback
       video.load();
+      
+      // Fallback timeout in case nothing works
+      const fallbackTimeout = setTimeout(() => {
+        if (!isLoaded) {
+          setIsLoaded(true);
+        }
+      }, 3000);
 
       return () => {
+        clearTimeout(timeoutId);
+        clearTimeout(fallbackTimeout);
         video.removeEventListener('loadedmetadata', handleLoadedMetadata);
         video.removeEventListener('seeked', handleSeeked);
+        video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('loadeddata', handleLoadedData);
         video.removeEventListener('error', handleError);
       };
     }
@@ -219,13 +255,24 @@ function TestimonialCard({
             preload="metadata"
             poster=""
             webkit-playsinline="true"
+            x-webkit-airplay="allow"
+            controlsList="nodownload nofullscreen noremoteplaybook"
+            disablePictureInPicture
+            autoPlay={false}
             controls={false}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
             onEnded={() => setIsPlaying(false)}
             onError={() => setVideoError(true)}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
           >
             <source src={videoUrl} type="video/mp4" />
+            <source src={videoUrl} type="video/webm" />
+            <source src={videoUrl} type="video/ogg" />
           </video>
 
           {/* Loading placeholder */}
