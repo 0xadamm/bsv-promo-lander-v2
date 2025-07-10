@@ -5,7 +5,6 @@ import Image from "next/image";
 const navItems = [
   { label: "Instagram", href: "#instagram" },
   { label: "Wall of Love", href: "#testimonials" },
-  { label: "Reviews", href: "#reviews" },
   { label: "Press & News", href: "#press-news" },
 ];
 
@@ -34,21 +33,10 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 pt-8 lg:pt-12">
       <div className="container-wide py-8 lg:py-12 pb-12 lg:pb-16">
-        <div className="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0">
+        <div className="flex flex-col lg:grid lg:grid-cols-3 items-center gap-6 lg:gap-0">
           
-          {/* Mobile First - Logo */}
-          <div className="flex-shrink-0 flex items-center order-1 lg:order-2">
-            <Image
-              src="/blue-scorpion-venom-logo-h-white.png"
-              alt="Blue Scorpion Logo"
-              width={120}
-              height={40}
-              className="h-8 w-auto lg:h-10"
-            />
-          </div>
-
           {/* Left - Navigation Links */}
-          <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8 order-2 lg:order-1">
+          <div className="flex flex-col md:flex-row items-center justify-center lg:justify-start space-y-4 md:space-y-0 md:space-x-12 order-2 lg:order-1">
             {navItems.slice(0, 2).map((item) => (
               <a
                 key={item.href}
@@ -60,8 +48,19 @@ export default function Footer() {
             ))}
           </div>
 
+          {/* Center - Logo */}
+          <div className="flex items-center justify-center order-1 lg:order-2">
+            <Image
+              src="/blue-scorpion-venom-logo-h-white.png"
+              alt="Blue Scorpion Logo"
+              width={120}
+              height={40}
+              className="h-8 w-auto lg:h-10"
+            />
+          </div>
+
           {/* Right - Navigation */}
-          <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8 order-3">
+          <div className="flex flex-col md:flex-row items-center justify-center lg:justify-end space-y-4 md:space-y-0 md:space-x-12 order-3">
             {navItems.slice(2).map((item) => (
               <a
                 key={item.href}

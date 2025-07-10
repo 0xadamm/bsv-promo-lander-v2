@@ -13,7 +13,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Instagram", href: "#instagram" },
   { label: "Wall of Love", href: "#testimonials" },
-  { label: "Reviews", href: "#reviews" },
   { label: "Press & News", href: "#press-news" },
 ];
 
@@ -92,7 +91,7 @@ export default function Navbar() {
       <div className="container-wide relative z-10">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Left Side - Mobile Hamburger / Desktop Navigation */}
-          <div className="flex items-center justify-start w-24 lg:w-auto lg:flex-1">
+          <div className="flex items-center justify-start w-24 lg:w-auto lg:flex-1 lg:justify-center">
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -103,7 +102,7 @@ export default function Navbar() {
             </button>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-12">
               {navItems.slice(0, 2).map((item) => (
                 <a
                   key={item.href}
@@ -134,9 +133,9 @@ export default function Navbar() {
           </div>
 
           {/* Right Side - CTA Button / Desktop Navigation */}
-          <div className="flex items-center justify-end w-24 lg:w-auto lg:flex-1 space-x-4">
+          <div className="flex items-center justify-end w-24 lg:w-auto lg:flex-1 lg:justify-center space-x-4">
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-12">
               {navItems.slice(2).map((item) => (
                 <a
                   key={item.href}
