@@ -126,8 +126,8 @@ class StampedAPI {
           body: item.review?.body || "",
           author: item.review?.author || item.customer?.name || "Anonymous",
           created_at: item.review?.created_at || new Date().toISOString(),
-          verified: item.review?.verifiedType === 2,
-          photos: item.review?.mediaList || [],
+          verified: item.review?.verified || false,
+          photos: item.review?.photos || [],
         }));
       } else if (data.data && Array.isArray(data.data)) {
         reviewsData = data.data;
