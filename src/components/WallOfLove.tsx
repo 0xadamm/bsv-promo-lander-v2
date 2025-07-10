@@ -317,7 +317,7 @@ export default function WallOfLove() {
             Wall of Love
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            See what our customers are saying about us on 𝕏
+            See what our customers are saying about us
           </p>
           <a
             href="#order"
@@ -356,40 +356,7 @@ export default function WallOfLove() {
           </div>
         )}
 
-        {/* Load More Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
-          className="text-center mt-12"
-        >
-          <button className="bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200">
-            Load more posts
-          </button>
-        </motion.div>
 
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mt-16 pt-8 border-t border-gray-200"
-        >
-          <a
-            href="https://bluescorpion.com"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-brand-primary transition-colors duration-200"
-          >
-            <div className="w-6 h-6 bg-brand-primary rounded flex items-center justify-center">
-              <span className="text-white text-xs font-bold">B</span>
-            </div>
-            <span className="font-semibold">
-              Collect testimonials with Blue Scorpion
-            </span>
-            →
-          </a>
-        </motion.div>
       </div>
     </section>
   );

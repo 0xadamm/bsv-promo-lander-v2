@@ -57,9 +57,6 @@ export default function InstagramCard({ post, index, unmutedVideoId, setUnmutedV
   ];
 
   const { likes, comments } = engagementData[index] || engagementData[0];
-
-  // Determine if this should look like a video post
-  const isVideoPost = index % 3 === 0; // Every 3rd post looks like a video
   
   const handleVideoClick = (e: React.MouseEvent) => {
     if (hasVideoUrl) {

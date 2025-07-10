@@ -31,10 +31,8 @@ export async function GET(request: Request) {
 
     // Transform reviews to match our component interface and filter for 3+ stars
     const transformedReviews = reviews
-      .filter(review => {
-        console.log("Filtering review with rating:", review.rating);
-        return review.rating >= 3;
-      }) // Only show 3+ star reviews
+      .filter(review => review.rating >= 3) // Only show 3+ star reviews
+      .filter(review => review.author !== "John Herbert") // Exclude John Herbert reviews
       .map((review, index) => ({
         id: review.id?.toString() || `review-${index}`,
         name: review.author || "Anonymous",

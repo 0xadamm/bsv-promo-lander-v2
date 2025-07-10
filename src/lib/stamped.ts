@@ -119,7 +119,7 @@ class StampedAPI {
       
       if (data.results && Array.isArray(data.results)) {
         // Extract reviews from the results array
-        reviewsData = data.results.map((item: { review: any; customer: any }) => ({
+        reviewsData = data.results.map((item: { review: StampedReview; customer: { name?: string } }) => ({
           id: item.review?.id,
           rating: item.review?.rating,
           title: item.review?.title || "",

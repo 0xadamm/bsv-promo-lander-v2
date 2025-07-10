@@ -3,7 +3,8 @@ import Navbar from "@/components/Navbar";
 import InstagramLinks from "@/components/InstagramLinks";
 import WallOfLove from "@/components/WallOfLove";
 import BeforeAfterGallery from "@/components/BeforeAfterGallery";
-import StarReviews from "@/components/StarReviews";
+import PressNews from "@/components/PressNews";
+import Footer from "@/components/Footer";
 export default function Home() {
   return (
     <main className="min-h-screen">
@@ -42,19 +43,10 @@ export default function Home() {
       <InstagramLinks />
       <WallOfLove />
       <BeforeAfterGallery />
-      <StarReviews />
+      <PressNews />
 
-      {/* Temporary placeholder for remaining sections */}
-      <section className="py-16 bg-gray-50 text-center">
-        <div className="container-wide">
-          <h2 className="text-2xl font-bold text-gray-600 mb-4">
-            More sections coming soon...
-          </h2>
-          <p className="text-gray-500">
-            5-Star Reviews • Press Features • News Articles • Footer
-          </p>
-        </div>
-      </section>
+      {/* Footer */}
+      <Footer />
     </main>
   );
 }

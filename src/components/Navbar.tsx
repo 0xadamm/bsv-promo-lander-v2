@@ -12,11 +12,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Instagram", href: "#instagram" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "Before & After", href: "#before-after" },
+  { label: "Wall of Love", href: "#testimonials" },
   { label: "Reviews", href: "#reviews" },
-  { label: "Press", href: "#press" },
-  { label: "News", href: "#news" },
+  { label: "Press & News", href: "#press-news" },
 ];
 
 export default function Navbar() {
@@ -70,6 +68,7 @@ export default function Navbar() {
   }, [isMenuOpen]);
 
   return (
+    <>
     <nav
       className={`fixed top-[10px] left-[10px] right-[10px] z-50 transition-all duration-300 rounded-2xl lg:rounded-3xl overflow-hidden ${
         isScrolledPastHero ? "backdrop-blur-md shadow-lg" : ""
@@ -105,7 +104,7 @@ export default function Navbar() {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
-              {navItems.slice(0, 3).map((item) => (
+              {navItems.slice(0, 2).map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
@@ -138,7 +137,7 @@ export default function Navbar() {
           <div className="flex items-center justify-end w-24 lg:w-auto lg:flex-1 space-x-4">
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
-              {navItems.slice(3).map((item) => (
+              {navItems.slice(2).map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
@@ -151,13 +150,14 @@ export default function Navbar() {
             </div>
 
             {/* CTA Button - Always visible */}
-            <button className="bg-[#324785] text-white px-3 py-1.5 lg:px-6 lg:py-3 rounded-lg hover:bg-[#2a3d70] transition-all duration-300 transform hover:scale-105 flex items-center justify-center font-semibold text-sm lg:text-base">
+            <a href="https://bluescorpion.com/products/pain-and-inflammation-relief" className="bg-[#324785] text-white px-3 py-1.5 lg:px-6 lg:py-3 rounded-lg hover:bg-[#2a3d70] transition-all duration-300 transform hover:scale-105 flex items-center justify-center font-semibold text-sm lg:text-base">
               <ShoppingBag size={16} className="lg:w-[18px] lg:h-[18px]" />
               <span className="hidden lg:inline lg:ml-2">Shop Now</span>
-            </button>
+            </a>
           </div>
         </div>
       </div>
+    </nav>
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
@@ -178,7 +178,7 @@ export default function Navbar() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: "100%" }}
               transition={{ type: "tween", duration: 0.3 }}
-              className="fixed top-0 right-0 h-full w-80 shadow-2xl z-50 lg:hidden overflow-hidden"
+              className="fixed top-0 right-0 h-full w-80 shadow-2xl z-[60] lg:hidden overflow-hidden"
               style={
                 isScrolledPastHero
                   ? {
@@ -236,10 +236,10 @@ export default function Navbar() {
 
                 {/* Mobile CTA */}
                 <div className="mt-8 pt-8 border-t border-white/20">
-                  <button className="w-full bg-brand-primary text-white py-3 rounded-lg hover:bg-brand-accent transition-all duration-300 flex items-center justify-center space-x-2 font-semibold">
+                  <a href="https://bluescorpion.com/products/pain-and-inflammation-relief" className="w-full bg-brand-primary text-white py-3 rounded-lg hover:bg-brand-accent transition-all duration-300 flex items-center justify-center space-x-2 font-semibold">
                     <ShoppingBag size={18} />
                     <span>Order Now</span>
-                  </button>
+                  </a>
                 </div>
 
                 {/* Social Links */}
@@ -295,6 +295,6 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 }
