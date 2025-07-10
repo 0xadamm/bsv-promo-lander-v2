@@ -27,11 +27,10 @@ function TestimonialCard({
   videoUrl,
   isVideo = false,
   testimonialText,
-  date,
   rating,
   title,
   photos,
-}: StampedReview) {
+}: Omit<StampedReview, 'date'>) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
