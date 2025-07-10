@@ -26,6 +26,7 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
   const [isHovered, setIsHovered] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   
   // Check if this post has a video URL (mp4)
@@ -40,6 +41,41 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
       videoRef.current.muted = isMuted;
     }
   }, [isMuted, hasVideoUrl]);
+
+  // Force video to load metadata and seek to first frame on mobile
+  useEffect(() => {
+    if (videoRef.current && hasVideoUrl && !isLoaded) {
+      const video = videoRef.current;
+      
+      const handleLoadedMetadata = () => {
+        // Seek to first frame (0.1 seconds) to ensure thumbnail shows
+        video.currentTime = 0.1;
+        setIsLoaded(true);
+      };
+
+      const handleSeeked = () => {
+        setIsLoaded(true);
+      };
+
+      const handleError = () => {
+        setVideoError(true);
+        setIsLoaded(true);
+      };
+
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      video.addEventListener('seeked', handleSeeked);
+      video.addEventListener('error', handleError);
+
+      // Force load
+      video.load();
+
+      return () => {
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        video.removeEventListener('seeked', handleSeeked);
+        video.removeEventListener('error', handleError);
+      };
+    }
+  }, [hasVideoUrl, isLoaded]);
 
   // Static engagement numbers to avoid hydration mismatch
   // const engagementData = [
@@ -114,11 +150,11 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
             playsInline
             preload="metadata"
             poster=""
-            onLoadedData={() => setIsLoaded(true)}
-            onLoadedMetadata={() => setIsLoaded(true)}
-            onCanPlay={() => setIsLoaded(true)}
+            webkit-playsinline="true"
+            controls={false}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
+            onError={() => setVideoError(true)}
           >
             <source src={post.url} type="video/mp4" />
           </video>
@@ -140,7 +176,19 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
 
         {/* Loading placeholder */}
         {!isLoaded && (
-          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+          <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+            <div className="text-gray-500 text-sm">Loading...</div>
+          </div>
+        )}
+
+        {/* Error fallback */}
+        {videoError && hasVideoUrl && (
+          <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+            <div className="text-white text-center">
+              <Play size={48} className="mx-auto mb-2 opacity-50" />
+              <div className="text-sm opacity-75">Video Preview</div>
+            </div>
+          </div>
         )}
 
         {/* Video overlay for ALL video posts */}
