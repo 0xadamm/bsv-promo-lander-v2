@@ -4,6 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import {
   ExternalLink,
   Play,
+  Heart,
+  MessageCircle,
+  Send,
+  Bookmark,
   VolumeX,
   Volume2,
 } from "lucide-react";
@@ -254,8 +258,42 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
             </div>
           </div>
 
-          {/* Bottom overlay - simplified */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/20 to-transparent p-4">
+          {/* Bottom overlay with Instagram engagement */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/40 to-transparent p-4">
+            <div className="space-y-3">
+              {/* Action buttons */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Heart
+                    size={24}
+                    className="text-red-500 hover:text-red-400 transition-colors"
+                    fill="currentColor"
+                  />
+                  <MessageCircle
+                    size={24}
+                    className="text-white hover:text-blue-400 transition-colors"
+                  />
+                  <Send
+                    size={24}
+                    className="text-white hover:text-blue-400 transition-colors"
+                  />
+                </div>
+                <Bookmark
+                  size={24}
+                  className="text-white hover:text-yellow-400 transition-colors"
+                />
+              </div>
+
+              {/* Engagement stats */}
+              <div className="space-y-1">
+                <div className="text-white text-sm font-semibold">
+                  {Math.floor(Math.random() * 1000 + 500)} likes
+                </div>
+                <div className="text-white text-xs opacity-75">
+                  View all {Math.floor(Math.random() * 50 + 10)} comments
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

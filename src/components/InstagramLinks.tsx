@@ -91,39 +91,6 @@ export default function InstagramLinks() {
           ))}
         </motion.div>
 
-        {/* Instagram-style Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-8 mt-16 pt-12 border-t border-gray-200 text-center"
-        >
-          <div className="flex flex-col items-center">
-            <div className="text-2xl lg:text-3xl font-bold text-brand-primary mb-2">
-              50K+
-            </div>
-            <div className="text-sm text-gray-600">Followers</div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-2xl lg:text-3xl font-bold text-brand-primary mb-2">
-              2.1M
-            </div>
-            <div className="text-sm text-gray-600">Total Likes</div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-2xl lg:text-3xl font-bold text-brand-primary mb-2">
-              1.2K
-            </div>
-            <div className="text-sm text-gray-600">Posts</div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-2xl lg:text-3xl font-bold text-brand-primary mb-2">
-              95%
-            </div>
-            <div className="text-sm text-gray-600">Engagement</div>
-          </div>
-        </motion.div>
 
         {/* Follow Button */}
         <motion.div
