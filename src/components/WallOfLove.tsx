@@ -35,7 +35,43 @@ function TestimonialCard({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Force video to load metadata and seek to first frame on mobile
+  useEffect(() => {
+    if (videoRef.current && isVideo && videoUrl && !isLoaded) {
+      const video = videoRef.current;
+      
+      const handleLoadedMetadata = () => {
+        // Seek to first frame (0.1 seconds) to ensure thumbnail shows
+        video.currentTime = 0.1;
+        setIsLoaded(true);
+      };
+
+      const handleSeeked = () => {
+        setIsLoaded(true);
+      };
+
+      const handleError = () => {
+        setVideoError(true);
+        setIsLoaded(true);
+      };
+
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      video.addEventListener('seeked', handleSeeked);
+      video.addEventListener('error', handleError);
+
+      // Force load
+      video.load();
+
+      return () => {
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        video.removeEventListener('seeked', handleSeeked);
+        video.removeEventListener('error', handleError);
+      };
+    }
+  }, [isVideo, videoUrl, isLoaded]);
 
   const handleVideoClick = (e: React.MouseEvent) => {
     if (isVideo && videoRef.current) {
@@ -181,17 +217,32 @@ function TestimonialCard({
             loop
             playsInline
             preload="metadata"
+            poster=""
+            webkit-playsinline="true"
+            controls={false}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
             onEnded={() => setIsPlaying(false)}
-            onLoadedData={() => setIsLoaded(true)}
+            onError={() => setVideoError(true)}
           >
             <source src={videoUrl} type="video/mp4" />
           </video>
 
           {/* Loading placeholder */}
           {!isLoaded && (
-            <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-xl" />
+            <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-xl flex items-center justify-center">
+              <div className="text-gray-500 text-sm">Loading...</div>
+            </div>
+          )}
+
+          {/* Error fallback */}
+          {videoError && (
+            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center rounded-xl">
+              <div className="text-white text-center">
+                <Play size={48} className="mx-auto mb-2 opacity-50" />
+                <div className="text-sm opacity-75">Video Preview</div>
+              </div>
+            </div>
           )}
 
           {/* Play button overlay - only show when not playing */}
