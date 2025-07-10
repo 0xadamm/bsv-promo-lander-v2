@@ -56,7 +56,7 @@ export default function InstagramCard({ post, index, unmutedVideoId, setUnmutedV
     { likes: 2743, comments: 91 },
   ];
 
-  const { likes, comments } = engagementData[index] || engagementData[0];
+  // const { likes, comments } = engagementData[index] || engagementData[0];
   
   const handleVideoClick = (e: React.MouseEvent) => {
     if (hasVideoUrl) {

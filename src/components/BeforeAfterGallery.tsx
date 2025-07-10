@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { beforeAfterPairs } from "@/lib/data";
+import Image from "next/image";
 
 interface BeforeAfterSliderProps {
   beforeImage: string;
@@ -17,7 +18,6 @@ function BeforeAfterSlider({
   afterImage,
   beforeAlt,
   afterAlt,
-  caption,
 }: BeforeAfterSliderProps) {
   return (
     <div className="relative">
@@ -27,10 +27,12 @@ function BeforeAfterSlider({
           {/* Before Image */}
           <div className="relative group">
             <div className="aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-              <img
+              <Image
                 src={beforeImage}
                 alt={beforeAlt}
-                className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                fill
+                className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
             </div>
@@ -44,10 +46,12 @@ function BeforeAfterSlider({
           {/* After Image */}
           <div className="relative group">
             <div className="aspect-[4/5] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-              <img
+              <Image
                 src={afterImage}
                 alt={afterAlt}
-                className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                fill
+                className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
             </div>

@@ -1,8 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
 
 const navItems = [
   { label: "Instagram", href: "#instagram" },
