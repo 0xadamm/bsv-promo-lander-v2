@@ -4,10 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import {
   ExternalLink,
   Play,
-  Heart,
-  MessageCircle,
-  Send,
-  Bookmark,
   VolumeX,
   Volume2,
 } from "lucide-react";
