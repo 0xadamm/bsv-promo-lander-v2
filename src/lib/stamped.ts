@@ -1,0 +1,197 @@
+// Stamped.io Direct API integration
+export interface StampedReview {
+  id: string;
+  rating: number;
+  title: string;
+  body: string;
+  author: string;
+  created_at: string;
+  verified: boolean;
+  photos?: string[];
+  product_id?: string;
+  helpful_count?: number;
+}
+
+export interface StampedApiResponse {
+  data: StampedReview[];
+  pagination?: {
+    page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+class StampedAPI {
+  private storeHash: string;
+  private username: string;
+  private password: string;
+  private baseURL: string;
+
+  constructor() {
+    this.storeHash = process.env.STAMPED_STORE_HASH || "288102";
+    this.username =
+      process.env.STAMPED_USERNAME || "dd1a92af-eee0-4adf-93c4-753b07b35efe";
+    this.password =
+      process.env.STAMPED_PASSWORD ||
+      "51664fd6bcc3c6b5ca6a7f7593ce5fea0002084643ea29b0b3a50bfd6c77c0da";
+    this.baseURL = "https://stamped.io/api/v2";
+
+    if (!this.storeHash || !this.username || !this.password) {
+      throw new Error(
+        "Stamped.io credentials are required: STAMPED_STORE_HASH, STAMPED_USERNAME, STAMPED_PASSWORD"
+      );
+    }
+  }
+
+  // Generate basic auth headers
+  private getAuthHeaders(): Record<string, string> {
+    const credentials = Buffer.from(
+      `${this.username}:${this.password}`
+    ).toString("base64");
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${credentials}`,
+    };
+  }
+
+  // Fetch reviews using direct API calls
+  async getReviews(
+    options: {
+      page?: number;
+      per_page?: number;
+      rating?: number;
+      verified?: boolean;
+      with_photos?: boolean;
+      product_id?: string;
+    } = {}
+  ): Promise<StampedApiResponse> {
+    try {
+      const params = new URLSearchParams();
+
+      if (options.page) params.append("page", options.page.toString());
+      if (options.per_page)
+        params.append("per_page", options.per_page.toString());
+      if (options.rating) params.append("rating", options.rating.toString());
+      if (options.verified !== undefined)
+        params.append("verified", options.verified.toString());
+      if (options.with_photos !== undefined)
+        params.append("with_photos", options.with_photos.toString());
+      if (options.product_id) params.append("product_id", options.product_id);
+
+      const url = `${this.baseURL}/${
+        this.storeHash
+      }/dashboard/reviews?${params.toString()}`;
+
+      console.log("Stamped API: Making request to:", url);
+      console.log("Stamped API: With headers:", this.getAuthHeaders());
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+        signal: AbortSignal.timeout(15000), // 15 second timeout
+      });
+
+      console.log("Stamped API: Response status:", response.status);
+      console.log(
+        "Stamped API: Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Stamped API: Error response:", errorText);
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
+      }
+
+      const data = await response.json();
+      console.log("Stamped API: Raw response data:", data);
+
+      // Handle different response structures from Stamped API
+      let reviewsData = [];
+      
+      if (data.results && Array.isArray(data.results)) {
+        // Extract reviews from the results array
+        reviewsData = data.results.map((item: { review: any; customer: any }) => ({
+          id: item.review?.id,
+          rating: item.review?.rating,
+          title: item.review?.title || "",
+          body: item.review?.body || "",
+          author: item.review?.author || item.customer?.name || "Anonymous",
+          created_at: item.review?.dateCreated || item.review?.dateAdded,
+          verified: item.review?.verifiedType === 2,
+          photos: item.review?.mediaList || [],
+        }));
+      } else if (data.data && Array.isArray(data.data)) {
+        reviewsData = data.data;
+      } else if (Array.isArray(data)) {
+        reviewsData = data;
+      }
+
+      return {
+        data: reviewsData,
+        pagination: data.pagination || undefined,
+      };
+    } catch (error) {
+      console.error("Stamped API error:", error);
+      throw new Error(
+        `Failed to fetch reviews: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
+
+  // Get featured reviews (typically high-rated with photos)
+  async getFeaturedReviews(limit: number = 12): Promise<StampedReview[]> {
+    const response = await this.getReviews({
+      per_page: limit,
+      rating: 4, // 4+ star reviews
+      with_photos: true,
+    });
+    return response.data;
+  }
+
+  // Get recent reviews
+  async getRecentReviews(limit: number = 20): Promise<StampedReview[]> {
+    const response = await this.getReviews({
+      per_page: limit,
+    });
+    return response.data;
+  }
+
+  // Get all reviews (paginated)
+  async getAllReviews(): Promise<StampedReview[]> {
+    let allReviews: StampedReview[] = [];
+    let currentPage = 1;
+    let hasMorePages = true;
+
+    while (hasMorePages) {
+      try {
+        const response = await this.getReviews({
+          page: currentPage,
+          per_page: 50, // Maximum per page
+        });
+
+        allReviews = [...allReviews, ...response.data];
+
+        if (response.pagination) {
+          hasMorePages = currentPage < response.pagination.total_pages;
+          currentPage++;
+        } else {
+          hasMorePages = false;
+        }
+      } catch (error) {
+        console.error(`Error fetching page ${currentPage}:`, error);
+        hasMorePages = false;
+      }
+    }
+
+    return allReviews;
+  }
+}
+
+// Singleton instance
+export const stampedAPI = new StampedAPI();

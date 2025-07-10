@@ -158,7 +158,7 @@ export const videoTestimonials: VideoTestimonial[] = [
   {
     id: "1",
     name: "Cuttino",
-    avatar: "/images/avatars/cuttino.jpg",
+    avatar: "", // No avatar - will show initials
     videoUrl: "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonial%20videos/cuttino-story-JSmbCvvyIyYb1EbudQ6X5yyfFznhdR.mp4",
     thumbnailImage: "/images/video-thumbnails/cuttino-thumb.jpg",
     duration: "2:15",
@@ -168,7 +168,7 @@ export const videoTestimonials: VideoTestimonial[] = [
   {
     id: "2",
     name: "Michael Chen",
-    avatar: "/images/avatars/michael.jpg",
+    avatar: "", // No avatar - will show initials
     videoUrl: "/videos/testimonials/michael-testimonial.mp4",
     thumbnailImage: "/images/video-thumbnails/michael-thumb.jpg",
     duration: "2:15",
@@ -178,7 +178,7 @@ export const videoTestimonials: VideoTestimonial[] = [
   {
     id: "3",
     name: "Emily Rodriguez",
-    avatar: "/images/avatars/emily.jpg",
+    avatar: "", // No avatar - will show initials
     videoUrl: "/videos/testimonials/emily-testimonial.mp4",
     thumbnailImage: "/images/video-thumbnails/emily-thumb.jpg",
     duration: "1:45",
@@ -188,7 +188,7 @@ export const videoTestimonials: VideoTestimonial[] = [
   {
     id: "4",
     name: "David Thompson",
-    avatar: "/images/avatars/david.jpg",
+    avatar: "", // No avatar - will show initials
     videoUrl: "/videos/testimonials/david-testimonial.mp4",
     thumbnailImage: "/images/video-thumbnails/david-thumb.jpg",
     duration: "2:03",
@@ -198,7 +198,7 @@ export const videoTestimonials: VideoTestimonial[] = [
   {
     id: "5",
     name: "Lisa Wang",
-    avatar: "/images/avatars/lisa.jpg",
+    avatar: "", // No avatar - will show initials
     videoUrl: "/videos/testimonials/lisa-testimonial.mp4",
     thumbnailImage: "/images/video-thumbnails/lisa-thumb.jpg",
     duration: "1:52",
@@ -208,7 +208,7 @@ export const videoTestimonials: VideoTestimonial[] = [
   {
     id: "6",
     name: "Robert Martinez",
-    avatar: "/images/avatars/robert.jpg",
+    avatar: "", // No avatar - will show initials
     videoUrl: "/videos/testimonials/robert-testimonial.mp4",
     thumbnailImage: "/images/video-thumbnails/robert-thumb.jpg",
     duration: "1:38",
