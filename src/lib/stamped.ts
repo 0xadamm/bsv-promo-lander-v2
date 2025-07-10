@@ -125,7 +125,7 @@ class StampedAPI {
           title: item.review?.title || "",
           body: item.review?.body || "",
           author: item.review?.author || item.customer?.name || "Anonymous",
-          created_at: item.review?.dateCreated || item.review?.dateAdded,
+          created_at: item.review?.dateAdded,
           verified: item.review?.verifiedType === 2,
           photos: item.review?.mediaList || [],
         }));
