@@ -30,7 +30,7 @@ function TestimonialCard({
   rating,
   title,
   photos,
-}: Omit<StampedReview, 'date'>) {
+}: Omit<StampedReview, "date">) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -42,11 +42,11 @@ function TestimonialCard({
     if (videoRef.current && isVideo && videoUrl && !isLoaded) {
       const video = videoRef.current;
       let timeoutId: NodeJS.Timeout;
-      
+
       const handleLoadedMetadata = () => {
         // Multiple seek attempts for better compatibility
         video.currentTime = 0.1;
-        
+
         // Fallback timeout if seeking fails
         timeoutId = setTimeout(() => {
           video.currentTime = 0.01;
@@ -80,15 +80,15 @@ function TestimonialCard({
       };
 
       // Add multiple event listeners for better compatibility
-      video.addEventListener('loadedmetadata', handleLoadedMetadata);
-      video.addEventListener('seeked', handleSeeked);
-      video.addEventListener('canplay', handleCanPlay);
-      video.addEventListener('loadeddata', handleLoadedData);
-      video.addEventListener('error', handleError);
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+      video.addEventListener("seeked", handleSeeked);
+      video.addEventListener("canplay", handleCanPlay);
+      video.addEventListener("loadeddata", handleLoadedData);
+      video.addEventListener("error", handleError);
 
       // Force load with timeout fallback
       video.load();
-      
+
       // Fallback timeout in case nothing works
       const fallbackTimeout = setTimeout(() => {
         if (!isLoaded) {
@@ -99,11 +99,11 @@ function TestimonialCard({
       return () => {
         clearTimeout(timeoutId);
         clearTimeout(fallbackTimeout);
-        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        video.removeEventListener('seeked', handleSeeked);
-        video.removeEventListener('canplay', handleCanPlay);
-        video.removeEventListener('loadeddata', handleLoadedData);
-        video.removeEventListener('error', handleError);
+        video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        video.removeEventListener("seeked", handleSeeked);
+        video.removeEventListener("canplay", handleCanPlay);
+        video.removeEventListener("loadeddata", handleLoadedData);
+        video.removeEventListener("error", handleError);
       };
     }
   }, [isVideo, videoUrl, isLoaded]);
@@ -240,7 +240,7 @@ function TestimonialCard({
 
       {/* Video Section (if applicable) */}
       {isVideo && videoUrl && (
-        <div 
+        <div
           className="relative mb-3 rounded-xl overflow-hidden border border-gray-200 cursor-pointer group"
           onClick={handleVideoClick}
         >
@@ -263,9 +263,9 @@ function TestimonialCard({
             onEnded={() => setIsPlaying(false)}
             onError={() => setVideoError(true)}
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
             }}
           >
             <source src={videoUrl} type="video/mp4" />
@@ -321,7 +321,10 @@ export default function WallOfLove() {
   const sectionRef = useRef<HTMLElement>(null);
   const [reviews, setReviews] = useState<StampedReview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePages, setHasMorePages] = useState(true);
 
   // Fetch reviews and videos
   useEffect(() => {
@@ -335,14 +338,21 @@ export default function WallOfLove() {
         // Fetch videos first (they work reliably)
         try {
           const videosResponse = await fetch("/api/videos");
-          console.log("WallOfLove: Videos API response status:", videosResponse.status);
-          
+          console.log(
+            "WallOfLove: Videos API response status:",
+            videosResponse.status
+          );
+
           if (videosResponse.ok) {
             const videosData = await videosResponse.json();
             console.log("WallOfLove: Videos data:", videosData);
-            
+
             if (videosData.success) {
-              console.log("WallOfLove: Successfully got videos:", videosData.data.length, "videos");
+              console.log(
+                "WallOfLove: Successfully got videos:",
+                videosData.data.length,
+                "videos"
+              );
               allTestimonials = [...allTestimonials, ...videosData.data];
             }
           }
@@ -350,31 +360,49 @@ export default function WallOfLove() {
           console.error("WallOfLove: Error fetching videos:", videoError);
         }
 
-        // Fetch reviews with timeout handling
+        // Fetch reviews with timeout handling (page 1 only initially)
         try {
-          const reviewsResponse = await fetch("/api/reviews?type=recent&limit=57", {
-            signal: AbortSignal.timeout(65000) // 65 second timeout
-          });
-          console.log("WallOfLove: Reviews API response status:", reviewsResponse.status);
-          
+          const reviewsResponse = await fetch(
+            "/api/reviews?type=recent&limit=57&page=1",
+            {
+              signal: AbortSignal.timeout(65000), // 65 second timeout
+            }
+          );
+          console.log(
+            "WallOfLove: Reviews API response status:",
+            reviewsResponse.status
+          );
+
           if (reviewsResponse.ok) {
             const reviewsData = await reviewsResponse.json();
             console.log("WallOfLove: Reviews data:", reviewsData);
-            
+
             if (reviewsData.success) {
-              console.log("WallOfLove: Successfully got reviews:", reviewsData.data.length, "reviews");
+              console.log(
+                "WallOfLove: Successfully got reviews:",
+                reviewsData.data.length,
+                "reviews"
+              );
               console.log("WallOfLove: First review:", reviewsData.data[0]);
               allTestimonials = [...allTestimonials, ...reviewsData.data];
             }
           }
         } catch (reviewError) {
-          console.error("WallOfLove: Error fetching reviews (continuing with videos only):", reviewError);
+          console.error(
+            "WallOfLove: Error fetching reviews (continuing with videos only):",
+            reviewError
+          );
         }
 
-        console.log("WallOfLove: Total testimonials before shuffle:", allTestimonials.length);
+        console.log(
+          "WallOfLove: Total testimonials before shuffle:",
+          allTestimonials.length
+        );
 
         // Shuffle the combined testimonials for variety
-        const shuffledTestimonials = allTestimonials.sort(() => Math.random() - 0.5);
+        const shuffledTestimonials = allTestimonials.sort(
+          () => Math.random() - 0.5
+        );
         setReviews(shuffledTestimonials);
 
         // Don't show error if we have videos, even if reviews failed
@@ -383,7 +411,9 @@ export default function WallOfLove() {
         }
       } catch (err) {
         console.error("WallOfLove: Error fetching testimonials:", err);
-        setError(err instanceof Error ? err.message : "Failed to load testimonials");
+        setError(
+          err instanceof Error ? err.message : "Failed to load testimonials"
+        );
       } finally {
         setLoading(false);
       }
@@ -391,6 +421,52 @@ export default function WallOfLove() {
 
     fetchReviewsAndVideos();
   }, []);
+
+  // Load more reviews function
+  const loadMoreReviews = async () => {
+    if (loadingMore || !hasMorePages) return;
+
+    try {
+      setLoadingMore(true);
+      const nextPage = currentPage + 1;
+      console.log(`WallOfLove: Loading page ${nextPage}...`);
+
+      const reviewsResponse = await fetch(
+        `/api/reviews?type=recent&limit=57&page=${nextPage}`,
+        {
+          signal: AbortSignal.timeout(65000),
+        }
+      );
+
+      if (reviewsResponse.ok) {
+        const reviewsData = await reviewsResponse.json();
+
+        if (reviewsData.success && reviewsData.data.length > 0) {
+          console.log(
+            `WallOfLove: Page ${nextPage} loaded ${reviewsData.data.length} reviews`
+          );
+
+          // Append new reviews to existing ones
+          setReviews((prevReviews) => [...prevReviews, ...reviewsData.data]);
+          setCurrentPage(nextPage);
+
+          // Check if we've reached the last page (3 total pages)
+          if (nextPage >= 3) {
+            setHasMorePages(false);
+          }
+        } else {
+          console.log(
+            `WallOfLove: Page ${nextPage} returned no data, reached end`
+          );
+          setHasMorePages(false);
+        }
+      }
+    } catch (error) {
+      console.error("WallOfLove: Error loading more reviews:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const testimonials = reviews;
 
@@ -416,7 +492,7 @@ export default function WallOfLove() {
             See what our customers are saying about us
           </p>
           <a
-            href="#order"
+            href="https://bluescorpion.com/products/pain-and-inflammation-relief"
             className="inline-flex items-center mt-6 text-brand-primary hover:text-brand-accent transition-colors duration-200"
           >
             Visit our website →
@@ -445,14 +521,43 @@ export default function WallOfLove() {
 
         {/* Masonry Grid */}
         {!loading && (
-          <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6">
-            {testimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} {...testimonial} />
-            ))}
-          </div>
+          <>
+            <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6">
+              {testimonials.map((testimonial) => (
+                <TestimonialCard key={testimonial.id} {...testimonial} />
+              ))}
+            </div>
+
+            {/* Load More Button */}
+            {hasMorePages && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={loadMoreReviews}
+                  disabled={loadingMore}
+                  className="inline-flex items-center px-8 py-4 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-accent transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Loading More...
+                    </>
+                  ) : (
+                    "Load More Reviews"
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* All Reviews Loaded Message */}
+            {!hasMorePages && testimonials.length > 0 && (
+              <div className="text-center mt-12">
+                <p className="text-gray-500 font-medium">
+                  🎉 You&apos;ve seen all our amazing reviews!
+                </p>
+              </div>
+            )}
+          </>
         )}
-
-
       </div>
     </section>
   );

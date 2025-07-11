@@ -6,12 +6,15 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type") || "recent";
     const limit = parseInt(searchParams.get("limit") || "20");
+    const page = parseInt(searchParams.get("page") || "1");
 
     console.log(
       "API Route: Fetching reviews with type:",
       type,
       "limit:",
-      limit
+      limit,
+      "page:",
+      page
     );
 
     let reviews;
@@ -22,17 +25,32 @@ export async function GET(request: Request) {
         break;
       case "recent":
       default:
-        reviews = await stampedAPI.getRecentReviews(limit);
+        reviews = await stampedAPI.getRecentReviewsByPage(page, limit);
         break;
     }
 
-    console.log("API Route: Raw reviews from Stamped:", reviews.length, "total reviews");
-    console.log("API Route: Rating breakdown:", reviews.map(r => r.rating));
+    console.log(
+      "API Route: Raw reviews from Stamped:",
+      reviews.length,
+      "total reviews"
+    );
+    console.log(
+      "API Route: Rating breakdown:",
+      reviews.map((r) => r.rating)
+    );
 
-    // Transform reviews to match our component interface and filter for 3+ stars
+    // Define banned authors at the top of the function
+    const bannedAuthors = [
+      "John Herbert",
+      "ISO Hydrate",
+      "David Gorsline",
+      "David Perry",
+    ];
+
+    // Transform reviews to match our component interface and filter for 5 stars only
     const transformedReviews = reviews
-      .filter(review => review.rating >= 3) // Only show 3+ star reviews
-      .filter(review => review.author !== "John Herbert") // Exclude John Herbert reviews
+      .filter((review) => review.rating === 5) // Only show 5-star reviews
+      .filter((review) => !bannedAuthors.includes(review.author)) // Exclude banned authors
       .map((review, index) => ({
         id: review.id?.toString() || `review-${index}`,
         name: review.author || "Anonymous",
@@ -47,7 +65,10 @@ export async function GET(request: Request) {
       }));
 
     console.log("API Route: Transformed reviews:", transformedReviews);
-    console.log("API Route: Rating distribution:", transformedReviews.map(r => r.rating));
+    console.log(
+      "API Route: Rating distribution:",
+      transformedReviews.map((r) => r.rating)
+    );
 
     return NextResponse.json({
       success: true,

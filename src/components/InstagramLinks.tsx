@@ -1,13 +1,61 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { instagramPosts } from "@/lib/data";
 import InstagramCard from "./iglinks/InstagramCard";
+
+interface InstagramPost {
+  id: string;
+  image: string;
+  url: string;
+  alt: string;
+  customerName?: string;
+  filename?: string;
+}
 
 export default function InstagramLinks() {
   const sectionRef = useRef<HTMLElement>(null);
   const [unmutedVideoId, setUnmutedVideoId] = useState<string | null>(null);
+  const [instagramPosts, setInstagramPosts] = useState<InstagramPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch Instagram videos from API
+  useEffect(() => {
+    const fetchInstagramVideos = async () => {
+      try {
+        setLoading(true);
+        console.log("InstagramLinks: Fetching Instagram videos...");
+
+        const response = await fetch("/api/instagram-videos");
+        console.log("InstagramLinks: API response status:", response.status);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("InstagramLinks: API data:", data);
+
+          if (data.success && data.data) {
+            console.log("InstagramLinks: Got", data.data.length, "Instagram videos");
+            setInstagramPosts(data.data);
+          } else {
+            throw new Error("API returned unsuccessful response");
+          }
+        } else {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+      } catch (err) {
+        console.error("InstagramLinks: Error fetching Instagram videos:", err);
+        setError(err instanceof Error ? err.message : "Failed to load Instagram videos");
+        
+        // Fallback to empty array
+        setInstagramPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInstagramVideos();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -73,23 +121,42 @@ export default function InstagramLinks() {
         </motion.div>
 
         {/* Instagram Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6"
-        >
-          {instagramPosts.map((post) => (
-            <motion.div key={post.id} variants={itemVariants}>
-              <InstagramCard 
-                post={post} 
-                unmutedVideoId={unmutedVideoId}
-                setUnmutedVideoId={setUnmutedVideoId}
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square bg-gray-200 rounded-lg animate-pulse"
               />
-            </motion.div>
-          ))}
-        </motion.div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Unable to load Instagram videos at this time.</p>
+          </div>
+        ) : instagramPosts.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No Instagram videos available.</p>
+          </div>
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6"
+          >
+            {instagramPosts.map((post) => (
+              <motion.div key={post.id} variants={itemVariants}>
+                <InstagramCard 
+                  post={post} 
+                  unmutedVideoId={unmutedVideoId}
+                  setUnmutedVideoId={setUnmutedVideoId}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
 
         {/* Follow Button */}
