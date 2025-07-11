@@ -474,7 +474,7 @@ export default function WallOfLove() {
     <section
       id="testimonials"
       ref={sectionRef}
-      className="py-20 lg:py-32 bg-gray-50"
+      className="py-20 lg:py-16 bg-gray-50"
     >
       <div className="container-wide">
         {/* Section Header */}
