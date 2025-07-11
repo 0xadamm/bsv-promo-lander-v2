@@ -161,11 +161,23 @@ class StampedAPI {
 
   // Get recent reviews
   async getRecentReviews(limit: number = 57): Promise<StampedReview[]> {
-    // Get all reviews without pagination (faster)
+    // Get all reviews with high limit to capture all 5-star reviews
     const response = await this.getReviews({
-      per_page: limit,
+      per_page: Math.max(limit, 200), // Use provided limit or 200, whichever is higher
     });
     console.log("Stamped API: Got reviews with", response.data.length, "reviews");
+    console.log("Stamped API: 5-star reviews:", response.data.filter(r => r.rating === 5).length);
+    return response.data;
+  }
+
+  // Get recent reviews by page (for pagination)
+  async getRecentReviewsByPage(page: number = 1, limit: number = 57): Promise<StampedReview[]> {
+    const response = await this.getReviews({
+      page: page,
+      per_page: limit,
+    });
+    console.log(`Stamped API: Page ${page} got ${response.data.length} reviews`);
+    console.log(`Stamped API: Page ${page} 5-star reviews:`, response.data.filter(r => r.rating === 5).length);
     return response.data;
   }
 
