@@ -57,7 +57,7 @@ export async function GET() {
       return {
         id: `instagram-${index + 1}`,
         image: blob.url, // Video URL used as thumbnail
-        url: blob.url,   // Same video URL for playback
+        url: blob.url,   // Same video URL for playback - this will be detected as .mp4
         alt: altText,
         customerName: customerName, // Additional field for reference
         filename: filename, // Additional field for reference

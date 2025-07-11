@@ -276,12 +276,6 @@ export default function InstagramCard({ post, unmutedVideoId, setUnmutedVideoId 
           </button>
         )}
 
-        {/* Instagram Stories-style ring */}
-        <div className="absolute inset-0 rounded-xl">
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="w-full h-full bg-black rounded-xl"></div>
-          </div>
-        </div>
 
         {/* Engagement overlay - always visible and transparent */}
         <div className="absolute inset-0 z-25">
