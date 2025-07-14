@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { stampedAPI } from "@/lib/stamped";
+import { getReviews } from "@/lib/stamped";
+import { TESTIMONIAL_CONSTANTS } from "@/utils/constants";
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
       page
     );
 
-    const response = await stampedAPI.getReviews({
+    const response = await getReviews({
       page: page,
       per_page: limit,
     });
@@ -25,10 +26,14 @@ export async function GET(request: Request) {
       reviews.length,
       "total reviews"
     );
+    console.log("API Route: Full Stamped response structure:", Object.keys(response));
+    console.log("API Route: Stamped pagination info:", response.pagination);
     console.log(
       "API Route: Rating breakdown:",
       reviews.map((r) => r.rating)
     );
+
+    // We'll calculate hasNextPage later based on our pagination logic
 
     // Define banned authors at the top of the function
     const bannedAuthors = [
@@ -39,7 +44,7 @@ export async function GET(request: Request) {
     ];
 
     // Transform reviews to match our component interface and filter for 5 stars only
-    const transformedReviews = reviews
+    const allTransformedReviews = reviews
       .filter((review) => review.rating === 5) // Only show 5-star reviews
       .filter((review) => !bannedAuthors.includes(review.author)) // Exclude banned authors
       .map((review, index) => ({
@@ -55,15 +60,36 @@ export async function GET(request: Request) {
         isVideo: false, // Stamped doesn't typically have video reviews
       }));
 
+    // Limit to REVIEWS_PER_PAGE for 3:1 ratio with videos (13 videos = 39 text reviews total)
+    const transformedReviews = allTransformedReviews.slice(0, TESTIMONIAL_CONSTANTS.REVIEWS_PER_PAGE);
+
     console.log("API Route: Transformed reviews:", transformedReviews);
     console.log(
       "API Route: Rating distribution:",
       transformedReviews.map((r) => r.rating)
     );
 
+    // Create pagination info - we want to limit total to maintain 3:1 ratio
+    // 13 videos * 3 text reviews per video = 39 total text reviews
+    // 39 reviews / 13 per page = 3 pages
+    const totalTextReviewsWanted = 39;
+    const totalPagesNeeded = Math.ceil(totalTextReviewsWanted / TESTIMONIAL_CONSTANTS.REVIEWS_PER_PAGE);
+    
+    // Check if there are more pages by seeing if we got a full page from Stamped API
+    // If we got 20 reviews from Stamped, there might be more pages available
+    const hasNextPage = page < totalPagesNeeded && reviews.length >= limit;
+    const paginationInfo = response.pagination || {
+      page: page,
+      per_page: TESTIMONIAL_CONSTANTS.REVIEWS_PER_PAGE,
+      total: totalTextReviewsWanted,
+      total_pages: totalPagesNeeded,
+      has_next_page: hasNextPage,
+    };
+
     return NextResponse.json({
       success: true,
       data: transformedReviews,
+      pagination: paginationInfo,
     });
   } catch (error) {
     console.error("Error fetching Stamped reviews:", error);

@@ -31,6 +31,25 @@ interface StampedOptions {
   product_id?: string;
 }
 
+interface StampedRawReview {
+  review: {
+    id: number;
+    rating: number;
+    title: string;
+    body: string;
+    author: string;
+    dateCreated: string;
+    created_at?: string;
+    verifiedType: number;
+    verified?: boolean;
+    mediaList: string[];
+    photos?: string[];
+  };
+  customer?: {
+    name?: string;
+  };
+}
+
 const STAMPED_CONFIG = {
   baseURL: "https://stamped.io/api/v2",
   storeHash: process.env.STAMPED_STORE_HASH ?? "288102",
@@ -66,15 +85,15 @@ const parseReviewsData = (data: unknown): StampedReview[] => {
   const dataObj = data as Record<string, unknown>;
   
   if (dataObj.results && Array.isArray(dataObj.results)) {
-    return dataObj.results.map((item: { review: StampedReview; customer: { name?: string } }) => ({
-      id: item.review?.id,
-      rating: item.review?.rating,
+    return dataObj.results.map((item: StampedRawReview) => ({
+      id: item.review?.id?.toString() ?? Math.random().toString(),
+      rating: item.review?.rating ?? 0,
       title: item.review?.title ?? "",
       body: item.review?.body ?? "",
       author: item.review?.author ?? item.customer?.name ?? "Anonymous",
-      created_at: item.review?.created_at ?? new Date().toISOString(),
-      verified: item.review?.verified ?? false,
-      photos: item.review?.photos ?? [],
+      created_at: item.review?.dateCreated ?? item.review?.created_at ?? new Date().toISOString(),
+      verified: (item.review?.verifiedType ?? 0) > 0,
+      photos: item.review?.mediaList ?? item.review?.photos ?? [],
     }));
   }
   
@@ -126,6 +145,8 @@ export const getReviews = async (options: StampedOptions = {}): Promise<StampedA
 
     const data = await response.json();
     console.log("Stamped API: Raw response data:", data);
+    console.log("Stamped API: Pagination in response:", data.pagination);
+    console.log("Stamped API: Full response structure:", Object.keys(data));
 
     return {
       data: parseReviewsData(data),
@@ -139,4 +160,5 @@ export const getReviews = async (options: StampedOptions = {}): Promise<StampedA
   }
 };
 
+// For backward compatibility
 export const stampedAPI = { getReviews };
