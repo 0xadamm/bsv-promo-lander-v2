@@ -181,7 +181,7 @@ class TestimonialService {
 
   async fetchAllTestimonials(signal?: AbortSignal): Promise<StampedReview[]> {
     const [videos, reviews] = await Promise.allSettled([
-      this.fetchVideos(signal),
+      this.fetchVideos(1, signal),
       this.fetchReviews({ page: 1, limit: TESTIMONIAL_CONSTANTS.DEFAULT_LIMIT, signal }),
     ]);
 
