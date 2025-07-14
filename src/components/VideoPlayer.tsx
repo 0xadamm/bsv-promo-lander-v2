@@ -7,13 +7,24 @@ import { TESTIMONIAL_CONSTANTS } from "@/utils/constants";
 interface VideoPlayerProps {
   videoUrl: string;
   className?: string;
+  videoId?: string;
+  unmutedVideoId?: string | null;
+  setUnmutedVideoId?: (id: string | null) => void;
 }
 
-export function VideoPlayer({ videoUrl, className = "" }: VideoPlayerProps) {
+export function VideoPlayer({ 
+  videoUrl, 
+  className = "", 
+  videoId, 
+  unmutedVideoId, 
+  setUnmutedVideoId 
+}: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   const [videoError, setVideoError] = useState(false);
+  
+  // Use shared muted state if available, otherwise default to muted
+  const isMuted = videoId && unmutedVideoId !== undefined ? unmutedVideoId !== videoId : true;
   const videoRef = useRef<HTMLVideoElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const fallbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -74,6 +85,13 @@ export function VideoPlayer({ videoUrl, className = "" }: VideoPlayerProps) {
     };
   }, [videoUrl, isLoaded, cleanup]);
 
+  // Update video muted state when unmutedVideoId changes
+  useEffect(() => {
+    if (videoRef.current && videoId) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted, videoId]);
+
   const handleVideoClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     const video = videoRef.current;
@@ -90,12 +108,18 @@ export function VideoPlayer({ videoUrl, className = "" }: VideoPlayerProps) {
     e.preventDefault();
     e.stopPropagation();
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !videoId || !setUnmutedVideoId) return;
 
-    const newMutedState = !isMuted;
-    setIsMuted(newMutedState);
-    video.muted = newMutedState;
-  }, [isMuted]);
+    if (isMuted) {
+      // Unmute this video and mute all others
+      setUnmutedVideoId(videoId);
+      video.muted = false;
+    } else {
+      // Mute this video
+      setUnmutedVideoId(null);
+      video.muted = true;
+    }
+  }, [isMuted, videoId, setUnmutedVideoId]);
 
   const handlePlay = useCallback(() => setIsPlaying(true), []);
   const handlePause = useCallback(() => setIsPlaying(false), []);

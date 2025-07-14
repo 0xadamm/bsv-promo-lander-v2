@@ -63,12 +63,14 @@ function BeforeAfterSlider({
           </div>
         </div>
 
-      </div>
+        {/* Person caption and story - inside the card */}
+        <div className="p-6 text-center border-t border-gray-100">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Khalifa's Story</h3>
+          <p className="text-gray-600 leading-relaxed">
+            See the incredible before-and-after progress of Khalifa, who experienced daily abdominal discomfort and inflammation. After incorporating Blue Scorpion into his wellness routine, he reported feeling significantly more at ease in his body.
+          </p>
+        </div>
 
-      
-      {/* Simple text caption */}
-      <div className="mt-6 text-center">
-        <p className="text-gray-700 font-medium text-lg">Khalifa</p>
       </div>
 
       {/* Navigation arrows */}
@@ -93,7 +95,7 @@ export default function BeforeAfterGallery() {
   return (
     <section
       id="before-after"
-      className="py-16 lg:py-24 bg-gradient-to-b from-gray-50 to-white"
+      className="py-16 lg:py-24"
     >
       <div className="container-wide">
         {/* Section Header */}
@@ -102,14 +104,13 @@ export default function BeforeAfterGallery() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-12 lg:mb-16"
+          className="text-center mb-8 lg:mb-10"
         >
           <h2 className="text-3xl lg:text-4xl font-bold text-brand-primary mb-4">
-            Incredible Pain Relief Results
+            Before & After
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            See the remarkable before and after mobility improvements from real
-            customers. Compare the amazing pain relief power of Blue Scorpion.
+            Real Stories of Relief
           </p>
         </motion.div>
 

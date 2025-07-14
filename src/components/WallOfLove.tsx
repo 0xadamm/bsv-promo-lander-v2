@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { TestimonialCard } from "./TestimonialCard";
 import { useTestimonials } from "@/hooks/useTestimonials";
+import { useVideo } from "@/contexts/VideoContext";
 
 export default function WallOfLove() {
   const sectionRef = useRef<HTMLElement>(null);
+  const { unmutedVideoId, setUnmutedVideoId } = useVideo();
   const {
     testimonials,
     loading,
@@ -70,7 +72,12 @@ export default function WallOfLove() {
           <>
             <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6">
               {testimonials.map((testimonial) => (
-                <TestimonialCard key={testimonial.id} {...testimonial} />
+                <TestimonialCard 
+                  key={testimonial.id} 
+                  {...testimonial} 
+                  unmutedVideoId={unmutedVideoId}
+                  setUnmutedVideoId={setUnmutedVideoId}
+                />
               ))}
             </div>
 
