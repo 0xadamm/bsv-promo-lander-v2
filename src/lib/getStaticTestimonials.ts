@@ -23,10 +23,10 @@ export async function getStaticTestimonials(): Promise<StaticTestimonial[]> {
     console.log("Static Generation: Fetching all testimonials...");
     
     // Fetch reviews and videos in parallel
-    const [reviews, testimonialBlobs, testimonialVideosBlobs] = await Promise.all([
-      stampedAPI.getAllReviewsProgressive().catch((e) => {
+    const [reviewsResponse, testimonialBlobs, testimonialVideosBlobs] = await Promise.all([
+      stampedAPI.getReviews({ per_page: 100 }).catch((e) => {
         console.error("Static Generation: Error fetching reviews:", e);
-        return [];
+        return { data: [], pagination: undefined };
       }),
       list({ prefix: 'testimonials/' }).then(({ blobs }) => blobs).catch((e) => {
         console.error("Static Generation: Error fetching testimonials:", e);
@@ -38,6 +38,8 @@ export async function getStaticTestimonials(): Promise<StaticTestimonial[]> {
       })
     ]);
 
+    const reviews = reviewsResponse.data;
+    
     console.log("Static Generation: Found", reviews.length, "reviews");
     console.log("Static Generation: Found", testimonialBlobs.length, "testimonial blobs");
     console.log("Static Generation: Found", testimonialVideosBlobs.length, "testimonial video blobs");
