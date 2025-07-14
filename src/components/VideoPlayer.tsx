@@ -15,8 +15,8 @@ export function VideoPlayer({ videoUrl, className = "" }: VideoPlayerProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>();
-  const fallbackTimeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const fallbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const cleanup = useCallback(() => {
     if (timeoutRef.current) {
