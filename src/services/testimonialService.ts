@@ -23,14 +23,28 @@ interface FetchOptions {
   signal?: AbortSignal;
 }
 
+interface PaginationInfo {
+  page: number;
+  per_page: number;
+  total: number | null;
+  total_pages: number | null;
+  has_next_page?: boolean;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: StampedReview[];
+  pagination?: PaginationInfo;
+}
+
+interface VideoResponse {
+  videos: StampedReview[];
+  pagination?: PaginationInfo;
+}
+
 interface FetchReviewsResponse {
   reviews: StampedReview[];
-  pagination?: {
-    page: number;
-    per_page: number;
-    total: number;
-    total_pages: number;
-  };
+  pagination?: PaginationInfo;
 }
 
 class TestimonialService {
@@ -76,7 +90,7 @@ class TestimonialService {
     }
 
     try {
-      const data = await this.fetchWithRetry<{ success: boolean; data: StampedReview[]; pagination?: any }>(
+      const data = await this.fetchWithRetry<ApiResponse>(
         `/api/videos?page=${page}`,
         { signal }
       );
@@ -93,9 +107,9 @@ class TestimonialService {
     }
   }
 
-  async fetchVideosWithPagination(page = 1, signal?: AbortSignal): Promise<{ videos: StampedReview[], pagination?: any }> {
+  async fetchVideosWithPagination(page = 1, signal?: AbortSignal): Promise<VideoResponse> {
     try {
-      const data = await this.fetchWithRetry<{ success: boolean; data: StampedReview[]; pagination?: any }>(
+      const data = await this.fetchWithRetry<ApiResponse>(
         `/api/videos?page=${page}`,
         { signal }
       );
@@ -125,7 +139,7 @@ class TestimonialService {
     }
 
     try {
-      const data = await this.fetchWithRetry<{ success: boolean; data: StampedReview[]; pagination?: any }>(
+      const data = await this.fetchWithRetry<ApiResponse>(
         `/api/reviews?limit=${limit}&page=${page}`,
         { signal }
       );
@@ -146,7 +160,7 @@ class TestimonialService {
     const { page = 1, limit = TESTIMONIAL_CONSTANTS.DEFAULT_LIMIT, signal } = options;
 
     try {
-      const data = await this.fetchWithRetry<{ success: boolean; data: StampedReview[]; pagination?: any }>(
+      const data = await this.fetchWithRetry<ApiResponse>(
         `/api/reviews?limit=${limit}&page=${page}`,
         { signal }
       );

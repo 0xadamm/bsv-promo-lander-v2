@@ -12,7 +12,6 @@ function interleaveTestimonials(reviews: StampedReview[], videos: StampedReview[
   
   // For masonry layout, we need to distribute videos so they don't align vertically
   // Strategy: Place videos at irregular intervals to break up column alignment
-  const totalItems = reviews.length + videos.length;
   
   // Create chunks of varying sizes to prevent video alignment
   const chunkSizes = [];
@@ -236,7 +235,7 @@ export function useTestimonials(): UseTestimonialsReturn {
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMorePages, currentPage, totalPages]);
+  }, [loadingMore, hasMorePages, currentPage]);
 
   return {
     testimonials: displayTestimonials,

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { list } from "@vercel/blob";
-import { TESTIMONIAL_CONSTANTS } from "@/utils/constants";
 
 export async function GET(request: Request) {
   try {
