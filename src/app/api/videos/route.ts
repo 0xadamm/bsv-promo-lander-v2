@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { list } from "@vercel/blob";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    console.log("API Route: Fetching videos from Vercel Blob storage...");
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    
+    console.log("API Route: Fetching videos from Vercel Blob storage for page:", page);
 
     // Get videos from both testimonials folders
     const { blobs: testimonialBlobs } = await list({ prefix: "testimonials/" });
@@ -24,25 +27,26 @@ export async function GET() {
 
     console.log("API Route: Found video files:", videoFiles.length);
 
-    // Transform to our video testimonial format
-    const videoTestimonials = videoFiles.map((blob, index) => {
+    // Transform all videos to our testimonial format first
+    const allVideoTestimonials = videoFiles.map((blob, index) => {
       // Extract name from filename
       const filename = blob.pathname.split("/").pop() || "";
       let customerName = `Customer ${index + 1}`;
 
-      // Try to extract name from filename patterns
-      if (filename.includes("-story-")) {
-        // Format: "brendan-story-xxx.mp4"
-        customerName = filename
-          .split("-story-")[0]
-          .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
-      } else if (filename.includes(". ")) {
-        // Format: "3. Hector Perdomo-xxx.MP4"
-        const namePart = filename.split(". ")[1]?.split("-")[0];
-        if (namePart) {
-          customerName = namePart;
+      // Extract name by removing file extension and cleaning up
+      const nameWithoutExtension = filename.replace(/\.(mp4|MP4|webm|mov)$/i, '');
+      
+      if (nameWithoutExtension) {
+        // Handle different naming patterns
+        if (nameWithoutExtension.includes("Dr. ")) {
+          // "Dr. Shannon Egleston" -> "Dr. Shannon Egleston"
+          customerName = nameWithoutExtension;
+        } else if (nameWithoutExtension.match(/^\d+\.\s*/)) {
+          // "3. Hector Perdomo" -> "Hector Perdomo"
+          customerName = nameWithoutExtension.replace(/^\d+\.\s*/, '');
+        } else {
+          // Simple names like "Kalifa", "Manny", "Kimo 1", etc.
+          customerName = nameWithoutExtension;
         }
       }
 
@@ -63,10 +67,41 @@ export async function GET() {
       };
     });
 
+    // Calculate pagination with different distribution
+    // Page 1: 3 videos (for 9 text reviews = 3:1 ratio)
+    // Page 2+: 4 videos each (for 13 text reviews = ~3:1 ratio) 
+    const totalVideos = allVideoTestimonials.length;
+    let videosForThisPage, startIndex;
+    
+    if (page === 1) {
+      videosForThisPage = 3;
+      startIndex = 0;
+    } else {
+      videosForThisPage = 4;
+      startIndex = 3 + ((page - 2) * 4); // Start after first 3, then 4 per page
+    }
+    
+    const endIndex = startIndex + videosForThisPage;
+    const totalPages = Math.ceil((totalVideos - 3) / 4) + 1; // 1 page for first 3, then 4 per page
+    
+    // Get videos for this page
+    const videoTestimonials = allVideoTestimonials.slice(startIndex, endIndex);
+    
+    const hasNextPage = page < totalPages;
+
+    console.log(`API Route: Returning ${videoTestimonials.length} videos for page ${page}/${totalPages}`);
+
     return NextResponse.json({
       success: true,
       data: videoTestimonials,
-      count: videoFiles.length,
+      pagination: {
+        page: page,
+        per_page: videosForThisPage,
+        total: totalVideos,
+        total_pages: totalPages,
+        has_next_page: hasNextPage,
+      },
+      count: videoTestimonials.length,
     });
   } catch (error) {
     console.error("Error fetching videos from Vercel storage:", error);
