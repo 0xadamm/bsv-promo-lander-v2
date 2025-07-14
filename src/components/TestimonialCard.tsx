@@ -7,7 +7,10 @@ import { VideoPlayer } from "./VideoPlayer";
 import { AVATAR_COLORS } from "@/utils/constants";
 import type { StampedReview } from "@/services/testimonialService";
 
-type TestimonialCardProps = Omit<StampedReview, "date">;
+type TestimonialCardProps = Omit<StampedReview, "date"> & {
+  unmutedVideoId?: string | null;
+  setUnmutedVideoId?: (id: string | null) => void;
+};
 
 function getInitials(name: string): string {
   return name
@@ -24,6 +27,7 @@ function getAvatarColors(name: string): string {
 }
 
 export function TestimonialCard({
+  id,
   name,
   avatar,
   videoUrl,
@@ -32,6 +36,8 @@ export function TestimonialCard({
   rating,
   title,
   photos,
+  unmutedVideoId,
+  setUnmutedVideoId,
 }: TestimonialCardProps) {
   return (
     <motion.div
@@ -120,7 +126,13 @@ export function TestimonialCard({
 
       {/* Video Section */}
       {isVideo && videoUrl && (
-        <VideoPlayer videoUrl={videoUrl} className="mb-3" />
+        <VideoPlayer 
+          videoUrl={videoUrl} 
+          className="mb-3"
+          videoId={id}
+          unmutedVideoId={unmutedVideoId}
+          setUnmutedVideoId={setUnmutedVideoId}
+        />
       )}
     </motion.div>
   );

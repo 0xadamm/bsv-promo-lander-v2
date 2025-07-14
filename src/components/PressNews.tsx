@@ -102,7 +102,7 @@ function ArticleCard({ article }: { article: Article }) {
 
 export default function PressNews() {
   return (
-    <section id="press-news" className="py-20 lg:py-32 bg-white">
+    <section id="press-news" className="pt-20 lg:pt-32 pb-8 bg-white">
       <div className="container-wide">
         {/* Section Header */}
         <motion.div

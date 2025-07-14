@@ -43,6 +43,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  icons: {
+    icon: "/blue_scorpion_venom_favicon.png",
+  },
   openGraph: {
     title: "Blue Scorpion - Revolutionary Pain & Inflammation Relief",
     description:
@@ -94,7 +97,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link
+          rel="icon"
+          type="image/png"
+          href="/blue_scorpion_venom_favicon.png?v=2"
+        />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#1a1a2e" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

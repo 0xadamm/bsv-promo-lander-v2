@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import InstagramCard from "./iglinks/InstagramCard";
+import { useVideo } from "@/contexts/VideoContext";
 
 interface InstagramPost {
   id: string;
@@ -15,7 +16,7 @@ interface InstagramPost {
 
 export default function InstagramLinks() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [unmutedVideoId, setUnmutedVideoId] = useState<string | null>(null);
+  const { unmutedVideoId, setUnmutedVideoId } = useVideo();
   const [instagramPosts, setInstagramPosts] = useState<InstagramPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,11 +107,13 @@ export default function InstagramLinks() {
           className="text-center mb-12 lg:mb-16"
         >
           <h2 className="text-3xl lg:text-4xl font-bold text-brand-primary mb-4">
-            Follow Our Journey
+            Instagram Social Proof
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
-            See real pain relief stories and get inspired by our
-            community&apos;s incredible results on Instagram
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-2">
+            Follow Our Journey
+          </p>
+          <p className="text-base text-gray-500 max-w-2xl mx-auto mb-6">
+            See real pain relief stories…
           </p>
           <div className="flex items-center justify-center space-x-2 text-brand-primary">
             <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-[2px]">
