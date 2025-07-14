@@ -77,7 +77,6 @@ export function useTestimonials(): UseTestimonialsReturn {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState<number | null>(null);
   const [hasMorePages, setHasMorePages] = useState(true);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
@@ -131,7 +130,6 @@ export function useTestimonials(): UseTestimonialsReturn {
           // Set pagination info from the first reviews request
           if (reviewsResult.value.pagination) {
             if (reviewsResult.value.pagination.total_pages) {
-              setTotalPages(reviewsResult.value.pagination.total_pages);
               setHasMorePages(reviewsResult.value.pagination.page < reviewsResult.value.pagination.total_pages);
             } else {
               // Use has_next_page if available, otherwise fallback to checking result count
