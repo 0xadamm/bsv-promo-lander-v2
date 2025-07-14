@@ -4,30 +4,21 @@ import { stampedAPI } from "@/lib/stamped";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get("type") || "recent";
     const limit = parseInt(searchParams.get("limit") || "20");
     const page = parseInt(searchParams.get("page") || "1");
 
     console.log(
-      "API Route: Fetching reviews with type:",
-      type,
-      "limit:",
+      "API Route: Fetching reviews with limit:",
       limit,
       "page:",
       page
     );
 
-    let reviews;
-
-    switch (type) {
-      case "featured":
-        reviews = await stampedAPI.getFeaturedReviews(limit);
-        break;
-      case "recent":
-      default:
-        reviews = await stampedAPI.getRecentReviewsByPage(page, limit);
-        break;
-    }
+    const response = await stampedAPI.getReviews({
+      page: page,
+      per_page: limit,
+    });
+    const reviews = response.data;
 
     console.log(
       "API Route: Raw reviews from Stamped:",

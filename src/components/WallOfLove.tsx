@@ -317,6 +317,7 @@ function TestimonialCard({
   );
 }
 
+
 export default function WallOfLove() {
   const sectionRef = useRef<HTMLElement>(null);
   const [reviews, setReviews] = useState<StampedReview[]>([]);
@@ -363,7 +364,7 @@ export default function WallOfLove() {
         // Fetch reviews with timeout handling (page 1 only initially)
         try {
           const reviewsResponse = await fetch(
-            "/api/reviews?type=recent&limit=57&page=1",
+            "/api/reviews?limit=57&page=1",
             {
               signal: AbortSignal.timeout(65000), // 65 second timeout
             }
@@ -384,6 +385,7 @@ export default function WallOfLove() {
                 "reviews"
               );
               console.log("WallOfLove: First review:", reviewsData.data[0]);
+              
               allTestimonials = [...allTestimonials, ...reviewsData.data];
             }
           }
@@ -432,7 +434,7 @@ export default function WallOfLove() {
       console.log(`WallOfLove: Loading page ${nextPage}...`);
 
       const reviewsResponse = await fetch(
-        `/api/reviews?type=recent&limit=57&page=${nextPage}`,
+        `/api/reviews?limit=57&page=${nextPage}`,
         {
           signal: AbortSignal.timeout(65000),
         }
