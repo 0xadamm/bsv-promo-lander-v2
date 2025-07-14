@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { TestimonialCard } from "./TestimonialCard";
 import { useTestimonials } from "@/hooks/useTestimonials";

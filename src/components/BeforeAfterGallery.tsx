@@ -65,7 +65,7 @@ function BeforeAfterSlider({
 
         {/* Person caption and story - inside the card */}
         <div className="p-6 text-center border-t border-gray-100">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Khalifa's Story</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Khalifa&apos;s Story</h3>
           <p className="text-gray-600 leading-relaxed">
             See the incredible before-and-after progress of Khalifa, who experienced daily abdominal discomfort and inflammation. After incorporating Blue Scorpion into his wellness routine, he reported feeling significantly more at ease in his body.
           </p>

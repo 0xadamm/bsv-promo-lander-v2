@@ -90,7 +90,7 @@ export default function Footer() {
               These statements are not intended to diagnose, treat, cure, or prevent any disease and have not been evaluated by the Food and Drug Administration (FDA).
             </p>
             <p>
-              Some testimonials may be from individuals who received complimentary product samples in exchange for their honest feedback. Others may involve influencers or brand ambassadors who were compensated for their time and exposure. Regardless of compensation, all feedback presented is based on the individual's genuine experience with our product.
+              Some testimonials may be from individuals who received complimentary product samples in exchange for their honest feedback. Others may involve influencers or brand ambassadors who were compensated for their time and exposure. Regardless of compensation, all feedback presented is based on the individual&apos;s genuine experience with our product.
             </p>
             <p>
               We do not claim that any testimonial is representative of all users. Results will vary depending on individual circumstances, body chemistry, and adherence to suggested use.
