@@ -29,7 +29,7 @@ export async function GET() {
       // Extract name from filename
       const filename = blob.pathname.split("/").pop() || "";
       let customerName = "";
-      let altText = `Customer text message testimonial ${index + 1}`;
+      const altText = `Customer text message testimonial ${index + 1}`;
 
       // Try to extract customer name from filename patterns
       if (filename.includes("-")) {
