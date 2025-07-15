@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import InstagramLinks from "@/components/InstagramLinks";
+import TextMessageTestimonials from "@/components/TextMessageTestimonials";
 import WallOfLove from "@/components/WallOfLove";
 import BeforeAfterGallery from "@/components/BeforeAfterGallery";
 import PressNews from "@/components/PressNews";
@@ -46,9 +47,9 @@ export default function Home() {
         {/* Components */}
         <InstagramLinks />
         <WallOfLove />
+        <TextMessageTestimonials />
         <BeforeAfterGallery />
         <PressNews />
-
 
         {/* Footer */}
         <Footer />
