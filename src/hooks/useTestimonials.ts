@@ -1,62 +1,32 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { testimonialService, type StampedReview } from "@/services/testimonialService";
 import { shuffleArray } from "@/utils/shuffle";
 import { TESTIMONIAL_CONSTANTS } from "@/utils/constants";
 
-// Function to interleave videos with text reviews for better distribution in masonry layout
+// Optimized function to interleave videos with text reviews for better distribution
 function interleaveTestimonials(reviews: StampedReview[], videos: StampedReview[]): StampedReview[] {
   if (videos.length === 0) return reviews;
   if (reviews.length === 0) return videos;
   
   const result: StampedReview[] = [];
   
-  // For masonry layout, we need to distribute videos so they don't align vertically
-  // Strategy: Place videos at irregular intervals to break up column alignment
-  
-  // Create chunks of varying sizes to prevent video alignment
-  const chunkSizes = [];
-  if (videos.length === 3) {
-    // For page 1: irregular chunks like 2, 4, 3, 3
-    chunkSizes.push(2, 4, 3, 3);
-  } else if (videos.length === 4) {
-    // For other pages: irregular chunks like 3, 3, 4, 3, 4
-    chunkSizes.push(3, 3, 4, 3, 4);
-  } else {
-    // Fallback: create irregular chunks
-    const avgChunkSize = Math.floor(reviews.length / videos.length);
-    for (let i = 0; i < videos.length; i++) {
-      const variation = (i % 2 === 0) ? 1 : -1;
-      chunkSizes.push(Math.max(1, avgChunkSize + variation));
-    }
-    // Add remaining reviews to last chunk
-    const usedReviews = chunkSizes.reduce((sum, size) => sum + size, 0);
-    if (usedReviews < reviews.length) {
-      chunkSizes[chunkSizes.length - 1] += (reviews.length - usedReviews);
-    }
-  }
+  // Simplified distribution algorithm for better performance
+  const totalItems = reviews.length + videos.length;
+  const videoInterval = Math.floor(totalItems / videos.length);
   
   let reviewIndex = 0;
   let videoIndex = 0;
+  let nextVideoPosition = videoInterval;
   
-  for (let chunkIndex = 0; chunkIndex < chunkSizes.length && reviewIndex < reviews.length; chunkIndex++) {
-    // Add chunk of reviews
-    const chunkSize = Math.min(chunkSizes[chunkIndex], reviews.length - reviewIndex);
-    for (let i = 0; i < chunkSize; i++) {
+  for (let i = 0; i < totalItems; i++) {
+    if (i === nextVideoPosition && videoIndex < videos.length) {
+      result.push(videos[videoIndex]);
+      videoIndex++;
+      nextVideoPosition += videoInterval;
+    } else if (reviewIndex < reviews.length) {
       result.push(reviews[reviewIndex]);
       reviewIndex++;
     }
-    
-    // Add a video after the chunk (if available)
-    if (videoIndex < videos.length) {
-      result.push(videos[videoIndex]);
-      videoIndex++;
-    }
-  }
-  
-  // Add any remaining reviews
-  while (reviewIndex < reviews.length) {
-    result.push(reviews[reviewIndex]);
-    reviewIndex++;
   }
   
   return result;
@@ -80,17 +50,23 @@ export function useTestimonials(): UseTestimonialsReturn {
   const [hasMorePages, setHasMorePages] = useState(true);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
-  // Shuffle testimonials only on initial load, then maintain order for new additions
-  const displayTestimonials = useMemo(() => {
-    if (testimonials.length === 0) return [];
-    
-    // Only shuffle once after the initial load is complete
-    if (!isInitialLoadComplete) {
-      return shuffleArray(testimonials);
+  // Memoized shuffled testimonials - only shuffle once on initial load
+  const [shuffledTestimonials, setShuffledTestimonials] = useState<StampedReview[]>([]);
+  
+  // Update shuffled testimonials when testimonials change
+  useEffect(() => {
+    if (testimonials.length === 0) {
+      setShuffledTestimonials([]);
+      return;
     }
     
-    // After initial load, maintain the order to preserve new additions
-    return testimonials;
+    if (!isInitialLoadComplete) {
+      // Only shuffle on initial load
+      setShuffledTestimonials(shuffleArray([...testimonials]));
+    } else {
+      // After initial load, maintain order for new additions
+      setShuffledTestimonials(prev => [...prev, ...testimonials.slice(prev.length)]);
+    }
   }, [testimonials, isInitialLoadComplete]);
 
   // Initial load
@@ -236,7 +212,7 @@ export function useTestimonials(): UseTestimonialsReturn {
   }, [loadingMore, hasMorePages, currentPage]);
 
   return {
-    testimonials: displayTestimonials,
+    testimonials: shuffledTestimonials,
     loading,
     loadingMore,
     error,
