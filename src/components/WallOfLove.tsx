@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { TestimonialCard } from "./TestimonialCard";
 import { useTestimonials } from "@/hooks/useTestimonials";
@@ -8,6 +8,7 @@ import { useVideo } from "@/contexts/VideoContext";
 
 export default function WallOfLove() {
   const sectionRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const { unmutedVideoId, setUnmutedVideoId } = useVideo();
   const {
     testimonials,
@@ -17,6 +18,57 @@ export default function WallOfLove() {
     hasMorePages,
     loadMoreReviews,
   } = useTestimonials();
+
+  const [columns, setColumns] = useState(1);
+
+  // Calculate number of columns based on screen size
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1281) setColumns(4);
+      else if (width >= 1025) setColumns(3);
+      else if (width >= 769) setColumns(2);
+      else setColumns(1);
+    };
+
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
+
+  // Distribute testimonials into columns for balanced masonry effect
+  const distributeTestimonials = () => {
+    const cols: typeof testimonials[] = Array.from({ length: columns }, () => []);
+    const colHeights = new Array(columns).fill(0);
+    
+    testimonials.forEach((testimonial) => {
+      // Find the shortest column
+      const shortestColIndex = colHeights.indexOf(Math.min(...colHeights));
+      
+      // Add testimonial to shortest column
+      cols[shortestColIndex].push(testimonial);
+      
+      // Estimate height based on content type and length
+      let estimatedHeight = 120; // Base card height
+      
+      if (testimonial.isVideo) {
+        estimatedHeight += 300; // Video player height
+      } else {
+        // Text testimonial - estimate based on text length
+        const textLength = (testimonial.testimonialText || '').length;
+        estimatedHeight += Math.ceil(textLength / 100) * 20; // ~20px per 100 chars
+        
+        // Add height for photos
+        if (testimonial.photos && testimonial.photos.length > 0) {
+          estimatedHeight += 120; // Photo grid height
+        }
+      }
+      
+      colHeights[shortestColIndex] += estimatedHeight;
+    });
+    
+    return cols;
+  };
 
   return (
     <section
@@ -70,14 +122,30 @@ export default function WallOfLove() {
         {/* Testimonials Grid */}
         {!loading && testimonials.length > 0 && (
           <>
-            <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6">
-              {testimonials.map((testimonial) => (
-                <TestimonialCard 
-                  key={testimonial.id} 
-                  {...testimonial} 
-                  unmutedVideoId={unmutedVideoId}
-                  setUnmutedVideoId={setUnmutedVideoId}
-                />
+            <div 
+              ref={gridRef}
+              className="flex gap-6 items-start"
+              style={{ 
+                display: 'flex',
+                gap: '1.5rem',
+                alignItems: 'flex-start'
+              }}
+            >
+              {distributeTestimonials().map((column, columnIndex) => (
+                <div 
+                  key={columnIndex} 
+                  className="flex-1 flex flex-col gap-6"
+                  style={{ flex: 1 }}
+                >
+                  {column.map((testimonial) => (
+                    <TestimonialCard 
+                      key={testimonial.id} 
+                      {...testimonial} 
+                      unmutedVideoId={unmutedVideoId}
+                      setUnmutedVideoId={setUnmutedVideoId}
+                    />
+                  ))}
+                </div>
               ))}
             </div>
 
