@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { Analytics } from "@vercel/analytics/next";
@@ -14,11 +14,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title:
@@ -173,17 +168,9 @@ export default function RootLayout({
           }}
         />
 
-        {/* Preload critical fonts */}
-        <link
-          rel="preload"
-          href="/fonts/inter-var.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
         {children}
         <Analytics />
