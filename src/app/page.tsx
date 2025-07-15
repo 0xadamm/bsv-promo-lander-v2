@@ -46,11 +46,10 @@ export default function Home() {
 
         {/* Components */}
         <InstagramLinks />
-        <TextMessageTestimonials />
         <WallOfLove />
+        <TextMessageTestimonials />
         <BeforeAfterGallery />
         <PressNews />
-
 
         {/* Footer */}
         <Footer />
