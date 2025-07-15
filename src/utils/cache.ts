@@ -6,6 +6,14 @@ interface CacheItem<T> {
 
 class MemoryCache {
   private cache = new Map<string, CacheItem<unknown>>();
+  private cleanupInterval: NodeJS.Timeout;
+
+  constructor() {
+    // Run cleanup every 10 minutes
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, 10 * 60 * 1000);
+  }
 
   set<T>(key: string, data: T, ttlMs: number = 5 * 60 * 1000): void {
     this.cache.set(key, {
@@ -13,6 +21,23 @@ class MemoryCache {
       timestamp: Date.now(),
       ttl: ttlMs,
     });
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    const keysToDelete: string[] = [];
+    
+    for (const [key, item] of this.cache.entries()) {
+      if (now - item.timestamp > item.ttl) {
+        keysToDelete.push(key);
+      }
+    }
+    
+    keysToDelete.forEach(key => this.cache.delete(key));
+    
+    if (keysToDelete.length > 0) {
+      console.log(`Cache cleanup: removed ${keysToDelete.length} expired items`);
+    }
   }
 
   get<T>(key: string): T | null {
@@ -33,6 +58,13 @@ class MemoryCache {
   }
 
   clear(): void {
+    this.cache.clear();
+  }
+
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
     this.cache.clear();
   }
 
