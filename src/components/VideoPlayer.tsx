@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Play, VolumeX, Volume2 } from "lucide-react";
-import { TESTIMONIAL_CONSTANTS } from "@/utils/constants";
 
 interface VideoPlayerProps {
   videoUrl: string;
@@ -23,40 +22,31 @@ export function VideoPlayer({
   const [isLoaded, setIsLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
   
-  // Use shared muted state if available, otherwise default to muted
-  const isMuted = videoId && unmutedVideoId !== undefined ? unmutedVideoId !== videoId : true;
+  // Memoize muted state calculation
+  const isMuted = useMemo(() => 
+    videoId && unmutedVideoId !== undefined ? unmutedVideoId !== videoId : true, 
+    [videoId, unmutedVideoId]
+  );
+  
   const videoRef = useRef<HTMLVideoElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const fallbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Simplified cleanup function
   const cleanup = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    if (fallbackTimeoutRef.current) {
-      clearTimeout(fallbackTimeoutRef.current);
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+      loadTimeoutRef.current = null;
     }
   }, []);
 
+  // Simplified video loading logic
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !videoUrl || isLoaded) return;
 
-    const handleLoadedMetadata = () => {
-      video.currentTime = 0.1;
-      timeoutRef.current = setTimeout(() => {
-        video.currentTime = 0.01;
-        setTimeout(() => setIsLoaded(true), 100);
-      }, 500);
-    };
-
-    const handleSeeked = () => {
+    const handleCanPlay = () => {
       cleanup();
       setIsLoaded(true);
-    };
-
-    const handleCanPlay = () => {
-      if (!isLoaded) setIsLoaded(true);
     };
 
     const handleError = () => {
@@ -65,30 +55,27 @@ export function VideoPlayer({
       setIsLoaded(true);
     };
 
-    video.addEventListener("loadedmetadata", handleLoadedMetadata);
-    video.addEventListener("seeked", handleSeeked);
+    // Only use essential event listeners
     video.addEventListener("canplay", handleCanPlay);
     video.addEventListener("error", handleError);
 
-    video.load();
-
-    fallbackTimeoutRef.current = setTimeout(() => {
+    // Simplified loading with shorter timeout
+    loadTimeoutRef.current = setTimeout(() => {
       if (!isLoaded) setIsLoaded(true);
-    }, TESTIMONIAL_CONSTANTS.VIDEO_LOAD_TIMEOUT);
+    }, 2000);
 
     return () => {
       cleanup();
-      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      video.removeEventListener("seeked", handleSeeked);
       video.removeEventListener("canplay", handleCanPlay);
       video.removeEventListener("error", handleError);
     };
   }, [videoUrl, isLoaded, cleanup]);
 
-  // Update video muted state when unmutedVideoId changes
+  // Optimized muted state update
   useEffect(() => {
-    if (videoRef.current && videoId) {
-      videoRef.current.muted = isMuted;
+    const video = videoRef.current;
+    if (video && videoId) {
+      video.muted = isMuted;
     }
   }, [isMuted, videoId]);
 

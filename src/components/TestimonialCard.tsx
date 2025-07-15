@@ -39,12 +39,15 @@ export function TestimonialCard({
   unmutedVideoId,
   setUnmutedVideoId,
 }: TestimonialCardProps) {
+  // Use stable delay based on id hash instead of random
+  const delay = Math.abs(id.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % 200 / 1000;
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: Math.random() * 0.2 }}
-      viewport={{ once: true }}
+      transition={{ duration: 0.3, delay }}
+      viewport={{ once: true, margin: "-10%" }}
       className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-gray-300 break-inside-avoid mb-4"
     >
       {/* Header */}
@@ -57,6 +60,7 @@ export function TestimonialCard({
               fill
               className="rounded-full object-cover"
               sizes="40px"
+              loading="lazy"
             />
           ) : (
             <div
@@ -118,6 +122,7 @@ export function TestimonialCard({
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 50vw, 25vw"
+                loading="lazy"
               />
             </div>
           ))}

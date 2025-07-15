@@ -51,12 +51,15 @@ function ArticleCard({ article }: { article: Article }) {
     });
   };
 
+  // Use stable delay based on article id hash
+  const delay = Math.abs(article.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % 150 / 1000;
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: Math.random() * 0.2 }}
-      viewport={{ once: true }}
+      transition={{ duration: 0.3, delay }}
+      viewport={{ once: true, margin: "-10%" }}
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-gray-300 group"
     >
       <a href={article.url} className="block">
@@ -67,6 +70,7 @@ function ArticleCard({ article }: { article: Article }) {
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
