@@ -1,5 +1,70 @@
 import { NextResponse } from "next/server";
-import { TESTIMONIAL_CONSTANTS } from "@/utils/constants";
+
+interface SenjaAuthor {
+  name?: string;
+  avatar?: string;
+}
+
+interface SenjaReview {
+  id?: string | number;
+  author?: SenjaAuthor;
+  customer_name?: string;
+  customer_avatar?: string;
+  name?: string;
+  avatar?: string;
+  content?: string;
+  text?: string;
+  body?: string;
+  message?: string;
+  testimonial?: string;
+  created_at?: string;
+  date?: string;
+  submitted_at?: string;
+  rating?: number;
+  star_rating?: number;
+  title?: string;
+  headline?: string;
+  verified?: boolean;
+  photos?: string[];
+  images?: string[];
+  attachments?: string[];
+  type?: string;
+  video_url?: string;
+  video?: string;
+  media_type?: string;
+  thumbnail?: string;
+  video_thumbnail?: string;
+  preview_image?: string;
+  duration?: number;
+  status?: string;
+  approved?: boolean;
+  published?: boolean;
+}
+
+interface SenjaApiResponse {
+  testimonials?: SenjaReview[];
+  reviews?: SenjaReview[];
+  data?: SenjaReview[];
+  total?: number;
+  total_pages?: number;
+  has_next_page?: boolean;
+}
+
+interface TransformedReview {
+  id: string;
+  name: string;
+  avatar: string;
+  testimonialText: string;
+  date: string;
+  rating: number;
+  title: string;
+  verified: boolean;
+  photos: string[];
+  isVideo: boolean;
+  videoUrl?: string;
+  thumbnailImage?: string;
+  duration?: number;
+}
 
 export async function GET(request: Request) {
   try {
@@ -34,28 +99,28 @@ export async function GET(request: Request) {
         throw new Error(`Senja API responded with status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: SenjaApiResponse = await response.json();
       console.log("API Route: Raw Senja response with fallback key:", data);
 
       // Transform and return the data (handle multiple possible response structures)
-      const reviewsArray = data.testimonials || data.reviews || data.data || data || [];
+      const reviewsArray = data.testimonials || data.reviews || data.data || [];
       console.log("API Route: Processing", reviewsArray.length, "testimonials from Senja");
       
-      const transformedReviews = reviewsArray
-        .filter((review: any) => {
+      const transformedReviews: TransformedReview[] = reviewsArray
+        .filter((review: SenjaReview) => {
           // Only include approved reviews
           const isApproved = review.status === 'approved' || review.approved === true || review.published === true;
           console.log("Review approval status:", review.status, review.approved, review.published, "-> isApproved:", isApproved);
           return isApproved;
         })
-        .filter((review: any) => {
+        .filter((review: SenjaReview) => {
           // Only include high-rated reviews (4+ stars if rating exists)
           const rating = review.rating || review.star_rating || 5;
           return rating >= 4;
         })
-        .map((review: any, index: number) => ({
+        .map((review: SenjaReview, index: number): TransformedReview => ({
           id: review.id?.toString() || `senja-review-${index}`,
-          name: review.author?.name || review.customer_name || review.name || review.author || "Anonymous",
+          name: review.author?.name || review.customer_name || review.name || "Anonymous",
           avatar: review.author?.avatar || review.customer_avatar || review.avatar || "",
           testimonialText: review.content || review.text || review.body || review.message || review.testimonial || "No review text available",
           date: formatDate(review.created_at || review.date || review.submitted_at || new Date().toISOString()),
@@ -93,15 +158,15 @@ export async function GET(request: Request) {
       throw new Error(`Senja API responded with status: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data: SenjaApiResponse = await response.json();
     console.log("API Route: Raw Senja response:", data);
 
     // Transform Senja reviews to match our component interface
     // Note: Adjust these field mappings based on actual Senja API response structure
-    const transformedReviews = (data.reviews || data.data || [])
-      .filter((review: any) => review.status === 'approved' || review.approved === true) // Only approved reviews
-      .filter((review: any) => review.rating >= 4) // Only 4-5 star reviews
-      .map((review: any, index: number) => ({
+    const transformedReviews: TransformedReview[] = (data.reviews || data.data || [])
+      .filter((review: SenjaReview) => review.status === 'approved' || review.approved === true) // Only approved reviews
+      .filter((review: SenjaReview) => review.rating && review.rating >= 4) // Only 4-5 star reviews
+      .map((review: SenjaReview, index: number): TransformedReview => ({
         id: review.id?.toString() || `senja-review-${index}`,
         name: review.author?.name || review.customer_name || "Anonymous",
         avatar: review.author?.avatar || review.customer_avatar || "",
@@ -120,7 +185,7 @@ export async function GET(request: Request) {
     console.log("API Route: Transformed Senja reviews:", transformedReviews);
     console.log(
       "API Route: Rating distribution:",
-      transformedReviews.map((r: any) => r.rating)
+      transformedReviews.map((r: TransformedReview) => r.rating)
     );
 
     // Create pagination info
