@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   images: {
     domains: [
       "assets.cdn.filesafe.space",
-      "dgklukamfrrig5hi.public.blob.vercel-storage.com"
+      "dgklukamfrrig5hi.public.blob.vercel-storage.com",
+      "cdn.senja.io"
     ],
   },
 };

@@ -33,7 +33,7 @@ const articles: Article[] = [
     title: "Blue Scorpion Under Review: Non-Toxic Homeopathic Oral Liquid Venom for Natural Pain & Inflammation Relief",
     excerpt: "A cutting-edge homeopathic formula featuring diluted Blue Scorpion venom (Heteroctenus princeps), Apis Mellifica, and Rhus Toxicodendron—positioned as a non-toxic, drug-free innovation for natural pain and inflammation support.",
     imageUrl: "/yahoo-image.webp",
-    source: "Globe Newswire",
+    source: "Yahoo Finance",
     publishedDate: "2025-05-15",
     readTime: "29 min read",
     url: "https://finance.yahoo.com/news/blue-scorpion-under-review-non-000000305.html",

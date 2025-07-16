@@ -74,7 +74,10 @@ export function TestimonialCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
-            <h3 className="font-bold text-gray-900 text-sm truncate">{name}</h3>
+            <h3 className="font-bold text-gray-900 text-sm truncate">
+              {name}
+              {id.startsWith('senja-') && <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Senja</span>}
+            </h3>
           </div>
         </div>
       </div>
