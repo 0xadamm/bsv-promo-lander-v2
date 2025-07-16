@@ -179,10 +179,62 @@ class TestimonialService {
     }
   }
 
+  async fetchSenjaReviews(options: FetchOptions = {}): Promise<StampedReview[]> {
+    const { page = 1, limit = TESTIMONIAL_CONSTANTS.DEFAULT_LIMIT, signal } = options;
+    const cacheKey = `senja-reviews-${page}-${limit}`;
+    
+    // Check cache first
+    const cached = cache.get<StampedReview[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    try {
+      const data = await this.fetchWithRetry<ApiResponse>(
+        `/api/senja?limit=${limit}&page=${page}`,
+        { signal }
+      );
+
+      if (data.success) {
+        cache.set(cacheKey, data.data, TESTIMONIAL_CONSTANTS.CACHE_TTL);
+        return data.data;
+      }
+      
+      return [];
+    } catch (error) {
+      console.warn(`Failed to fetch Senja reviews page ${page}:`, error);
+      return [];
+    }
+  }
+
+  async fetchSenjaReviewsWithPagination(options: FetchOptions = {}): Promise<FetchReviewsResponse> {
+    const { page = 1, limit = TESTIMONIAL_CONSTANTS.DEFAULT_LIMIT, signal } = options;
+
+    try {
+      const data = await this.fetchWithRetry<ApiResponse>(
+        `/api/senja?limit=${limit}&page=${page}`,
+        { signal }
+      );
+
+      if (data.success) {
+        return {
+          reviews: data.data,
+          pagination: data.pagination,
+        };
+      }
+      
+      return { reviews: [] };
+    } catch (error) {
+      console.warn(`Failed to fetch Senja reviews page ${page}:`, error);
+      return { reviews: [] };
+    }
+  }
+
   async fetchAllTestimonials(signal?: AbortSignal): Promise<StampedReview[]> {
-    const [videos, reviews] = await Promise.allSettled([
+    const [videos, reviews, senjaReviews] = await Promise.allSettled([
       this.fetchVideos(1, signal),
       this.fetchReviews({ page: 1, limit: TESTIMONIAL_CONSTANTS.DEFAULT_LIMIT, signal }),
+      this.fetchSenjaReviews({ page: 1, limit: TESTIMONIAL_CONSTANTS.DEFAULT_LIMIT, signal }),
     ]);
 
     const allTestimonials: StampedReview[] = [];
@@ -193,6 +245,10 @@ class TestimonialService {
 
     if (reviews.status === 'fulfilled') {
       allTestimonials.push(...reviews.value);
+    }
+
+    if (senjaReviews.status === 'fulfilled') {
+      allTestimonials.push(...senjaReviews.value);
     }
 
     return allTestimonials;

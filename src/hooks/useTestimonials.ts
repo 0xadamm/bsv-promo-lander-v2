@@ -78,10 +78,15 @@ export function useTestimonials(): UseTestimonialsReturn {
         setLoading(true);
         setError(null);
 
-        // Fetch videos and first page of reviews with pagination info
-        const [videosResult, reviewsResult] = await Promise.allSettled([
+        // Fetch videos, reviews, and Senja reviews with pagination info
+        const [videosResult, reviewsResult, senjaResult] = await Promise.allSettled([
           testimonialService.fetchVideosWithPagination(1, controller.signal),
           testimonialService.fetchReviewsWithPagination({ 
+            page: 1, 
+            limit: TESTIMONIAL_CONSTANTS.REVIEWS_PER_PAGE, 
+            signal: controller.signal 
+          }),
+          testimonialService.fetchSenjaReviewsWithPagination({ 
             page: 1, 
             limit: TESTIMONIAL_CONSTANTS.REVIEWS_PER_PAGE, 
             signal: controller.signal 
@@ -90,6 +95,7 @@ export function useTestimonials(): UseTestimonialsReturn {
 
         let videos: StampedReview[] = [];
         let reviews: StampedReview[] = [];
+        let senjaReviews: StampedReview[] = [];
 
         if (videosResult.status === 'fulfilled') {
           videos = videosResult.value.videos;
@@ -99,8 +105,18 @@ export function useTestimonials(): UseTestimonialsReturn {
           reviews = reviewsResult.value.reviews;
         }
 
-        // Interleave videos with reviews for better distribution
-        const allTestimonials = interleaveTestimonials(reviews, videos);
+        if (senjaResult.status === 'fulfilled') {
+          senjaReviews = senjaResult.value.reviews;
+          console.log('Senja reviews fetched:', senjaReviews.length);
+        } else {
+          console.error('Failed to fetch Senja reviews:', senjaResult.reason);
+        }
+
+        // Combine all text reviews (Stamped + Senja)
+        const allTextReviews = [...reviews, ...senjaReviews];
+
+        // Interleave videos with all text reviews for better distribution
+        const allTestimonials = interleaveTestimonials(allTextReviews, videos);
 
         if (reviewsResult.status === 'fulfilled') {
           // Set pagination info from the first reviews request
@@ -155,10 +171,14 @@ export function useTestimonials(): UseTestimonialsReturn {
       setLoadingMore(true);
       const nextPage = currentPage + 1;
 
-      // Fetch both videos and reviews for the next page
-      const [videosResult, reviewsResult] = await Promise.allSettled([
+      // Fetch videos, reviews, and Senja reviews for the next page
+      const [videosResult, reviewsResult, senjaResult] = await Promise.allSettled([
         testimonialService.fetchVideosWithPagination(nextPage),
         testimonialService.fetchReviewsWithPagination({
+          page: nextPage,
+          limit: TESTIMONIAL_CONSTANTS.REVIEWS_PER_PAGE,
+        }),
+        testimonialService.fetchSenjaReviewsWithPagination({
           page: nextPage,
           limit: TESTIMONIAL_CONSTANTS.REVIEWS_PER_PAGE,
         }),
@@ -166,6 +186,7 @@ export function useTestimonials(): UseTestimonialsReturn {
 
       let newVideos: StampedReview[] = [];
       let newReviews: StampedReview[] = [];
+      let newSenjaReviews: StampedReview[] = [];
 
       if (videosResult.status === 'fulfilled') {
         newVideos = videosResult.value.videos;
@@ -175,16 +196,24 @@ export function useTestimonials(): UseTestimonialsReturn {
         newReviews = reviewsResult.value.reviews;
       }
 
-      // Interleave videos with reviews for better distribution
-      const newTestimonials = interleaveTestimonials(newReviews, newVideos);
+      if (senjaResult.status === 'fulfilled') {
+        newSenjaReviews = senjaResult.value.reviews;
+      }
+
+      // Combine all new text reviews (Stamped + Senja)
+      const allNewTextReviews = [...newReviews, ...newSenjaReviews];
+
+      // Interleave videos with all new text reviews for better distribution
+      const newTestimonials = interleaveTestimonials(allNewTextReviews, newVideos);
 
       if (newTestimonials.length > 0) {
         setTestimonials(prev => [...prev, ...newTestimonials]);
         setCurrentPage(nextPage);
 
-        // Update hasMorePages based on both videos and reviews pagination
+        // Update hasMorePages based on videos, reviews, and Senja reviews pagination
         let hasMoreReviews = false;
         let hasMoreVideos = false;
+        let hasMoreSenjaReviews = false;
         
         if (reviewsResult.status === 'fulfilled' && reviewsResult.value.pagination) {
           if (reviewsResult.value.pagination.total_pages) {
@@ -199,8 +228,17 @@ export function useTestimonials(): UseTestimonialsReturn {
           hasMoreVideos = videosResult.value.pagination.has_next_page ?? false;
         }
 
-        // Continue loading if either videos or reviews have more pages
-        setHasMorePages(hasMoreReviews || hasMoreVideos);
+        if (senjaResult.status === 'fulfilled' && senjaResult.value.pagination) {
+          if (senjaResult.value.pagination.total_pages) {
+            hasMoreSenjaReviews = nextPage < senjaResult.value.pagination.total_pages;
+          } else {
+            hasMoreSenjaReviews = senjaResult.value.pagination.has_next_page ?? 
+                                 (senjaResult.value.reviews.length >= TESTIMONIAL_CONSTANTS.REVIEWS_PER_PAGE);
+          }
+        }
+
+        // Continue loading if any source has more pages
+        setHasMorePages(hasMoreReviews || hasMoreVideos || hasMoreSenjaReviews);
       } else {
         setHasMorePages(false);
       }
