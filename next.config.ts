@@ -2,10 +2,19 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: [
-      "assets.cdn.filesafe.space",
-      "dgklukamfrrig5hi.public.blob.vercel-storage.com",
-      "cdn.senja.io"
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "assets.cdn.filesafe.space",
+      },
+      {
+        protocol: "https",
+        hostname: "dgklukamfrrig5hi.public.blob.vercel-storage.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.senja.io",
+      },
     ],
   },
 };

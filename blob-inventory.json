@@ -1,0 +1,235 @@
+{
+  "totalFiles": 34,
+  "totalVideos": 21,
+  "totalImages": 13,
+  "folders": [
+    {
+      "name": "dominate-media",
+      "fileCount": 2,
+      "files": [
+        {
+          "pathname": "dominate-media/BlueScorpionv2_v1.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/dominate-media/BlueScorpionv2_v1.mp4",
+          "size": 181734714,
+          "uploadedAt": "2025-09-22T17:53:26.000Z"
+        },
+        {
+          "pathname": "dominate-media/Cuttino Mobley.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/dominate-media/Cuttino%20Mobley.mp4",
+          "size": 1626894338,
+          "uploadedAt": "2025-09-22T17:53:26.000Z"
+        }
+      ]
+    },
+    {
+      "name": "instagram-videos",
+      "fileCount": 6,
+      "files": [
+        {
+          "pathname": "instagram-videos/bio-hack-story.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/instagram-videos/bio-hack-story.mp4",
+          "size": 2374549,
+          "uploadedAt": "2025-07-11T00:52:00.000Z"
+        },
+        {
+          "pathname": "instagram-videos/brendan-story.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/instagram-videos/brendan-story.mp4",
+          "size": 6402110,
+          "uploadedAt": "2025-07-11T00:52:04.000Z"
+        },
+        {
+          "pathname": "instagram-videos/cuttino-story.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/instagram-videos/cuttino-story.mp4",
+          "size": 8391729,
+          "uploadedAt": "2025-07-11T00:52:05.000Z"
+        },
+        {
+          "pathname": "instagram-videos/frank-mir-story.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/instagram-videos/frank-mir-story.mp4",
+          "size": 8602493,
+          "uploadedAt": "2025-07-14T20:02:19.000Z"
+        },
+        {
+          "pathname": "instagram-videos/isaiah-story.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/instagram-videos/isaiah-story.mp4",
+          "size": 7523548,
+          "uploadedAt": "2025-07-11T00:52:04.000Z"
+        },
+        {
+          "pathname": "instagram-videos/lyneve-story.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/instagram-videos/lyneve-story.mp4",
+          "size": 6692634,
+          "uploadedAt": "2025-07-11T00:52:04.000Z"
+        }
+      ]
+    },
+    {
+      "name": "testimonials",
+      "fileCount": 13,
+      "files": [
+        {
+          "pathname": "testimonials/Dr. Shannon Egleston.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Dr.%20Shannon%20Egleston.mp4",
+          "size": 21744049,
+          "uploadedAt": "2025-07-14T18:32:46.000Z"
+        },
+        {
+          "pathname": "testimonials/Hector Perdomo.MP4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Hector%20Perdomo.MP4",
+          "size": 233158270,
+          "uploadedAt": "2025-07-14T18:32:14.000Z"
+        },
+        {
+          "pathname": "testimonials/Jodi Crawford.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Jodi%20Crawford.mp4",
+          "size": 20419460,
+          "uploadedAt": "2025-07-14T18:32:45.000Z"
+        },
+        {
+          "pathname": "testimonials/Jordan Crawford.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Jordan%20Crawford.mp4",
+          "size": 17852940,
+          "uploadedAt": "2025-07-14T18:32:41.000Z"
+        },
+        {
+          "pathname": "testimonials/Julie Wilson.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Julie%20Wilson.mp4",
+          "size": 64780682,
+          "uploadedAt": "2025-07-14T18:32:14.000Z"
+        },
+        {
+          "pathname": "testimonials/Kalifa.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Kalifa.mp4",
+          "size": 19400946,
+          "uploadedAt": "2025-07-14T18:32:44.000Z"
+        },
+        {
+          "pathname": "testimonials/Kimo 1.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Kimo%201.mp4",
+          "size": 18546509,
+          "uploadedAt": "2025-07-14T18:32:41.000Z"
+        },
+        {
+          "pathname": "testimonials/Lexie Fox.MP4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Lexie%20Fox.MP4",
+          "size": 242500473,
+          "uploadedAt": "2025-07-14T18:32:14.000Z"
+        },
+        {
+          "pathname": "testimonials/Lindsay Perry.MP4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Lindsay%20Perry.MP4",
+          "size": 227060554,
+          "uploadedAt": "2025-07-14T18:32:14.000Z"
+        },
+        {
+          "pathname": "testimonials/Manny.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Manny.mp4",
+          "size": 14521174,
+          "uploadedAt": "2025-07-14T18:32:35.000Z"
+        },
+        {
+          "pathname": "testimonials/Morgan Amanda.MP4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Morgan%20Amanda.MP4",
+          "size": 234860143,
+          "uploadedAt": "2025-07-14T18:32:14.000Z"
+        },
+        {
+          "pathname": "testimonials/Norrell Walker.MP4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Norrell%20Walker.MP4",
+          "size": 224955647,
+          "uploadedAt": "2025-07-14T18:32:14.000Z"
+        },
+        {
+          "pathname": "testimonials/Tina.mp4",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/testimonials/Tina.mp4",
+          "size": 15991951,
+          "uploadedAt": "2025-07-14T18:32:38.000Z"
+        }
+      ]
+    },
+    {
+      "name": "text-reviews",
+      "fileCount": 13,
+      "files": [
+        {
+          "pathname": "text-reviews/IMG_0428.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_0428.PNG",
+          "size": 4114683,
+          "uploadedAt": "2025-07-15T19:29:55.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_0431.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_0431.PNG",
+          "size": 2672583,
+          "uploadedAt": "2025-07-15T19:29:55.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_0432.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_0432.PNG",
+          "size": 4138099,
+          "uploadedAt": "2025-07-15T19:29:55.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_0433.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_0433.PNG",
+          "size": 4025335,
+          "uploadedAt": "2025-07-15T19:29:55.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_0629.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_0629.PNG",
+          "size": 755821,
+          "uploadedAt": "2025-07-15T19:29:54.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_3632.JPEG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_3632.JPEG",
+          "size": 326707,
+          "uploadedAt": "2025-07-15T19:29:54.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_9371.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_9371.PNG",
+          "size": 335846,
+          "uploadedAt": "2025-07-15T19:29:54.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_9683.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_9683.PNG",
+          "size": 1709789,
+          "uploadedAt": "2025-07-15T19:29:55.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_9684.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_9684.PNG",
+          "size": 1326575,
+          "uploadedAt": "2025-07-15T19:29:55.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_9797.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_9797.PNG",
+          "size": 589634,
+          "uploadedAt": "2025-07-15T19:29:54.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_9799.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_9799.PNG",
+          "size": 613758,
+          "uploadedAt": "2025-07-15T19:29:54.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_9840.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_9840.PNG",
+          "size": 750275,
+          "uploadedAt": "2025-07-15T19:29:54.000Z"
+        },
+        {
+          "pathname": "text-reviews/IMG_9896.PNG",
+          "url": "https://dgklukamfrrig5hi.public.blob.vercel-storage.com/text-reviews/IMG_9896.PNG",
+          "size": 1356371,
+          "uploadedAt": "2025-07-15T19:29:55.000Z"
+        }
+      ]
+    }
+  ]
+}

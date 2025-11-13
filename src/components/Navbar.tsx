@@ -10,20 +10,29 @@ interface NavItem {
   href: string;
 }
 
+interface NavbarProps {
+  alwaysWithBackground?: boolean;
+  backgroundColor?: string;
+}
+
 const navItems: NavItem[] = [
   { label: "Instagram", href: "#instagram" },
   { label: "Wall of Love", href: "#testimonials" },
   { label: "Before & After", href: "#before-after" },
   { label: "Press & News", href: "#press-news" },
+  { label: "Database", href: "/database" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ alwaysWithBackground = false, backgroundColor }: NavbarProps = {}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);
+  const [isScrolledPastHero, setIsScrolledPastHero] = useState(alwaysWithBackground);
   const [backgroundPosition, setBackgroundPosition] = useState("center bottom");
 
   // Handle scroll effect
   useEffect(() => {
+    // Skip scroll handling if always with background
+    if (alwaysWithBackground) return;
+
     const handleScroll = () => {
       const scrollY = window.scrollY;
       const heroHeight = window.innerHeight;
@@ -47,7 +56,7 @@ export default function Navbar() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [alwaysWithBackground]);
 
   // Close mobile menu when clicking on link
   const handleLinkClick = () => {
@@ -70,87 +79,85 @@ export default function Navbar() {
   return (
     <>
     <nav
-      className={`fixed top-[10px] left-[10px] right-[10px] z-50 transition-all duration-300 rounded-2xl lg:rounded-3xl overflow-hidden ${
+      className={`fixed top-[30px] left-[40px] right-[40px] md:left-[100px] md:right-[100px] lg:left-[150px] lg:right-[150px] xl:left-[200px] xl:right-[200px] z-50 transition-all duration-300 rounded-full overflow-hidden ${
         isScrolledPastHero ? "backdrop-blur-md shadow-lg" : ""
       }`}
       style={
         isScrolledPastHero
-          ? {
-              backgroundImage: `url('/blue-scorpion-venom-hero.png')`,
-              backgroundSize: "cover",
-              backgroundPosition: backgroundPosition,
-              backgroundRepeat: "no-repeat",
-            }
+          ? backgroundColor
+            ? backgroundColor.includes("gradient")
+              ? { backgroundImage: backgroundColor }
+              : { backgroundColor }
+            : {
+                backgroundImage: `url('/blue-scorpion-venom-hero.png')`,
+                backgroundSize: "cover",
+                backgroundPosition: backgroundPosition,
+                backgroundRepeat: "no-repeat",
+              }
           : {}
       }
     >
-      {/* Blue tint overlay - only when scrolled past hero */}
-      {isScrolledPastHero && (
+      {/* Blue tint overlay - only when scrolled past hero and using hero image */}
+      {isScrolledPastHero && !backgroundColor && (
         <div className="absolute inset-0 bg-[#324785]/80" />
       )}
 
       <div className="container-wide relative z-10">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Left Side - Mobile Hamburger / Desktop Navigation */}
-          <div className="flex items-center justify-start w-24 lg:w-auto lg:flex-1 lg:justify-center">
+        <div className="flex items-center justify-between h-16 lg:h-20 px-4 lg:px-8">
+          {/* Left Side - Logo */}
+          <div className="flex items-center">
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 rounded-lg transition-colors hover:bg-white/10 text-white"
+              className={`lg:hidden p-2 rounded-lg transition-colors mr-3 ${
+                backgroundColor
+                  ? "hover:bg-black/10 text-black"
+                  : "hover:bg-white/10 text-white"
+              }`}
               aria-label="Toggle mobile menu"
             >
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-12">
-              {navItems.slice(0, 2).map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="text-white hover:text-white/80 transition-colors font-medium relative group"
-                >
-                  {item.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Center Logo */}
-          <div className="flex items-center justify-center flex-shrink-0">
             <a
               href="#"
-              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              className="flex items-center hover:opacity-80 transition-opacity"
             >
               <Image
-                src="/blue-scorpion-venom-logo-h-white.png"
+                src={backgroundColor ? "/blue-scorpion-venom-logo_h.png" : "/blue-scorpion-venom-logo-h-white.png"}
                 alt="Blue Scorpion Logo"
-                width={120}
-                height={40}
-                className="h-8 w-auto lg:h-12"
+                width={338}
+                height={100}
+                quality={100}
+                className="h-8 w-auto lg:h-10"
               />
             </a>
           </div>
 
-          {/* Right Side - CTA Button / Desktop Navigation */}
-          <div className="flex items-center justify-end w-24 lg:w-auto lg:flex-1 lg:justify-center space-x-4">
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-12">
-              {navItems.slice(2).map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="text-white hover:text-white/80 transition-colors font-medium relative group"
-                >
-                  {item.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              ))}
-            </div>
+          {/* Center - Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className={`transition-colors font-medium relative group ${
+                  backgroundColor
+                    ? "text-black hover:text-black/70"
+                    : "text-white hover:text-white/80"
+                }`}
+              >
+                {item.label}
+                <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
+                  backgroundColor ? "bg-black" : "bg-white"
+                }`}></span>
+              </a>
+            ))}
+          </div>
 
+          {/* Right Side - CTA Button */}
+          <div className="flex items-center">
             {/* CTA Button - Always visible */}
-            <a href="https://bluescorpion.com/products/pain-and-inflammation-relief" className="bg-[#324785] text-white px-3 py-1.5 lg:px-6 lg:py-3 rounded-lg hover:bg-[#2a3d70] transition-all duration-300 transform hover:scale-105 flex items-center justify-center font-semibold text-sm lg:text-base">
+            <a href="https://bluescorpion.com/products/pain-and-inflammation-relief" className="bg-[#324785] text-white px-3 py-1.5 lg:px-6 lg:py-3 rounded-full hover:bg-[#2a3d70] transition-all duration-300 transform hover:scale-105 flex items-center justify-center font-semibold text-sm lg:text-base">
               <ShoppingBag size={16} className="lg:w-[18px] lg:h-[18px]" />
               <span className="hidden lg:inline lg:ml-2">Shop Now</span>
             </a>
@@ -181,19 +188,27 @@ export default function Navbar() {
               className="fixed top-0 right-0 h-full w-80 shadow-2xl z-[60] lg:hidden overflow-hidden"
               style={
                 isScrolledPastHero
-                  ? {
-                      backgroundImage: `url('/blue-scorpion-venom-hero.png')`,
-                      backgroundSize: "cover",
-                      backgroundPosition: backgroundPosition,
-                      backgroundRepeat: "no-repeat",
-                    }
+                  ? backgroundColor
+                    ? backgroundColor.includes("gradient")
+                      ? { backgroundImage: backgroundColor }
+                      : { backgroundColor }
+                    : {
+                        backgroundImage: `url('/blue-scorpion-venom-hero.png')`,
+                        backgroundSize: "cover",
+                        backgroundPosition: backgroundPosition,
+                        backgroundRepeat: "no-repeat",
+                      }
                   : {}
               }
             >
               {/* Background overlay for mobile menu */}
               <div
                 className={`absolute inset-0 ${
-                  isScrolledPastHero ? "bg-[#324785]/90" : "bg-[#324785]/95"
+                  backgroundColor
+                    ? ""
+                    : isScrolledPastHero
+                    ? "bg-[#324785]/90"
+                    : "bg-[#324785]/95"
                 }`}
               />
               <div className="p-6 relative z-10">
@@ -201,16 +216,21 @@ export default function Navbar() {
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center space-x-2">
                     <Image
-                      src="/blue-scorpion-venom-logo-h-white.png"
+                      src={backgroundColor ? "/blue-scorpion-venom-logo_h.png" : "/blue-scorpion-venom-logo-h-white.png"}
                       alt="Blue Scorpion Logo"
-                      width={120}
-                      height={32}
+                      width={338}
+                      height={100}
+                      quality={100}
                       className="h-8 w-auto"
                     />
                   </div>
                   <button
                     onClick={() => setIsMenuOpen(false)}
-                    className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white"
+                    className={`p-2 rounded-lg transition-colors ${
+                      backgroundColor
+                        ? "hover:bg-black/10 text-black"
+                        : "hover:bg-white/10 text-white"
+                    }`}
                     aria-label="Close mobile menu"
                   >
                     <X size={24} />
@@ -227,7 +247,11 @@ export default function Navbar() {
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="block text-white hover:text-white/80 transition-colors font-medium py-3 px-4 rounded-lg hover:bg-white/10"
+                      className={`block transition-colors font-medium py-3 px-4 rounded-lg ${
+                        backgroundColor
+                          ? "text-black hover:text-black/70 hover:bg-black/10"
+                          : "text-white hover:text-white/80 hover:bg-white/10"
+                      }`}
                     >
                       {item.label}
                     </motion.a>
@@ -235,7 +259,9 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile CTA */}
-                <div className="mt-8 pt-8 border-t border-white/20">
+                <div className={`mt-8 pt-8 border-t ${
+                  backgroundColor ? "border-black/20" : "border-white/20"
+                }`}>
                   <a href="https://bluescorpion.com/products/pain-and-inflammation-relief" className="w-full bg-brand-primary text-white py-3 rounded-lg hover:bg-brand-accent transition-all duration-300 flex items-center justify-center space-x-2 font-semibold">
                     <ShoppingBag size={18} />
                     <span>Order Now</span>
@@ -243,14 +269,22 @@ export default function Navbar() {
                 </div>
 
                 {/* Social Links */}
-                <div className="mt-6 pt-6 border-t border-white/20">
-                  <div className="text-sm text-white/60 mb-4">Follow Us</div>
+                <div className={`mt-6 pt-6 border-t ${
+                  backgroundColor ? "border-black/20" : "border-white/20"
+                }`}>
+                  <div className={`text-sm mb-4 ${
+                    backgroundColor ? "text-black/60" : "text-white/60"
+                  }`}>Follow Us</div>
                   <div className="flex space-x-4">
                     <a
                       href="https://instagram.com/bluescorpionvenom"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white/60 hover:text-white transition-colors"
+                      className={`transition-colors ${
+                        backgroundColor
+                          ? "text-black/60 hover:text-black"
+                          : "text-white/60 hover:text-white"
+                      }`}
                     >
                       <svg
                         className="w-5 h-5"
@@ -264,7 +298,11 @@ export default function Navbar() {
                       href="https://facebook.com/bluescorpionvenom"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white/60 hover:text-white transition-colors"
+                      className={`transition-colors ${
+                        backgroundColor
+                          ? "text-black/60 hover:text-black"
+                          : "text-white/60 hover:text-white"
+                      }`}
                     >
                       <svg
                         className="w-5 h-5"
