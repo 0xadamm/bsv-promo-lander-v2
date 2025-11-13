@@ -7,16 +7,9 @@ import { createContent } from "../src/lib/db/content";
 import { createIndexes } from "../src/lib/mongodb";
 import slugify from "slugify";
 
-interface BlobFile {
-  pathname: string;
-  url: string;
-  size: number;
-  uploadedAt: Date;
-}
-
 function extractNameFromFilename(filename: string): string {
   // Remove file extension
-  let name = filename.replace(/\.(mp4|MP4|webm|mov|MOV|jpg|jpeg|png|PNG|JPEG|JPG)$/i, "");
+  const name = filename.replace(/\.(mp4|MP4|webm|mov|MOV|jpg|jpeg|png|PNG|JPEG|JPG)$/i, "");
 
   // Handle different patterns
   if (name.includes("Dr. ")) {
