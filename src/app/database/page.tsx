@@ -5,6 +5,7 @@ import { Content, Sport, Ailment } from "@/types/database";
 import ContentGrid from "@/components/database/ContentGrid";
 import FilterBar from "@/components/database/FilterBar";
 import ContentModal from "@/components/database/ContentModal";
+import Navbar from "@/components/Navbar";
 
 export default function DatabasePage() {
   const [content, setContent] = useState<Content[]>([]);
@@ -15,6 +16,7 @@ export default function DatabasePage() {
   // Filter state
   const [filters, setFilters] = useState({
     contentType: "all" as "all" | "testimonial" | "raw-footage",
+    mediaType: "all" as "all" | "video" | "image",
     sports: [] as string[],
     ailments: [] as string[],
     search: "",
@@ -54,7 +56,15 @@ export default function DatabasePage() {
   // Filter content based on active filters
   const filteredContent = content.filter((item) => {
     // Content type filter
-    if (filters.contentType !== "all" && item.contentType !== filters.contentType) {
+    if (
+      filters.contentType !== "all" &&
+      item.contentType !== filters.contentType
+    ) {
+      return false;
+    }
+
+    // Media type filter
+    if (filters.mediaType !== "all" && item.mediaType !== filters.mediaType) {
       return false;
     }
 
@@ -78,7 +88,9 @@ export default function DatabasePage() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchesTitle = item.title.toLowerCase().includes(searchLower);
-      const matchesDescription = item.description?.toLowerCase().includes(searchLower);
+      const matchesDescription = item.description
+        ?.toLowerCase()
+        .includes(searchLower);
       if (!matchesTitle && !matchesDescription) return false;
     }
 
@@ -92,6 +104,7 @@ export default function DatabasePage() {
   const handleClearFilters = () => {
     setFilters({
       contentType: "all",
+      mediaType: "all",
       sports: [],
       ailments: [],
       search: "",
@@ -99,58 +112,52 @@ export default function DatabasePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
+    <div className="min-h-screen" style={{ backgroundColor: "#121212" }}>
+      <Navbar
+        alwaysWithBackground
+        backgroundColor="linear-gradient(to right, #cfcfcf 0%, #cfcfcf 100%)"
+      />
+      {/* Header Section */}
+      <div className="pt-28 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Content Database
-          </h1>
-          <p className="text-xl text-white/90 mb-6">
-            Real results from real people - Browse our collection of testimonials and content
-          </p>
-
-          {/* Stats Bar */}
-          <div className="flex flex-wrap gap-8 text-sm">
-            <div>
-              <span className="text-2xl font-bold">{content.length}</span>
-              <span className="ml-2 text-white/80">Total Items</span>
-            </div>
-            <div>
-              <span className="text-2xl font-bold">{sports.length}</span>
-              <span className="ml-2 text-white/80">Sports</span>
-            </div>
-            <div>
-              <span className="text-2xl font-bold">{ailments.length}</span>
-              <span className="ml-2 text-white/80">Ailments Addressed</span>
-            </div>
+          <div className="mb-6">
+            <h1 className="text-5xl md:text-6xl font-bold mb-3 text-white">
+              Content Database
+            </h1>
+            <p className="text-lg text-gray-400">
+              Real results from real people
+            </p>
           </div>
+
+          {/* Filter Bar */}
+          <FilterBar
+            filters={filters}
+            sports={sports}
+            ailments={ailments}
+            onFilterChange={handleFilterChange}
+            onClearFilters={handleClearFilters}
+            resultCount={filteredContent.length}
+          />
         </div>
       </div>
 
-      {/* Filter Bar */}
-      <FilterBar
-        filters={filters}
-        sports={sports}
-        ailments={ailments}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        resultCount={filteredContent.length}
-      />
-
       {/* Content Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
         ) : filteredContent.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-gray-500 text-lg mb-4">No content found</p>
-            {(filters.contentType !== "all" || filters.sports.length > 0 || filters.ailments.length > 0 || filters.search) && (
+            <p className="text-gray-400 text-lg mb-4">No content found</p>
+            {(filters.contentType !== "all" ||
+              filters.mediaType !== "all" ||
+              filters.sports.length > 0 ||
+              filters.ailments.length > 0 ||
+              filters.search) && (
               <button
                 onClick={handleClearFilters}
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="text-blue-500 hover:text-blue-400 font-medium"
               >
                 Clear all filters
               </button>
@@ -165,7 +172,6 @@ export default function DatabasePage() {
           />
         )}
       </div>
-
       {/* Content Modal */}
       {selectedContent && (
         <ContentModal

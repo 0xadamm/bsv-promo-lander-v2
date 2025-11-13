@@ -20,13 +20,29 @@ export default function ContentCard({
   );
 
   // Check if thumbnailUrl is actually an image (not a video file)
-  const isValidThumbnail = content.thumbnailUrl &&
+  const isValidThumbnail =
+    content.thumbnailUrl &&
     !content.thumbnailUrl.match(/\.(mp4|mov|avi|webm|mkv)$/i);
+
+  // Detect orientation from filename or default to landscape
+  // Common patterns: "portrait", "vertical", "9-16", "story", dimensions in name
+  const isPortrait =
+    content.mediaUrls[0]?.match(/(portrait|vertical|9-?16|story|916)/i) ||
+    content.title.match(/(portrait|vertical|story)/i);
+
+  // For images, we don't force aspect ratio - let them be natural
+  // For videos, portrait is 9:16, landscape is 16:9
+  const aspectRatioClass =
+    content.mediaType === "image"
+      ? ""
+      : isPortrait
+      ? "aspect-[9/16]"
+      : "aspect-video";
 
   return (
     <div
       onClick={onClick}
-      className="group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer aspect-video"
+      className={`group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer ${aspectRatioClass}`}
     >
       {/* Background Media - Full Card */}
       {content.mediaType === "video" && content.mediaUrls[0] && (
@@ -51,12 +67,14 @@ export default function ContentCard({
       )}
 
       {content.mediaType === "image" && content.mediaUrls[0] && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={content.mediaUrls[0]}
-          alt={content.title}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        <div className="relative">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={content.mediaUrls[0]}
+            alt={content.title}
+            className="w-full h-auto group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
       )}
 
       {!content.mediaUrls[0] && (

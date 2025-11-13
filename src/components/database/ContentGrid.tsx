@@ -1,5 +1,6 @@
 import { Content, Sport, Ailment } from "@/types/database";
 import ContentCard from "./ContentCard";
+import Masonry from "react-masonry-css";
 
 interface ContentGridProps {
   content: Content[];
@@ -14,17 +15,29 @@ export default function ContentGrid({
   ailments,
   onContentClick,
 }: ContentGridProps) {
+  const breakpointColumns = {
+    default: 3,
+    1280: 3,  // xl
+    1024: 2,  // lg
+    640: 1,   // sm
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <Masonry
+      breakpointCols={breakpointColumns}
+      className="flex gap-6 -ml-6"
+      columnClassName="pl-6 bg-clip-padding"
+    >
       {content.map((item) => (
-        <ContentCard
-          key={item._id.toString()}
-          content={item}
-          sports={sports}
-          ailments={ailments}
-          onClick={() => onContentClick(item)}
-        />
+        <div key={item._id.toString()} className="mb-6">
+          <ContentCard
+            content={item}
+            sports={sports}
+            ailments={ailments}
+            onClick={() => onContentClick(item)}
+          />
+        </div>
       ))}
-    </div>
+    </Masonry>
   );
 }
