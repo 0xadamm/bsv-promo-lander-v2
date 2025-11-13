@@ -27,10 +27,10 @@ export async function getAilmentBySlug(slug: string): Promise<Ailment | null> {
   return await collection.findOne({ slug });
 }
 
-export async function listAilments(category?: string): Promise<Ailment[]> {
+export async function listAilments(category?: Ailment["category"]): Promise<Ailment[]> {
   const collection = await getAilmentsCollection();
 
-  const filter = category ? { category } : {};
+  const filter: Partial<Pick<Ailment, "category">> = category ? { category } : {};
 
   return await collection.find(filter).sort({ displayOrder: 1, name: 1 }).toArray();
 }
