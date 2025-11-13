@@ -1,17 +1,42 @@
+"use client";
+
 import Link from "next/link";
-import { getAllContent } from "@/lib/db/content";
-import { listSports } from "@/lib/db/sports";
-import { listAilments } from "@/lib/db/ailments";
+import { useState, useEffect } from "react";
+import ContentManager from "@/app/admin/content/page";
 
-export const dynamic = 'force-dynamic';
+export default function AdminDashboard() {
+  const [allContent, setAllContent] = useState<any[]>([]);
+  const [sports, setSports] = useState<any[]>([]);
+  const [ailments, setAilments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function AdminDashboard() {
-  // Fetch stats
-  const [allContent, sports, ailments] = await Promise.all([
-    getAllContent(),
-    listSports(),
-    listAilments(),
-  ]);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [contentRes, sportsRes, ailmentsRes] = await Promise.all([
+          fetch("/api/content?limit=1000"),
+          fetch("/api/sports"),
+          fetch("/api/ailments"),
+        ]);
+
+        const [contentData, sportsData, ailmentsData] = await Promise.all([
+          contentRes.json(),
+          sportsRes.json(),
+          ailmentsRes.json(),
+        ]);
+
+        if (contentData.success) setAllContent(contentData.data);
+        if (sportsData.success) setSports(sportsData.data);
+        if (ailmentsData.success) setAilments(ailmentsData.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   const testimonials = allContent.filter((c) => c.contentType === "testimonial");
   const rawFootage = allContent.filter((c) => c.contentType === "raw-footage");
@@ -19,13 +44,16 @@ export default async function AdminDashboard() {
   const videos = allContent.filter((c) => c.mediaType === "video");
   const images = allContent.filter((c) => c.mediaType === "image");
 
-  // Get recent uploads (last 10)
-  const recentContent = allContent
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 10);
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+        <div className="text-center py-12">Loading...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12 space-y-8">
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -190,53 +218,8 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* Recent Uploads */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Recent Uploads
-          </h2>
-        </div>
-        <div className="divide-y divide-gray-200">
-          {recentContent.length === 0 ? (
-            <div className="px-6 py-8 text-center text-gray-500">
-              No content yet
-            </div>
-          ) : (
-            recentContent.map((content) => (
-              <Link
-                key={content._id.toString()}
-                href={`/admin/content/${content._id.toString()}`}
-                className="block px-6 py-4 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-900">
-                      {content.title}
-                    </h3>
-                    <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                        {content.contentType}
-                      </span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">
-                        {content.mediaType}
-                      </span>
-                      {content.source && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">
-                          {content.source}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {new Date(content.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-              </Link>
-            ))
-          )}
-        </div>
-      </div>
+      {/* Content Manager */}
+      <ContentManager />
     </div>
   );
 }

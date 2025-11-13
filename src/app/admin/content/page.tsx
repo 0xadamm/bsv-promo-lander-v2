@@ -280,22 +280,22 @@ export default function ContentManager() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Content Manager</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Manage all testimonials and raw footage
-          </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Content Manager</h1>
+            <p className="mt-1 text-sm text-gray-600">
+              Manage all testimonials and raw footage
+            </p>
+          </div>
+          <Link
+            href="/admin/content/new"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+          >
+            + New Content
+          </Link>
         </div>
-        <Link
-          href="/admin/content/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          + New Content
-        </Link>
-      </div>
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4">
