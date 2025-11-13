@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import { getSportsCollection } from "../mongodb";
 import type { Sport } from "@/types/database";
 import type { CreateSportInput, UpdateSportInput } from "../validators/sport";
@@ -39,7 +38,7 @@ export async function updateSport(
 ): Promise<Sport | null> {
   const collection = await getSportsCollection();
 
-  const update: any = {
+  const update: Partial<Sport> & { updatedAt: Date } = {
     ...input,
     updatedAt: new Date(),
   };

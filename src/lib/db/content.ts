@@ -48,7 +48,7 @@ export async function listContent(query: ContentQuery = {}) {
   } = query;
 
   // Build filter
-  const filter: any = {};
+  const filter: Record<string, unknown> = {};
 
   if (contentType) {
     filter.contentType = contentType;
@@ -109,7 +109,7 @@ export async function updateContent(
 ): Promise<Content | null> {
   const collection = await getContentCollection();
 
-  const update: any = {
+  const update: Partial<Content> & { updatedAt: Date } = {
     ...input,
     updatedAt: new Date(),
   };

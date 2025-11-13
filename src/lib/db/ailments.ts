@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import { getAilmentsCollection } from "../mongodb";
 import type { Ailment } from "@/types/database";
 import type { CreateAilmentInput, UpdateAilmentInput } from "../validators/ailment";
@@ -42,7 +41,7 @@ export async function updateAilment(
 ): Promise<Ailment | null> {
   const collection = await getAilmentsCollection();
 
-  const update: any = {
+  const update: Partial<Ailment> & { updatedAt: Date } = {
     ...input,
     updatedAt: new Date(),
   };

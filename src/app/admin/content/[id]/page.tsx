@@ -453,7 +453,7 @@ export default function ContentEditor() {
 
           {sports.length === 0 && !showAddSport ? (
             <p className="text-sm text-gray-500">
-              No sports available. Click "+ Add New Sport" above to create one.
+              No sports available. Click &quot;+ Add New Sport&quot; above to create one.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -573,7 +573,7 @@ export default function ContentEditor() {
 
           {ailments.length === 0 && !showAddAilment ? (
             <p className="text-sm text-gray-500">
-              No ailments available. Click "+ Add New Ailment" above to create one.
+              No ailments available. Click &quot;+ Add New Ailment&quot; above to create one.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
