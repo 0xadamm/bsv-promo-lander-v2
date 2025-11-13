@@ -169,7 +169,7 @@ export default function ContentEditor() {
     }
   }
 
-  async function handleCreateSport(e: React.FormEvent) {
+  async function handleCreateSport(e: React.FormEvent | React.MouseEvent) {
     e.preventDefault();
     if (!content) return;
 
@@ -191,7 +191,7 @@ export default function ContentEditor() {
       } else {
         console.error("Sport creation error:", data);
         const errorMsg = data.details
-          ? `Validation error: ${data.details.map((d: any) => d.message).join(", ")}`
+          ? `Validation error: ${data.details.map((d: { message: string }) => d.message).join(", ")}`
           : data.error || "Unknown error";
         alert("Error creating sport: " + errorMsg);
       }
@@ -201,7 +201,7 @@ export default function ContentEditor() {
     }
   }
 
-  async function handleCreateAilment(e: React.FormEvent) {
+  async function handleCreateAilment(e: React.FormEvent | React.MouseEvent) {
     e.preventDefault();
     if (!content) return;
 
@@ -231,7 +231,7 @@ export default function ContentEditor() {
       } else {
         console.error("Ailment creation error:", data);
         const errorMsg = data.details
-          ? `Validation error: ${data.details.map((d: any) => d.message).join(", ")}`
+          ? `Validation error: ${data.details.map((d: { message: string }) => d.message).join(", ")}`
           : data.error || "Unknown error";
         alert("Error creating ailment: " + errorMsg);
       }
@@ -469,10 +469,10 @@ export default function ContentEditor() {
                 </div>
                 <button
                   type="button"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
                     if (newSport.name.trim()) {
-                      handleCreateSport(e as any);
+                      await handleCreateSport(e);
                     } else {
                       alert("Please enter a sport name");
                     }
@@ -601,10 +601,10 @@ export default function ContentEditor() {
                 </div>
                 <button
                   type="button"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
                     if (newAilment.name.trim() && newAilment.description.trim()) {
-                      handleCreateAilment(e as any);
+                      await handleCreateAilment(e);
                     } else {
                       alert("Please enter ailment name and description");
                     }
