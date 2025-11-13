@@ -15,7 +15,6 @@ interface ContentItem {
   thumbnailUrl?: string;
   sports: string[];
   ailments: string[];
-  athleteName?: string;
   source?: string;
   featured: boolean;
   priority: number;
@@ -107,14 +106,13 @@ export default function ContentManager() {
       return false;
     }
 
-    // Search filter (title, description, athlete name)
+    // Search filter (title, description)
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const titleMatch = content.title.toLowerCase().includes(searchLower);
       const descMatch = content.description?.toLowerCase().includes(searchLower);
-      const athleteMatch = content.athleteName?.toLowerCase().includes(searchLower);
 
-      if (!titleMatch && !descMatch && !athleteMatch) {
+      if (!titleMatch && !descMatch) {
         return false;
       }
     }
@@ -406,11 +404,6 @@ export default function ContentManager() {
                         <div className="text-sm font-medium text-gray-900">
                           {content.title}
                         </div>
-                        {content.athleteName && (
-                          <div className="text-xs text-gray-500">
-                            {content.athleteName}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </td>

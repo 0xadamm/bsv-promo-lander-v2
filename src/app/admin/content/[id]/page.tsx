@@ -25,7 +25,6 @@ interface ContentItem {
   mediaUrls: string[];
   sports: string[];
   ailments: string[];
-  athleteName?: string;
   featured: boolean;
   priority: number;
 }
@@ -138,6 +137,31 @@ export default function ContentEditor() {
     setContent({ ...content, ailments });
   }
 
+  async function handleDownload() {
+    if (!content || !content.mediaUrls[0]) return;
+
+    try {
+      const response = await fetch(content.mediaUrls[0]);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Extract filename from URL or use content title
+      const urlParts = content.mediaUrls[0].split('/');
+      const filename = urlParts[urlParts.length - 1] || `${content.title}.${content.mediaType === 'video' ? 'mp4' : 'jpg'}`;
+
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      alert('Error downloading file');
+    }
+  }
+
   async function handleCreateSport(e: React.FormEvent) {
     e.preventDefault();
     if (!content) return;
@@ -231,11 +255,9 @@ export default function ContentEditor() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Media Preview</h2>
               {content.mediaUrls[0] && (
-                <a
-                  href={content.mediaUrls[0]}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={handleDownload}
                   className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors"
                 >
                   <svg
@@ -252,7 +274,7 @@ export default function ContentEditor() {
                     />
                   </svg>
                   Download
-                </a>
+                </button>
               )}
             </div>
             {content.mediaType === "video" && content.mediaUrls[0] && (

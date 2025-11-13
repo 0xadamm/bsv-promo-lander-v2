@@ -20,7 +20,6 @@ export interface Content {
   ailments: string[]; // ailment slugs: ['joint-pain', 'inflammation']
 
   // Attribution
-  athleteName?: string;
   source?: string; // 'user-submitted', 'instagram', 'vercel-blob', etc.
 
   // Metadata

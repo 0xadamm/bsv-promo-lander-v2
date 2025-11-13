@@ -18,7 +18,6 @@ export const contentSchema = z.object({
   sports: z.array(z.string()).default([]),
   ailments: z.array(z.string()).default([]),
 
-  athleteName: z.string().optional(),
   source: z.string().optional(),
 
   featured: z.boolean().default(false),

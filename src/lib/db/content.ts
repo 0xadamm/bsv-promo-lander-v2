@@ -70,7 +70,6 @@ export async function listContent(query: ContentQuery = {}) {
     filter.$or = [
       { title: { $regex: search, $options: "i" } },
       { description: { $regex: search, $options: "i" } },
-      { athleteName: { $regex: search, $options: "i" } },
     ];
   }
 
