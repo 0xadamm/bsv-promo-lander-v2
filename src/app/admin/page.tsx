@@ -3,6 +3,8 @@ import { getAllContent } from "@/lib/db/content";
 import { listSports } from "@/lib/db/sports";
 import { listAilments } from "@/lib/db/ailments";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
   // Fetch stats
   const [allContent, sports, ailments] = await Promise.all([
