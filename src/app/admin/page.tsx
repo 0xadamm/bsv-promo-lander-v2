@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import ContentManager from "@/app/admin/content/page";
+import { Content, Sport, Ailment } from "@/types/database";
 
 export default function AdminDashboard() {
-  const [allContent, setAllContent] = useState<any[]>([]);
-  const [sports, setSports] = useState<any[]>([]);
-  const [ailments, setAilments] = useState<any[]>([]);
+  const [allContent, setAllContent] = useState<Content[]>([]);
+  const [sports, setSports] = useState<Sport[]>([]);
+  const [ailments, setAilments] = useState<Ailment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
