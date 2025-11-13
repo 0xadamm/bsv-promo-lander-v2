@@ -50,38 +50,38 @@ export default function ContentEditor() {
   });
 
   useEffect(() => {
+    async function fetchData() {
+      try {
+        const [contentRes, sportsRes, ailmentsRes] = await Promise.all([
+          fetch(`/api/content/${contentId}`),
+          fetch("/api/sports"),
+          fetch("/api/ailments"),
+        ]);
+
+        const [contentData, sportsData, ailmentsData] = await Promise.all([
+          contentRes.json(),
+          sportsRes.json(),
+          ailmentsRes.json(),
+        ]);
+
+        if (contentData.success) {
+          setContent(contentData.data);
+        }
+        if (sportsData.success) {
+          setSports(sportsData.data);
+        }
+        if (ailmentsData.success) {
+          setAilments(ailmentsData.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchData();
   }, [contentId]);
-
-  async function fetchData() {
-    try {
-      const [contentRes, sportsRes, ailmentsRes] = await Promise.all([
-        fetch(`/api/content/${contentId}`),
-        fetch("/api/sports"),
-        fetch("/api/ailments"),
-      ]);
-
-      const [contentData, sportsData, ailmentsData] = await Promise.all([
-        contentRes.json(),
-        sportsRes.json(),
-        ailmentsRes.json(),
-      ]);
-
-      if (contentData.success) {
-        setContent(contentData.data);
-      }
-      if (sportsData.success) {
-        setSports(sportsData.data);
-      }
-      if (ailmentsData.success) {
-        setAilments(ailmentsData.data);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -285,6 +285,7 @@ export default function ContentEditor() {
               />
             )}
             {content.mediaType === "image" && content.mediaUrls[0] && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={content.mediaUrls[0]}
                 alt={content.title}

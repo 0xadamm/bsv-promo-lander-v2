@@ -360,6 +360,7 @@ export default function ContentManager() {
                         {content.thumbnailUrl ? (
                           content.mediaType === "video" ? (
                             <div className="relative h-12 w-12 bg-gray-200 rounded overflow-hidden">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={content.thumbnailUrl}
                                 alt={content.title}
@@ -376,6 +377,7 @@ export default function ContentManager() {
                               </div>
                             </div>
                           ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={content.thumbnailUrl}
                               alt={content.title}
