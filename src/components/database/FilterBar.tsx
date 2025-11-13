@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 
 interface FilterBarProps {
   filters: {
-    contentType: "all" | "testimonial" | "raw-footage";
+    contentType: "all" | "testimonial" | "raw-footage" | "content";
     mediaType: "all" | "video" | "image";
     sports: string[];
     ailments: string[];
@@ -48,6 +48,7 @@ export default function FilterBar({
   const getContentTypeLabel = () => {
     if (filters.contentType === "testimonial") return "Testimonials";
     if (filters.contentType === "raw-footage") return "Raw Footage";
+    if (filters.contentType === "content") return "Content";
     return "Content Type";
   };
 
@@ -122,6 +123,7 @@ export default function FilterBar({
                 { value: "all", label: "All Content" },
                 { value: "testimonial", label: "Testimonials" },
                 { value: "raw-footage", label: "Raw Footage" },
+                { value: "content", label: "Content" },
               ].map((option) => (
                 <button
                   key={option.value}

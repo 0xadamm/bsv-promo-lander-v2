@@ -96,6 +96,46 @@ export async function PUT(
   }
 }
 
+// PATCH /api/content/[id] - Partial update content (for quick edits like tags)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+
+    // For PATCH, we allow partial updates without full validation
+    // Just update the fields that are provided
+    const content = await updateContent(id, body);
+
+    if (!content) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Content not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: content,
+    });
+  } catch (error) {
+    console.error("Error updating content:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to update content",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/content/[id] - Delete content
 export async function DELETE(
   request: NextRequest,

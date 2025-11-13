@@ -15,7 +15,7 @@ export default function DatabasePage() {
 
   // Filter state
   const [filters, setFilters] = useState({
-    contentType: "all" as "all" | "testimonial" | "raw-footage",
+    contentType: "all" as "all" | "testimonial" | "raw-footage" | "content",
     mediaType: "all" as "all" | "video" | "image",
     sports: [] as string[],
     ailments: [] as string[],

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface ContentItem {
   _id: string;
@@ -42,6 +42,13 @@ export default function ContentManager() {
   const [sports, setSports] = useState<Sport[]>([]);
   const [ailments, setAilments] = useState<Ailment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingTags, setEditingTags] = useState<{
+    contentId: string;
+    type: "sports" | "ailments";
+    selectedTags: string[];
+    position: { top: number; left: number };
+  } | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Filters
   const [filters, setFilters] = useState({
@@ -78,6 +85,18 @@ export default function ContentManager() {
     }
 
     fetchData();
+  }, []);
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setEditingTags(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   if (loading) {
@@ -133,6 +152,81 @@ export default function ContentManager() {
       ailment: "all",
       search: "",
     });
+  }
+
+  function openTagEditor(
+    event: React.MouseEvent<HTMLTableCellElement>,
+    contentId: string,
+    type: "sports" | "ailments",
+    currentTags: string[]
+  ) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const dropdownHeight = 400; // max-height of dropdown
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // If not enough space below but more space above, show dropdown above the element
+    const showAbove = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+
+    setEditingTags({
+      contentId,
+      type,
+      selectedTags: [...currentTags],
+      position: {
+        top: showAbove ? rect.top - Math.min(dropdownHeight, spaceAbove) - 8 : rect.bottom + 8,
+        left: rect.left,
+      },
+    });
+  }
+
+  async function toggleTag(slug: string) {
+    if (!editingTags) return;
+
+    const newSelectedTags = editingTags.selectedTags.includes(slug)
+      ? editingTags.selectedTags.filter((s) => s !== slug)
+      : [...editingTags.selectedTags, slug];
+
+    // Update local state immediately for responsive UI
+    setEditingTags({
+      ...editingTags,
+      selectedTags: newSelectedTags,
+    });
+
+    // Auto-save in background
+    try {
+      const updateData =
+        editingTags.type === "sports"
+          ? { sports: newSelectedTags }
+          : { ailments: newSelectedTags };
+
+      const response = await fetch(`/api/content/${editingTags.contentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
+
+      if (response.ok) {
+        // Update the content list
+        setAllContent((prev) =>
+          prev.map((content) =>
+            content._id === editingTags.contentId
+              ? { ...content, ...updateData }
+              : content
+          )
+        );
+      } else {
+        // Revert on failure
+        alert("Failed to update tags");
+        setEditingTags({
+          ...editingTags,
+          selectedTags: editingTags.selectedTags,
+        });
+      }
+    } catch (error) {
+      console.error("Error saving tags:", error);
+      alert("Error saving tags");
+    }
   }
 
   return (
@@ -357,50 +451,78 @@ export default function ContentManager() {
                     <div className="flex items-center">
                       {/* Thumbnail */}
                       <div className="h-12 w-12 flex-shrink-0 mr-3">
-                        {content.thumbnailUrl ? (
-                          content.mediaType === "video" ? (
-                            <div className="relative h-12 w-12 bg-gray-200 rounded overflow-hidden">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {(() => {
+                          // Check if thumbnailUrl is actually an image (not a video file)
+                          const isValidThumbnail =
+                            content.thumbnailUrl &&
+                            !content.thumbnailUrl.match(/\.(mp4|mov|avi|webm|mkv)$/i);
+
+                          if (content.mediaType === "video") {
+                            const videoUrl = content.mediaUrls[0];
+                            return (
+                              <div className="relative h-12 w-12 bg-gray-200 rounded overflow-hidden">
+                                {isValidThumbnail ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={content.thumbnailUrl}
+                                    alt={content.title}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : videoUrl ? (
+                                  <video
+                                    src={videoUrl}
+                                    className="h-full w-full object-cover"
+                                    muted
+                                    preload="metadata"
+                                    playsInline
+                                    onLoadedMetadata={(e) => {
+                                      const video = e.target as HTMLVideoElement;
+                                      video.currentTime = 0.1;
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="h-full w-full bg-gray-300" />
+                                )}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                                  <svg
+                                    className="w-6 h-6 text-white"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                </div>
+                              </div>
+                            );
+                          } else if (content.thumbnailUrl || content.mediaUrls[0]) {
+                            return (
+                              // eslint-disable-next-line @next/next/no-img-element
                               <img
-                                src={content.thumbnailUrl}
+                                src={content.thumbnailUrl || content.mediaUrls[0]}
                                 alt={content.title}
-                                className="h-full w-full object-cover"
+                                className="h-12 w-12 rounded object-cover"
                               />
-                              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                            );
+                          } else {
+                            return (
+                              <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
                                 <svg
-                                  className="w-6 h-6 text-white"
-                                  fill="currentColor"
+                                  className="w-6 h-6 text-gray-500"
+                                  fill="none"
+                                  stroke="currentColor"
                                   viewBox="0 0 24 24"
                                 >
-                                  <path d="M8 5v14l11-7z" />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                  />
                                 </svg>
                               </div>
-                            </div>
-                          ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={content.thumbnailUrl}
-                              alt={content.title}
-                              className="h-12 w-12 rounded object-cover"
-                            />
-                          )
-                        ) : (
-                          <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
-                            <svg
-                              className="w-6 h-6 text-gray-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                          </div>
-                        )}
+                            );
+                          }
+                        })()}
                       </div>
                       <div>
                         <div className="text-sm font-medium text-gray-900">
@@ -419,8 +541,14 @@ export default function ContentManager() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
+                  <td
+                    className="px-6 py-4 cursor-pointer hover:bg-gray-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openTagEditor(e, content._id, "sports", content.sports);
+                    }}
+                  >
+                    <div className="flex flex-wrap gap-1 items-center">
                       {contentSports.length > 0 ? (
                         contentSports.map((sport) => (
                           <span
@@ -441,10 +569,29 @@ export default function ContentManager() {
                       ) : (
                         <span className="text-xs text-gray-400">No tags</span>
                       )}
+                      <svg
+                        className="w-4 h-4 text-gray-400 ml-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                        />
+                      </svg>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
+                  <td
+                    className="px-6 py-4 cursor-pointer hover:bg-gray-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openTagEditor(e, content._id, "ailments", content.ailments);
+                    }}
+                  >
+                    <div className="flex flex-wrap gap-1 items-center">
                       {contentAilments.length > 0 ? (
                         contentAilments.map((ailment) => (
                           <span
@@ -465,6 +612,19 @@ export default function ContentManager() {
                       ) : (
                         <span className="text-xs text-gray-400">No tags</span>
                       )}
+                      <svg
+                        className="w-4 h-4 text-gray-400 ml-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                        />
+                      </svg>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -497,6 +657,82 @@ export default function ContentManager() {
           </div>
         )}
       </div>
+
+      {/* Tag Editor Dropdown */}
+      {editingTags && (
+        <div
+          ref={dropdownRef}
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 max-h-[400px] overflow-auto"
+          style={{
+            top: `${editingTags.position.top}px`,
+            left: `${editingTags.position.left}px`,
+            minWidth: "300px",
+            maxWidth: "400px",
+          }}
+        >
+          <div className="px-4 py-2 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900">
+              Edit {editingTags.type === "sports" ? "Sports" : "Ailments"}
+            </h3>
+          </div>
+
+          <div className="py-2">
+            {editingTags.type === "sports" ? (
+              sports.map((sport) => (
+                <label
+                  key={sport.slug}
+                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={editingTags.selectedTags.includes(sport.slug)}
+                    onChange={() => toggleTag(sport.slug)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span
+                    className="ml-3 text-sm font-medium"
+                    style={{ color: sport.color || "#000" }}
+                  >
+                    {sport.name}
+                  </span>
+                  {sport.color && (
+                    <div
+                      className="ml-auto w-4 h-4 rounded-full"
+                      style={{ backgroundColor: sport.color }}
+                    />
+                  )}
+                </label>
+              ))
+            ) : (
+              ailments.map((ailment) => (
+                <label
+                  key={ailment.slug}
+                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={editingTags.selectedTags.includes(ailment.slug)}
+                    onChange={() => toggleTag(ailment.slug)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span
+                    className="ml-3 text-sm font-medium"
+                    style={{ color: ailment.color || "#000" }}
+                  >
+                    {ailment.name}
+                  </span>
+                  {ailment.color && (
+                    <div
+                      className="ml-auto w-4 h-4 rounded-full"
+                      style={{ backgroundColor: ailment.color }}
+                    />
+                  )}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
