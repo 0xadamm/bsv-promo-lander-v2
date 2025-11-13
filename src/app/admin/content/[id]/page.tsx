@@ -20,7 +20,7 @@ interface ContentItem {
   _id: string;
   title: string;
   description?: string;
-  contentType: "testimonial" | "raw-footage" | "content";
+  contentType: "testimonial" | "raw-footage" | "content" | "doctors" | "athletes";
   mediaType: "image" | "video";
   mediaUrls: string[];
   sports: string[];
@@ -349,7 +349,7 @@ export default function ContentEditor() {
                 onChange={(e) =>
                   setContent({
                     ...content,
-                    contentType: e.target.value as "testimonial" | "raw-footage" | "content",
+                    contentType: e.target.value as "testimonial" | "raw-footage" | "content" | "doctors" | "athletes",
                   })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -357,6 +357,8 @@ export default function ContentEditor() {
                 <option value="testimonial">Testimonial</option>
                 <option value="raw-footage">Raw Footage</option>
                 <option value="content">Content</option>
+                <option value="doctors">Doctors</option>
+                <option value="athletes">Athletes</option>
               </select>
             </div>
             <div>

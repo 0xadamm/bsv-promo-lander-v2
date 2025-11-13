@@ -107,9 +107,9 @@ export async function PATCH(
 
     // For PATCH, we allow partial updates without strict validation
     // Validate only what's provided using the partial schema
-    const validatedData = updateContentSchema.partial().parse(body);
+    const validatedData = updateContentSchema.parse(body);
 
-    const content = await updateContent(id, validatedData as any);
+    const content = await updateContent(id, validatedData);
 
     if (!content) {
       return NextResponse.json(

@@ -17,17 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 100MB for videos, 10MB for images)
-    const maxSize = file.type.startsWith("video/") ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `File too large. Maximum size: ${maxSize / 1024 / 1024}MB`,
-        },
-        { status: 400 }
-      );
-    }
+    // No file size limits
 
     // Validate file type
     const allowedTypes = [
