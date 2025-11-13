@@ -5,9 +5,7 @@ export const ailmentSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
 
-  category: z.enum(["joint", "muscle", "recovery", "general"], {
-    required_error: "Category is required",
-  }),
+  category: z.enum(["joint", "muscle", "recovery", "general"]),
 
   iconUrl: z.string().url("Invalid icon URL").optional(),
   color: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid hex color").optional(),
