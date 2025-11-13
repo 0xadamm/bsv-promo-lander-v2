@@ -20,7 +20,12 @@ interface ContentItem {
   _id: string;
   title: string;
   description?: string;
-  contentType: "testimonial" | "raw-footage" | "content" | "doctors" | "athletes";
+  contentType:
+    | "testimonial"
+    | "raw-footage"
+    | "content"
+    | "doctors"
+    | "athlete";
   mediaType: "image" | "video";
   mediaUrls: string[];
   sports: string[];
@@ -144,12 +149,14 @@ export default function ContentEditor() {
       const response = await fetch(content.mediaUrls[0]);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
 
       // Extract filename from URL or use content title
-      const urlParts = content.mediaUrls[0].split('/');
-      const filename = urlParts[urlParts.length - 1] || `${content.title}.${content.mediaType === 'video' ? 'mp4' : 'jpg'}`;
+      const urlParts = content.mediaUrls[0].split("/");
+      const filename =
+        urlParts[urlParts.length - 1] ||
+        `${content.title}.${content.mediaType === "video" ? "mp4" : "jpg"}`;
 
       link.download = filename;
       document.body.appendChild(link);
@@ -157,8 +164,8 @@ export default function ContentEditor() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading file:', error);
-      alert('Error downloading file');
+      console.error("Error downloading file:", error);
+      alert("Error downloading file");
     }
   }
 
@@ -253,7 +260,9 @@ export default function ContentEditor() {
         <div className="w-2/5 flex-shrink-0">
           <div className="bg-white rounded-lg shadow p-6 sticky top-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Media Preview</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Media Preview
+              </h2>
               {content.mediaUrls[0] && (
                 <button
                   type="button"
@@ -293,374 +302,395 @@ export default function ContentEditor() {
               />
             )}
             {!content.mediaUrls[0] && (
-              <div className="text-gray-500 text-sm">
-                No media available
-              </div>
+              <div className="text-gray-500 text-sm">No media available</div>
             )}
           </div>
         </div>
 
         {/* Right Column - Form */}
         <div className="flex-1 space-y-6">
-        {/* Basic Info */}
-        <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Basic Information
-          </h2>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title *
-            </label>
-            <input
-              type="text"
-              required
-              value={content.title}
-              onChange={(e) =>
-                setContent({ ...content, title: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              value={content.description || ""}
-              onChange={(e) =>
-                setContent({ ...content, description: e.target.value })
-              }
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Add a description for this content..."
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Content Type *
-              </label>
-              <select
-                required
-                value={content.contentType}
-                onChange={(e) =>
-                  setContent({
-                    ...content,
-                    contentType: e.target.value as "testimonial" | "raw-footage" | "content" | "doctors" | "athletes",
-                  })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="testimonial">Testimonial</option>
-                <option value="raw-footage">Raw Footage</option>
-                <option value="content">Content</option>
-                <option value="doctors">Doctors</option>
-                <option value="athletes">Athletes</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Media Type *
-              </label>
-              <select
-                required
-                value={content.mediaType}
-                onChange={(e) =>
-                  setContent({
-                    ...content,
-                    mediaType: e.target.value as "image" | "video",
-                  })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="video">Video</option>
-                <option value="image">Image</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Sports Tags */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Sports Tags</h2>
-            <button
-              type="button"
-              onClick={() => setShowAddSport(!showAddSport)}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              {showAddSport ? "Cancel" : "+ Add New Sport"}
-            </button>
-          </div>
-
-          {showAddSport && (
-            <form onSubmit={handleCreateSport} className="mb-4 p-4 bg-gray-50 rounded-md space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Sport Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newSport.name}
-                  onChange={(e) =>
-                    setNewSport({ ...newSport, name: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-                  placeholder="e.g., UFC, NBA"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={newSport.color}
-                    onChange={(e) =>
-                      setNewSport({ ...newSport, color: e.target.value })
-                    }
-                    className="h-12 w-24 rounded border border-gray-300 cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={newSport.color}
-                    onChange={(e) =>
-                      setNewSport({ ...newSport, color: e.target.value })
-                    }
-                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 font-mono"
-                  />
-                  <span
-                    className="px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
-                    style={{
-                      backgroundColor: newSport.color + "20",
-                      color: newSport.color,
-                    }}
-                  >
-                    Preview
-                  </span>
-                </div>
-              </div>
-              <button
-                type="submit"
-                className="w-full px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700"
-              >
-                Create Sport
-              </button>
-            </form>
-          )}
-
-          {sports.length === 0 && !showAddSport ? (
-            <p className="text-sm text-gray-500">
-              No sports available. Click &quot;+ Add New Sport&quot; above to create one.
-            </p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {sports.map((sport) => (
-                <button
-                  key={sport.slug}
-                  type="button"
-                  onClick={() => toggleSport(sport.slug)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    content.sports.includes(sport.slug)
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  style={
-                    content.sports.includes(sport.slug) && sport.color
-                      ? {
-                          backgroundColor: sport.color,
-                          color: "white",
-                        }
-                      : {}
-                  }
-                >
-                  {sport.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Ailments Tags */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
+          {/* Basic Info */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">
-              Ailments Tags
+              Basic Information
             </h2>
-            <button
-              type="button"
-              onClick={() => setShowAddAilment(!showAddAilment)}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              {showAddAilment ? "Cancel" : "+ Add New Ailment"}
-            </button>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Title *
+              </label>
+              <input
+                type="text"
+                required
+                value={content.title}
+                onChange={(e) =>
+                  setContent({ ...content, title: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                value={content.description || ""}
+                onChange={(e) =>
+                  setContent({ ...content, description: e.target.value })
+                }
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Add a description for this content..."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Content Type *
+                </label>
+                <select
+                  required
+                  value={content.contentType}
+                  onChange={(e) =>
+                    setContent({
+                      ...content,
+                      contentType: e.target.value as
+                        | "testimonial"
+                        | "raw-footage"
+                        | "content"
+                        | "doctors"
+                        | "athlete",
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="testimonial">Testimonial</option>
+                  <option value="raw-footage">Raw Footage</option>
+                  <option value="content">Content</option>
+                  <option value="doctors">Doctors</option>
+                  <option value="athletes">Athletes</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Media Type *
+                </label>
+                <select
+                  required
+                  value={content.mediaType}
+                  onChange={(e) =>
+                    setContent({
+                      ...content,
+                      mediaType: e.target.value as "image" | "video",
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="video">Video</option>
+                  <option value="image">Image</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          {showAddAilment && (
-            <form onSubmit={handleCreateAilment} className="mb-4 p-4 bg-gray-50 rounded-md space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Ailment Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newAilment.name}
-                  onChange={(e) =>
-                    setNewAilment({ ...newAilment, name: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="e.g., Joint Pain, Muscle Soreness"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Description *
-                </label>
-                <textarea
-                  required
-                  value={newAilment.description}
-                  onChange={(e) =>
-                    setNewAilment({ ...newAilment, description: e.target.value })
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
-                  rows={2}
-                  placeholder="Brief description"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={newAilment.color}
-                    onChange={(e) =>
-                      setNewAilment({ ...newAilment, color: e.target.value })
-                    }
-                    className="h-12 w-24 rounded border border-gray-300 cursor-pointer"
-                  />
+          {/* Sports Tags */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Sports Tags
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowAddSport(!showAddSport)}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                {showAddSport ? "Cancel" : "+ Add New Sport"}
+              </button>
+            </div>
+
+            {showAddSport && (
+              <form
+                onSubmit={handleCreateSport}
+                className="mb-4 p-4 bg-gray-50 rounded-md space-y-3"
+              >
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Sport Name *
+                  </label>
                   <input
                     type="text"
-                    value={newAilment.color}
+                    required
+                    value={newSport.name}
                     onChange={(e) =>
-                      setNewAilment({ ...newAilment, color: e.target.value })
+                      setNewSport({ ...newSport, name: e.target.value })
                     }
-                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 font-mono"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                    placeholder="e.g., UFC, NBA"
                   />
-                  <span
-                    className="px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
-                    style={{
-                      backgroundColor: newAilment.color + "20",
-                      color: newAilment.color,
-                    }}
-                  >
-                    Preview
-                  </span>
                 </div>
-              </div>
-              <button
-                type="submit"
-                className="w-full px-4 py-2 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700"
-              >
-                Create Ailment
-              </button>
-            </form>
-          )}
-
-          {ailments.length === 0 && !showAddAilment ? (
-            <p className="text-sm text-gray-500">
-              No ailments available. Click &quot;+ Add New Ailment&quot; above to create one.
-            </p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {ailments.map((ailment) => (
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Color
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={newSport.color}
+                      onChange={(e) =>
+                        setNewSport({ ...newSport, color: e.target.value })
+                      }
+                      className="h-12 w-24 rounded border border-gray-300 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={newSport.color}
+                      onChange={(e) =>
+                        setNewSport({ ...newSport, color: e.target.value })
+                      }
+                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 font-mono"
+                    />
+                    <span
+                      className="px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
+                      style={{
+                        backgroundColor: newSport.color + "20",
+                        color: newSport.color,
+                      }}
+                    >
+                      Preview
+                    </span>
+                  </div>
+                </div>
                 <button
-                  key={ailment.slug}
-                  type="button"
-                  onClick={() => toggleAilment(ailment.slug)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    content.ailments.includes(ailment.slug)
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  style={
-                    content.ailments.includes(ailment.slug) &&
-                    ailment.color
-                      ? {
-                          backgroundColor: ailment.color,
-                          color: "white",
-                        }
-                      : {}
-                  }
+                  type="submit"
+                  className="w-full px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700"
                 >
-                  {ailment.name}
+                  Create Sport
                 </button>
-              ))}
+              </form>
+            )}
+
+            {sports.length === 0 && !showAddSport ? (
+              <p className="text-sm text-gray-500">
+                No sports available. Click &quot;+ Add New Sport&quot; above to
+                create one.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {sports.map((sport) => (
+                  <button
+                    key={sport.slug}
+                    type="button"
+                    onClick={() => toggleSport(sport.slug)}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      content.sports.includes(sport.slug)
+                        ? "bg-green-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                    style={
+                      content.sports.includes(sport.slug) && sport.color
+                        ? {
+                            backgroundColor: sport.color,
+                            color: "white",
+                          }
+                        : {}
+                    }
+                  >
+                    {sport.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Ailments Tags */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Ailments Tags
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowAddAilment(!showAddAilment)}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                {showAddAilment ? "Cancel" : "+ Add New Ailment"}
+              </button>
             </div>
-          )}
-        </div>
 
-        {/* Metadata */}
-        <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Metadata</h2>
+            {showAddAilment && (
+              <form
+                onSubmit={handleCreateAilment}
+                className="mb-4 p-4 bg-gray-50 rounded-md space-y-3"
+              >
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Ailment Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newAilment.name}
+                    onChange={(e) =>
+                      setNewAilment({ ...newAilment, name: e.target.value })
+                    }
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="e.g., Joint Pain, Muscle Soreness"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Description *
+                  </label>
+                  <textarea
+                    required
+                    value={newAilment.description}
+                    onChange={(e) =>
+                      setNewAilment({
+                        ...newAilment,
+                        description: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                    rows={2}
+                    placeholder="Brief description"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Color
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={newAilment.color}
+                      onChange={(e) =>
+                        setNewAilment({ ...newAilment, color: e.target.value })
+                      }
+                      className="h-12 w-24 rounded border border-gray-300 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={newAilment.color}
+                      onChange={(e) =>
+                        setNewAilment({ ...newAilment, color: e.target.value })
+                      }
+                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 font-mono"
+                    />
+                    <span
+                      className="px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
+                      style={{
+                        backgroundColor: newAilment.color + "20",
+                        color: newAilment.color,
+                      }}
+                    >
+                      Preview
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700"
+                >
+                  Create Ailment
+                </button>
+              </form>
+            )}
 
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="featured"
-              checked={content.featured}
-              onChange={(e) =>
-                setContent({ ...content, featured: e.target.checked })
-              }
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="featured" className="text-sm font-medium text-gray-700">
-              Featured content (show prominently on database page)
-            </label>
+            {ailments.length === 0 && !showAddAilment ? (
+              <p className="text-sm text-gray-500">
+                No ailments available. Click &quot;+ Add New Ailment&quot; above
+                to create one.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {ailments.map((ailment) => (
+                  <button
+                    key={ailment.slug}
+                    type="button"
+                    onClick={() => toggleAilment(ailment.slug)}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      content.ailments.includes(ailment.slug)
+                        ? "bg-purple-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                    style={
+                      content.ailments.includes(ailment.slug) && ailment.color
+                        ? {
+                            backgroundColor: ailment.color,
+                            color: "white",
+                          }
+                        : {}
+                    }
+                  >
+                    {ailment.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Priority
-            </label>
-            <input
-              type="number"
-              value={content.priority}
-              onChange={(e) =>
-                setContent({ ...content, priority: parseInt(e.target.value) || 0 })
-              }
-              className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Higher priority items appear first (default: 0)
-            </p>
-          </div>
-        </div>
+          {/* Metadata */}
+          <div className="bg-white rounded-lg shadow p-6 space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900">Metadata</h2>
 
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push("/admin/content")}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-        </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="featured"
+                checked={content.featured}
+                onChange={(e) =>
+                  setContent({ ...content, featured: e.target.checked })
+                }
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="featured"
+                className="text-sm font-medium text-gray-700"
+              >
+                Featured content (show prominently on database page)
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Priority
+              </label>
+              <input
+                type="number"
+                value={content.priority}
+                onChange={(e) =>
+                  setContent({
+                    ...content,
+                    priority: parseInt(e.target.value) || 0,
+                  })
+                }
+                className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Higher priority items appear first (default: 0)
+              </p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/admin/content")}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </form>
     </div>
