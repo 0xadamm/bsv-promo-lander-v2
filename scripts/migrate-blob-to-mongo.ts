@@ -106,7 +106,6 @@ async function migrateContent() {
           thumbnailUrl: blob.url, // For videos, this will need proper thumbnails later
           sports: [], // Will be tagged later through admin
           ailments: [], // Will be tagged later through admin
-          athleteName: name !== filename ? name : undefined,
           source: source,
           featured: false,
           priority: 0,
