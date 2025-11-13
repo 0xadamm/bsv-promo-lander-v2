@@ -75,8 +75,8 @@ export async function listContent(query: ContentQuery = {}) {
 
   // Parse sort
   const sortField = sort.startsWith("-") ? sort.slice(1) : sort;
-  const sortOrder = sort.startsWith("-") ? -1 : 1;
-  const sortQuery = { [sortField]: sortOrder };
+  const sortOrder: 1 | -1 = sort.startsWith("-") ? -1 : 1;
+  const sortQuery: { [key: string]: 1 | -1 } = { [sortField]: sortOrder };
 
   // Execute query
   const total = await collection.countDocuments(filter);
