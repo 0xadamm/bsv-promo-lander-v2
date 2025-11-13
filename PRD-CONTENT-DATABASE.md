@@ -1,4 +1,4 @@
-# PRD: Content Database System
+# PRD: Content Database Systems
 
 **Project:** BSV Promo Lander v2  
 **Date:** November 12, 2025  
