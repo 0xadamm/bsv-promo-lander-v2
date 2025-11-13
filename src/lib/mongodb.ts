@@ -1,36 +1,44 @@
 import { MongoClient, Db } from "mongodb";
 import type { Content, Sport, Ailment } from "@/types/database";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please add your MongoDB URI to .env.local");
-}
-
-const uri = process.env.MONGODB_URI;
 const options = {};
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+let clientPromise: Promise<MongoClient> | undefined;
 
 declare global {
-  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-if (process.env.NODE_ENV === "development") {
-  // In development mode, use a global variable so the MongoClient is not constantly created
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
+function getClientPromise(): Promise<MongoClient> {
+  if (!process.env.MONGODB_URI) {
+    throw new Error("Please add your MongoDB URI to .env.local");
   }
-  clientPromise = global._mongoClientPromise;
-} else {
-  // In production mode, it's best to not use a global variable
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+
+  if (clientPromise) {
+    return clientPromise;
+  }
+
+  const uri = process.env.MONGODB_URI;
+  let client: MongoClient;
+
+  if (process.env.NODE_ENV === "development") {
+    // In development mode, use a global variable so the MongoClient is not constantly created
+    if (!global._mongoClientPromise) {
+      client = new MongoClient(uri, options);
+      global._mongoClientPromise = client.connect();
+    }
+    clientPromise = global._mongoClientPromise;
+  } else {
+    // In production mode, it's best to not use a global variable
+    client = new MongoClient(uri, options);
+    clientPromise = client.connect();
+  }
+
+  return clientPromise;
 }
 
 export async function getDb(): Promise<Db> {
-  const client = await clientPromise;
+  const client = await getClientPromise();
   const dbName = process.env.MONGODB_DB || "bsv-content";
   return client.db(dbName);
 }
@@ -84,5 +92,3 @@ export async function createIndexes() {
 
   console.log("✅ Database indexes created successfully");
 }
-
-export default clientPromise;
