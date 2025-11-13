@@ -147,7 +147,13 @@ export default function ContentModal({
           >
             {content.contentType === "testimonial"
               ? "Testimonial"
-              : "Raw Footage"}
+              : content.contentType === "raw-footage"
+              ? "Raw Footage"
+              : content.contentType === "doctors"
+              ? "Doctors"
+              : content.contentType === "athlete"
+              ? "Athletes"
+              : "Content"}
           </span>
 
           <h2 className="text-2xl font-bold text-gray-900 mb-4">

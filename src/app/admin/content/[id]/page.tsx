@@ -189,7 +189,11 @@ export default function ContentEditor() {
         // Auto-select the newly created sport
         setContent({ ...content, sports: [...content.sports, data.data.slug] });
       } else {
-        alert("Error creating sport: " + (data.error || "Unknown error"));
+        console.error("Sport creation error:", data);
+        const errorMsg = data.details
+          ? `Validation error: ${data.details.map((d: any) => d.message).join(", ")}`
+          : data.error || "Unknown error";
+        alert("Error creating sport: " + errorMsg);
       }
     } catch (error) {
       console.error("Error creating sport:", error);
@@ -225,7 +229,11 @@ export default function ContentEditor() {
           ailments: [...content.ailments, data.data.slug],
         });
       } else {
-        alert("Error creating ailment: " + (data.error || "Unknown error"));
+        console.error("Ailment creation error:", data);
+        const errorMsg = data.details
+          ? `Validation error: ${data.details.map((d: any) => d.message).join(", ")}`
+          : data.error || "Unknown error";
+        alert("Error creating ailment: " + errorMsg);
       }
     } catch (error) {
       console.error("Error creating ailment:", error);
@@ -411,10 +419,7 @@ export default function ContentEditor() {
             </div>
 
             {showAddSport && (
-              <form
-                onSubmit={handleCreateSport}
-                className="mb-4 p-4 bg-gray-50 rounded-md space-y-3"
-              >
+              <div className="mb-4 p-4 bg-gray-50 rounded-md space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Sport Name *
@@ -463,12 +468,20 @@ export default function ContentEditor() {
                   </div>
                 </div>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (newSport.name.trim()) {
+                      handleCreateSport(e as any);
+                    } else {
+                      alert("Please enter a sport name");
+                    }
+                  }}
                   className="w-full px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700"
                 >
                   Create Sport
                 </button>
-              </form>
+              </div>
             )}
 
             {sports.length === 0 && !showAddSport ? (
@@ -520,10 +533,7 @@ export default function ContentEditor() {
             </div>
 
             {showAddAilment && (
-              <form
-                onSubmit={handleCreateAilment}
-                className="mb-4 p-4 bg-gray-50 rounded-md space-y-3"
-              >
+              <div className="mb-4 p-4 bg-gray-50 rounded-md space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Ailment Name *
@@ -590,12 +600,20 @@ export default function ContentEditor() {
                   </div>
                 </div>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (newAilment.name.trim() && newAilment.description.trim()) {
+                      handleCreateAilment(e as any);
+                    } else {
+                      alert("Please enter ailment name and description");
+                    }
+                  }}
                   className="w-full px-4 py-2 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700"
                 >
                   Create Ailment
                 </button>
-              </form>
+              </div>
             )}
 
             {ailments.length === 0 && !showAddAilment ? (

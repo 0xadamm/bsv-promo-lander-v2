@@ -58,8 +58,8 @@ export default function ContentManager() {
   const [filters, setFilters] = useState({
     contentType: [] as string[],
     mediaType: [] as string[],
-    sport: "all",
-    ailment: "all",
+    sports: [] as string[],
+    ailments: [] as string[],
     search: "",
   });
 
@@ -144,14 +144,17 @@ export default function ContentManager() {
     }
 
     // Sport filter
-    if (filters.sport !== "all" && !content.sports.includes(filters.sport)) {
+    if (
+      filters.sports.length > 0 &&
+      !content.sports.some((s) => filters.sports.includes(s))
+    ) {
       return false;
     }
 
     // Ailment filter
     if (
-      filters.ailment !== "all" &&
-      !content.ailments.includes(filters.ailment)
+      filters.ailments.length > 0 &&
+      !content.ailments.some((a) => filters.ailments.includes(a))
     ) {
       return false;
     }
@@ -181,8 +184,8 @@ export default function ContentManager() {
     setFilters({
       contentType: [],
       mediaType: [],
-      sport: "all",
-      ailment: "all",
+      sports: [],
+      ailments: [],
       search: "",
     });
   }
@@ -304,7 +307,7 @@ export default function ContentManager() {
             Reset All
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3" ref={filterDropdownRef}>
           {/* Search */}
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -322,7 +325,7 @@ export default function ContentManager() {
           </div>
 
           {/* Content Type */}
-          <div className="relative" ref={filterDropdownRef}>
+          <div className="relative">
             <label className="block text-xs font-medium text-gray-700 mb-1">
               Content Type{" "}
               {filters.contentType.length > 0 &&
@@ -452,53 +455,129 @@ export default function ContentManager() {
           </div>
 
           {/* Sport */}
-          <div>
+          <div className="relative">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Sport
+              Sport{" "}
+              {filters.sports.length > 0 && `(${filters.sports.length})`}
             </label>
-            <select
-              value={filters.sport}
-              onChange={(e) =>
-                setFilters({ ...filters, sport: e.target.value })
+            <button
+              type="button"
+              onClick={() =>
+                setOpenFilterDropdown(
+                  openFilterDropdown === "sport" ? null : "sport"
+                )
               }
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-left flex items-center justify-between bg-white hover:bg-gray-50"
             >
-              <option value="all">All Sports</option>
-              {sports.map((sport) => (
-                <option key={sport.slug} value={sport.slug}>
-                  {sport.name}
-                </option>
-              ))}
-            </select>
+              <span className="text-gray-700">
+                {filters.sports.length === 0
+                  ? "All Sports"
+                  : `${filters.sports.length} selected`}
+              </span>
+              <svg
+                className="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {openFilterDropdown === "sport" && (
+              <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50 max-h-60 overflow-auto">
+                {sports.map((sport) => (
+                  <label
+                    key={sport.slug}
+                    className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.sports.includes(sport.slug)}
+                      onChange={(e) => {
+                        const newSports = e.target.checked
+                          ? [...filters.sports, sport.slug]
+                          : filters.sports.filter((s) => s !== sport.slug);
+                        setFilters({ ...filters, sports: newSports });
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2"
+                    />
+                    <span className="text-gray-700">{sport.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Ailment */}
-          <div>
+          <div className="relative">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Ailment
+              Ailment{" "}
+              {filters.ailments.length > 0 && `(${filters.ailments.length})`}
             </label>
-            <select
-              value={filters.ailment}
-              onChange={(e) =>
-                setFilters({ ...filters, ailment: e.target.value })
+            <button
+              type="button"
+              onClick={() =>
+                setOpenFilterDropdown(
+                  openFilterDropdown === "ailment" ? null : "ailment"
+                )
               }
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-left flex items-center justify-between bg-white hover:bg-gray-50"
             >
-              <option value="all">All Ailments</option>
-              {ailments.map((ailment) => (
-                <option key={ailment.slug} value={ailment.slug}>
-                  {ailment.name}
-                </option>
-              ))}
-            </select>
+              <span className="text-gray-700">
+                {filters.ailments.length === 0
+                  ? "All Ailments"
+                  : `${filters.ailments.length} selected`}
+              </span>
+              <svg
+                className="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {openFilterDropdown === "ailment" && (
+              <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50 max-h-60 overflow-auto">
+                {ailments.map((ailment) => (
+                  <label
+                    key={ailment.slug}
+                    className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.ailments.includes(ailment.slug)}
+                      onChange={(e) => {
+                        const newAilments = e.target.checked
+                          ? [...filters.ailments, ailment.slug]
+                          : filters.ailments.filter((a) => a !== ailment.slug);
+                        setFilters({ ...filters, ailments: newAilments });
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2"
+                    />
+                    <span className="text-gray-700">{ailment.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Active Filters Count */}
         {(filters.contentType.length > 0 ||
           filters.mediaType.length > 0 ||
-          filters.sport !== "all" ||
-          filters.ailment !== "all" ||
+          filters.sports.length > 0 ||
+          filters.ailments.length > 0 ||
           filters.search) && (
           <div className="mt-3 text-xs text-gray-600">
             Showing {sortedContent.length} of {allContent.length} items
@@ -702,7 +781,15 @@ export default function ContentManager() {
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1">
                         <span className="inline-flex text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 w-fit">
-                          {content.contentType}
+                          {content.contentType === "testimonial"
+                            ? "Testimonial"
+                            : content.contentType === "raw-footage"
+                            ? "Raw Footage"
+                            : content.contentType === "doctors"
+                            ? "Doctors"
+                            : content.contentType === "athlete"
+                            ? "Athletes"
+                            : "Content"}
                         </span>
                         <svg
                           className="w-4 h-4 text-gray-400"
