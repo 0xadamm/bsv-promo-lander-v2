@@ -101,13 +101,25 @@ export default function ContentCard({
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <video
-              src={content.mediaUrls[0]}
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              preload="metadata"
-              muted
-              playsInline
-            />
+            <>
+              <video
+                src={content.mediaUrls[0]}
+                poster={content.thumbnailUrl || undefined}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                preload="metadata"
+                muted
+                playsInline
+                onLoadedMetadata={(e) => {
+                  // Force seek to first frame to show thumbnail on mobile
+                  const video = e.currentTarget;
+                  if (video.duration > 0 && video.currentTime === 0) {
+                    video.currentTime = 0.1;
+                  }
+                }}
+              />
+              {/* Fallback background for when video doesn't load */}
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 -z-10" />
+            </>
           )}
         </>
       )}
