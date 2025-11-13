@@ -16,6 +16,7 @@ interface ContentItem {
   sports: string[];
   ailments: string[];
   source?: string;
+  published: boolean;
   featured: boolean;
   priority: number;
   publishedAt: Date;
