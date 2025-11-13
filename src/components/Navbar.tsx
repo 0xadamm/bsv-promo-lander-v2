@@ -20,6 +20,7 @@ const navItems: NavItem[] = [
   { label: "Wall of Love", href: "#testimonials" },
   { label: "Before & After", href: "#before-after" },
   { label: "Press & News", href: "#press-news" },
+  { label: "Database", href: "/database" },
 ];
 
 export default function Navbar({ alwaysWithBackground = false, backgroundColor }: NavbarProps = {}) {

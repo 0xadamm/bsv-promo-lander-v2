@@ -16,6 +16,7 @@ export const contentSchema = z.object({
 
   source: z.string().optional(),
 
+  published: z.boolean().default(true),
   featured: z.boolean().default(false),
   priority: z.number().default(0),
   publishedAt: z.date().default(() => new Date()),

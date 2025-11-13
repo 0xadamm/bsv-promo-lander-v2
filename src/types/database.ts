@@ -23,6 +23,7 @@ export interface Content {
   source?: string; // 'user-submitted', 'instagram', 'vercel-blob', etc.
 
   // Metadata
+  published: boolean;
   featured: boolean;
   priority: number;
   publishedAt: Date;

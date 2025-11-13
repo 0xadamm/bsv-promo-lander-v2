@@ -905,13 +905,77 @@ export default function ContentManager() {
                     {new Date(content.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link
-                      href={`/admin/content/${content._id}`}
-                      className="text-blue-600 hover:text-blue-900"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Edit
-                    </Link>
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        href={`/admin/content/${content._id}`}
+                        className="text-blue-600 hover:text-blue-900"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            const response = await fetch(`/api/content/${content._id}`, {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ published: !content.published }),
+                            });
+
+                            if (response.ok) {
+                              setAllContent((prev) =>
+                                prev.map((c) =>
+                                  c._id === content._id
+                                    ? { ...c, published: !c.published }
+                                    : c
+                                )
+                              );
+                            } else {
+                              alert("Failed to update publish status");
+                            }
+                          } catch (error) {
+                            console.error("Error updating publish status:", error);
+                            alert("Error updating publish status");
+                          }
+                        }}
+                        className={`${
+                          content.published
+                            ? "text-orange-600 hover:text-orange-900"
+                            : "text-green-600 hover:text-green-900"
+                        }`}
+                      >
+                        {content.published ? "Unpublish" : "Publish"}
+                      </button>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!confirm("Are you sure you want to permanently delete this content? This cannot be undone.")) {
+                            return;
+                          }
+
+                          try {
+                            const response = await fetch(`/api/content/${content._id}`, {
+                              method: "DELETE",
+                            });
+
+                            if (response.ok) {
+                              setAllContent((prev) =>
+                                prev.filter((c) => c._id !== content._id)
+                              );
+                            } else {
+                              alert("Failed to delete content");
+                            }
+                          } catch (error) {
+                            console.error("Error deleting content:", error);
+                            alert("Error deleting content");
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

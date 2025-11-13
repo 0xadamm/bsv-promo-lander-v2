@@ -55,6 +55,9 @@ export default function DatabasePage() {
 
   // Filter content based on active filters
   const filteredContent = content.filter((item) => {
+    // Only show published content on the public database page
+    if (!item.published) return false;
+
     // Content type filter
     if (
       filters.contentType.length > 0 &&

@@ -85,9 +85,9 @@ export default function FilterBar({
   return (
     <div ref={dropdownRef}>
       {/* Search Bar and Filter Pills */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
         {/* Search Bar */}
-        <div className="flex-1 min-w-[300px] relative">
+        <div className="col-span-2 relative">
           <svg
             className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"
             fill="none"
@@ -115,18 +115,18 @@ export default function FilterBar({
         <div className="relative">
           <button
             onClick={() => setOpenDropdown(openDropdown === "content" ? null : "content")}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+            className="w-full flex items-center justify-between gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
             </svg>
-            <span>{getContentTypeLabel()}</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="flex-1 text-left truncate">{getContentTypeLabel()}</span>
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           {openDropdown === "content" && (
-            <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[200px] z-50">
+            <div className="absolute top-full mt-2 left-0 right-0 sm:right-auto sm:min-w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 max-h-64 overflow-auto">
               {[
                 { value: "testimonial", label: "Testimonials" },
                 { value: "raw-footage", label: "Raw Footage" },
@@ -160,18 +160,18 @@ export default function FilterBar({
         <div className="relative">
           <button
             onClick={() => setOpenDropdown(openDropdown === "media" ? null : "media")}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+            className="w-full flex items-center justify-between gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
-            <span>{getMediaTypeLabel()}</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="flex-1 text-left truncate">{getMediaTypeLabel()}</span>
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           {openDropdown === "media" && (
-            <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[200px] z-50">
+            <div className="absolute top-full mt-2 left-0 right-0 sm:right-auto sm:min-w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 max-h-64 overflow-auto">
               {[
                 { value: "video", label: "Videos" },
                 { value: "image", label: "Images" },
@@ -203,18 +203,18 @@ export default function FilterBar({
           <div className="relative">
             <button
               onClick={() => setOpenDropdown(openDropdown === "sports" ? null : "sports")}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+              className="w-full flex items-center justify-between gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span>{getSportLabel()}</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="flex-1 text-left truncate">{getSportLabel()}</span>
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             {openDropdown === "sports" && (
-              <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[200px] z-50">
+              <div className="absolute top-full mt-2 left-0 right-0 md:right-auto md:min-w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 max-h-64 overflow-auto">
                 <button
                   onClick={() => {
                     onFilterChange({ ...filters, sports: [] });
@@ -260,18 +260,18 @@ export default function FilterBar({
           <div className="relative">
             <button
               onClick={() => setOpenDropdown(openDropdown === "ailments" ? null : "ailments")}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+              className="w-full flex items-center justify-between gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
-              <span>{getAilmentLabel()}</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="flex-1 text-left truncate">{getAilmentLabel()}</span>
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             {openDropdown === "ailments" && (
-              <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[200px] z-50">
+              <div className="absolute top-full mt-2 left-0 right-0 md:right-auto md:min-w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 max-h-64 overflow-auto">
                 <button
                   onClick={() => {
                     onFilterChange({ ...filters, ailments: [] });
@@ -311,13 +311,14 @@ export default function FilterBar({
             )}
           </div>
         )}
+      </div>
 
-        {/* Result Count */}
-        <div className="text-sm text-gray-600 whitespace-nowrap">
+      {/* Result Count and Clear Filters */}
+      <div className="flex items-center justify-between mt-4">
+        <div className="text-sm text-gray-600">
           {resultCount} {resultCount === 1 ? "result" : "results"}
         </div>
 
-        {/* Clear Filters */}
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
