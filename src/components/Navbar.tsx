@@ -78,7 +78,7 @@ export default function Navbar({ alwaysWithBackground = false, backgroundColor }
   return (
     <>
     <nav
-      className={`fixed top-[10px] left-[40px] right-[40px] md:left-[60px] md:right-[60px] lg:left-[80px] lg:right-[80px] z-50 transition-all duration-300 rounded-2xl lg:rounded-3xl overflow-hidden ${
+      className={`fixed top-[30px] left-[40px] right-[40px] md:left-[100px] md:right-[100px] lg:left-[150px] lg:right-[150px] xl:left-[200px] xl:right-[200px] z-50 transition-all duration-300 rounded-full overflow-hidden ${
         isScrolledPastHero ? "backdrop-blur-md shadow-lg" : ""
       }`}
       style={
@@ -102,13 +102,13 @@ export default function Navbar({ alwaysWithBackground = false, backgroundColor }
       )}
 
       <div className="container-wide relative z-10">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Left Side - Mobile Hamburger / Desktop Navigation */}
-          <div className="flex items-center justify-start w-24 lg:w-auto lg:flex-1 lg:justify-center">
+        <div className="flex items-center justify-between h-16 lg:h-20 px-4 lg:px-8">
+          {/* Left Side - Logo */}
+          <div className="flex items-center">
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`lg:hidden p-2 rounded-lg transition-colors ${
+              className={`lg:hidden p-2 rounded-lg transition-colors mr-3 ${
                 backgroundColor
                   ? "hover:bg-black/10 text-black"
                   : "hover:bg-white/10 text-white"
@@ -118,32 +118,9 @@ export default function Navbar({ alwaysWithBackground = false, backgroundColor }
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-12">
-              {navItems.slice(0, 2).map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={`transition-colors font-medium relative group ${
-                    backgroundColor
-                      ? "text-black hover:text-black/70"
-                      : "text-white hover:text-white/80"
-                  }`}
-                >
-                  {item.label}
-                  <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
-                    backgroundColor ? "bg-black" : "bg-white"
-                  }`}></span>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Center Logo */}
-          <div className="flex items-center justify-center flex-shrink-0">
             <a
               href="#"
-              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              className="flex items-center hover:opacity-80 transition-opacity"
             >
               <Image
                 src={backgroundColor ? "/blue-scorpion-venom-logo_h.png" : "/blue-scorpion-venom-logo-h-white.png"}
@@ -151,35 +128,35 @@ export default function Navbar({ alwaysWithBackground = false, backgroundColor }
                 width={338}
                 height={100}
                 quality={100}
-                className="h-8 w-auto lg:h-12"
+                className="h-8 w-auto lg:h-10"
               />
             </a>
           </div>
 
-          {/* Right Side - CTA Button / Desktop Navigation */}
-          <div className="flex items-center justify-end w-24 lg:w-auto lg:flex-1 lg:justify-center space-x-4">
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-12">
-              {navItems.slice(2).map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={`transition-colors font-medium relative group ${
-                    backgroundColor
-                      ? "text-black hover:text-black/70"
-                      : "text-white hover:text-white/80"
-                  }`}
-                >
-                  {item.label}
-                  <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
-                    backgroundColor ? "bg-black" : "bg-white"
-                  }`}></span>
-                </a>
-              ))}
-            </div>
+          {/* Center - Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className={`transition-colors font-medium relative group ${
+                  backgroundColor
+                    ? "text-black hover:text-black/70"
+                    : "text-white hover:text-white/80"
+                }`}
+              >
+                {item.label}
+                <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
+                  backgroundColor ? "bg-black" : "bg-white"
+                }`}></span>
+              </a>
+            ))}
+          </div>
 
+          {/* Right Side - CTA Button */}
+          <div className="flex items-center">
             {/* CTA Button - Always visible */}
-            <a href="https://bluescorpion.com/products/pain-and-inflammation-relief" className="bg-[#324785] text-white px-3 py-1.5 lg:px-6 lg:py-3 rounded-lg hover:bg-[#2a3d70] transition-all duration-300 transform hover:scale-105 flex items-center justify-center font-semibold text-sm lg:text-base">
+            <a href="https://bluescorpion.com/products/pain-and-inflammation-relief" className="bg-[#324785] text-white px-3 py-1.5 lg:px-6 lg:py-3 rounded-full hover:bg-[#2a3d70] transition-all duration-300 transform hover:scale-105 flex items-center justify-center font-semibold text-sm lg:text-base">
               <ShoppingBag size={16} className="lg:w-[18px] lg:h-[18px]" />
               <span className="hidden lg:inline lg:ml-2">Shop Now</span>
             </a>

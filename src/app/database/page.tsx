@@ -118,7 +118,7 @@ export default function DatabasePage() {
         backgroundColor="linear-gradient(to right, #cfcfcf 0%, #cfcfcf 100%)"
       />
       {/* Header Section */}
-      <div className="pt-28 pb-8">
+      <div className="pt-36 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <h1 className="text-5xl md:text-6xl font-bold mb-3 text-white">
