@@ -6,6 +6,7 @@ import ContentGrid from "@/components/database/ContentGrid";
 import FilterBar from "@/components/database/FilterBar";
 import ContentModal from "@/components/database/ContentModal";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function DatabasePage() {
   const [content, setContent] = useState<Content[]>([]);
@@ -207,6 +208,9 @@ export default function DatabasePage() {
           }
         />
       )}
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
