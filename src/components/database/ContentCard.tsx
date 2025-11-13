@@ -1,6 +1,7 @@
 import { Content, Sport, Ailment } from "@/types/database";
 import TagBadge from "./TagBadge";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { getVideoDimensions } from "@/utils/videoUtils";
 
 interface ContentCardProps {
   content: Content;
@@ -17,11 +18,21 @@ export default function ContentCard({
 }: ContentCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovering, setIsHovering] = useState(false);
+  const [actualIsPortrait, setActualIsPortrait] = useState<boolean | null>(null);
 
   const contentSports = sports.filter((s) => content.sports.includes(s.slug));
   const contentAilments = ailments.filter((a) =>
     content.ailments.includes(a.slug)
   );
+
+  // Detect actual video orientation from metadata
+  useEffect(() => {
+    if (content.mediaType === "video" && content.mediaUrls[0]) {
+      getVideoDimensions(content.mediaUrls[0]).then(({ isPortrait }) => {
+        setActualIsPortrait(isPortrait);
+      });
+    }
+  }, [content.mediaUrls, content.mediaType]);
 
   const handleMouseEnter = () => {
     setIsHovering(true);
@@ -49,11 +60,12 @@ export default function ContentCard({
     content.thumbnailUrl &&
     !content.thumbnailUrl.match(/\.(mp4|mov|avi|webm|mkv)$/i);
 
-  // Detect orientation from filename or default to landscape
-  // Common patterns: "portrait", "vertical", "9-16", "story", dimensions in name
-  const isPortrait =
+  // Use actual video dimensions when available, fallback to filename detection
+  // Filename patterns: "portrait", "vertical", "9-16", "story", dimensions in name
+  const isPortrait = actualIsPortrait ?? (
     content.mediaUrls[0]?.match(/(portrait|vertical|9-?16|story|916)/i) ||
-    content.title.match(/(portrait|vertical|story)/i);
+    content.title.match(/(portrait|vertical|story)/i)
+  );
 
   // For images, we don't force aspect ratio - let them be natural
   // For videos, portrait is 9:16, landscape is 16:9
