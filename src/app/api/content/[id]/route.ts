@@ -105,9 +105,11 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
-    // For PATCH, we allow partial updates without full validation
-    // Just update the fields that are provided
-    const content = await updateContent(id, body);
+    // For PATCH, we allow partial updates without strict validation
+    // Validate only what's provided using the partial schema
+    const validatedData = updateContentSchema.partial().parse(body);
+
+    const content = await updateContent(id, validatedData as any);
 
     if (!content) {
       return NextResponse.json(
@@ -125,6 +127,18 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("Error updating content:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Validation error",
+          details: error.issues,
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,

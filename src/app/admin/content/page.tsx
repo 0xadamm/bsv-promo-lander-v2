@@ -44,16 +44,18 @@ export default function ContentManager() {
   const [loading, setLoading] = useState(true);
   const [editingTags, setEditingTags] = useState<{
     contentId: string;
-    type: "sports" | "ailments";
+    type: "sports" | "ailments" | "contentType";
     selectedTags: string[];
     position: { top: number; left: number };
   } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [openFilterDropdown, setOpenFilterDropdown] = useState<string | null>(null);
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
 
   // Filters
   const [filters, setFilters] = useState({
-    contentType: "all" as "all" | "testimonial" | "raw-footage" | "content",
-    mediaType: "all" as "all" | "video" | "image",
+    contentType: [] as string[],
+    mediaType: [] as string[],
     sport: "all",
     ailment: "all",
     search: "",
@@ -87,11 +89,23 @@ export default function ContentManager() {
     fetchData();
   }, []);
 
-  // Handle click outside dropdown
+  // Handle click outside dropdown for tag editor
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setEditingTags(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle click outside dropdown for filters
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setOpenFilterDropdown(null);
       }
     };
 
@@ -106,12 +120,12 @@ export default function ContentManager() {
   // Apply filters
   const filteredContent = allContent.filter((content) => {
     // Content Type filter
-    if (filters.contentType !== "all" && content.contentType !== filters.contentType) {
+    if (filters.contentType.length > 0 && !filters.contentType.includes(content.contentType)) {
       return false;
     }
 
     // Media Type filter
-    if (filters.mediaType !== "all" && content.mediaType !== filters.mediaType) {
+    if (filters.mediaType.length > 0 && !filters.mediaType.includes(content.mediaType)) {
       return false;
     }
 
@@ -146,8 +160,8 @@ export default function ContentManager() {
 
   function resetFilters() {
     setFilters({
-      contentType: "all",
-      mediaType: "all",
+      contentType: [],
+      mediaType: [],
       sport: "all",
       ailment: "all",
       search: "",
@@ -157,7 +171,7 @@ export default function ContentManager() {
   function openTagEditor(
     event: React.MouseEvent<HTMLTableCellElement>,
     contentId: string,
-    type: "sports" | "ailments",
+    type: "sports" | "ailments" | "contentType",
     currentTags: string[]
   ) {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -183,7 +197,10 @@ export default function ContentManager() {
   async function toggleTag(slug: string) {
     if (!editingTags) return;
 
-    const newSelectedTags = editingTags.selectedTags.includes(slug)
+    // For contentType, only allow single selection (radio behavior)
+    const newSelectedTags = editingTags.type === "contentType"
+      ? [slug]
+      : editingTags.selectedTags.includes(slug)
       ? editingTags.selectedTags.filter((s) => s !== slug)
       : [...editingTags.selectedTags, slug];
 
@@ -198,7 +215,9 @@ export default function ContentManager() {
       const updateData =
         editingTags.type === "sports"
           ? { sports: newSelectedTags }
-          : { ailments: newSelectedTags };
+          : editingTags.type === "ailments"
+          ? { ailments: newSelectedTags }
+          : { contentType: newSelectedTags[0] }; // contentType is a single string
 
       const response = await fetch(`/api/content/${editingTags.contentId}`, {
         method: "PATCH",
@@ -215,6 +234,11 @@ export default function ContentManager() {
               : content
           )
         );
+
+        // Auto-close dropdown for contentType after selection
+        if (editingTags.type === "contentType") {
+          setEditingTags(null);
+        }
       } else {
         // Revert on failure
         alert("Failed to update tags");
@@ -274,46 +298,96 @@ export default function ContentManager() {
           </div>
 
           {/* Content Type */}
-          <div>
+          <div className="relative" ref={filterDropdownRef}>
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Content Type
+              Content Type {filters.contentType.length > 0 && `(${filters.contentType.length})`}
             </label>
-            <select
-              value={filters.contentType}
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  contentType: e.target.value as typeof filters.contentType,
-                })
-              }
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            <button
+              type="button"
+              onClick={() => setOpenFilterDropdown(openFilterDropdown === "contentType" ? null : "contentType")}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-left flex items-center justify-between bg-white hover:bg-gray-50"
             >
-              <option value="all">All Types</option>
-              <option value="testimonial">Testimonial</option>
-              <option value="raw-footage">Raw Footage</option>
-              <option value="content">Content</option>
-            </select>
+              <span className="text-gray-700">
+                {filters.contentType.length === 0 ? "All Types" : `${filters.contentType.length} selected`}
+              </span>
+              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {openFilterDropdown === "contentType" && (
+              <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50 max-h-60 overflow-auto">
+                {[
+                  { value: "testimonial", label: "Testimonial" },
+                  { value: "raw-footage", label: "Raw Footage" },
+                  { value: "content", label: "Content" },
+                  { value: "doctors", label: "Doctors" },
+                  { value: "athletes", label: "Athletes" },
+                ].map((option) => (
+                  <label
+                    key={option.value}
+                    className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.contentType.includes(option.value)}
+                      onChange={(e) => {
+                        const newTypes = e.target.checked
+                          ? [...filters.contentType, option.value]
+                          : filters.contentType.filter((t) => t !== option.value);
+                        setFilters({ ...filters, contentType: newTypes });
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2"
+                    />
+                    <span className="text-gray-700">{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Media Type */}
-          <div>
+          <div className="relative">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Media Type
+              Media Type {filters.mediaType.length > 0 && `(${filters.mediaType.length})`}
             </label>
-            <select
-              value={filters.mediaType}
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  mediaType: e.target.value as typeof filters.mediaType,
-                })
-              }
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            <button
+              type="button"
+              onClick={() => setOpenFilterDropdown(openFilterDropdown === "mediaType" ? null : "mediaType")}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-left flex items-center justify-between bg-white hover:bg-gray-50"
             >
-              <option value="all">All Media</option>
-              <option value="video">Video</option>
-              <option value="image">Image</option>
-            </select>
+              <span className="text-gray-700">
+                {filters.mediaType.length === 0 ? "All Media" : `${filters.mediaType.length} selected`}
+              </span>
+              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {openFilterDropdown === "mediaType" && (
+              <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50 max-h-60 overflow-auto">
+                {[
+                  { value: "video", label: "Video" },
+                  { value: "image", label: "Image" },
+                ].map((option) => (
+                  <label
+                    key={option.value}
+                    className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={filters.mediaType.includes(option.value)}
+                      onChange={(e) => {
+                        const newTypes = e.target.checked
+                          ? [...filters.mediaType, option.value]
+                          : filters.mediaType.filter((t) => t !== option.value);
+                        setFilters({ ...filters, mediaType: newTypes });
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2"
+                    />
+                    <span className="text-gray-700">{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Sport */}
@@ -356,8 +430,8 @@ export default function ContentManager() {
         </div>
 
         {/* Active Filters Count */}
-        {(filters.contentType !== "all" ||
-          filters.mediaType !== "all" ||
+        {(filters.contentType.length > 0 ||
+          filters.mediaType.length > 0 ||
           filters.sport !== "all" ||
           filters.ailment !== "all" ||
           filters.search) && (
@@ -390,6 +464,18 @@ export default function ContentManager() {
             <span className="font-medium text-gray-900">Content:</span>{" "}
             <span className="text-gray-600">
               {allContent.filter((c) => c.contentType === "content").length}
+            </span>
+          </div>
+          <div>
+            <span className="font-medium text-gray-900">Doctors:</span>{" "}
+            <span className="text-gray-600">
+              {allContent.filter((c) => c.contentType === "doctors").length}
+            </span>
+          </div>
+          <div>
+            <span className="font-medium text-gray-900">Athletes:</span>{" "}
+            <span className="text-gray-600">
+              {allContent.filter((c) => c.contentType === "athletes").length}
             </span>
           </div>
           <div>
@@ -531,11 +617,32 @@ export default function ContentManager() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td
+                    className="px-6 py-4 whitespace-nowrap cursor-pointer hover:bg-gray-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openTagEditor(e, content._id, "contentType", [content.contentType]);
+                    }}
+                  >
                     <div className="flex flex-col gap-1">
-                      <span className="inline-flex text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 w-fit">
-                        {content.contentType}
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="inline-flex text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 w-fit">
+                          {content.contentType}
+                        </span>
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                          />
+                        </svg>
+                      </div>
                       <span className="inline-flex text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800 w-fit">
                         {content.mediaType}
                       </span>
@@ -672,7 +779,7 @@ export default function ContentManager() {
         >
           <div className="px-4 py-2 border-b border-gray-200">
             <h3 className="text-sm font-semibold text-gray-900">
-              Edit {editingTags.type === "sports" ? "Sports" : "Ailments"}
+              Edit {editingTags.type === "sports" ? "Sports" : editingTags.type === "ailments" ? "Ailments" : "Content Type"}
             </h3>
           </div>
 
@@ -703,7 +810,7 @@ export default function ContentManager() {
                   )}
                 </label>
               ))
-            ) : (
+            ) : editingTags.type === "ailments" ? (
               ailments.map((ailment) => (
                 <label
                   key={ailment.slug}
@@ -727,6 +834,30 @@ export default function ContentManager() {
                       style={{ backgroundColor: ailment.color }}
                     />
                   )}
+                </label>
+              ))
+            ) : (
+              [
+                { value: "testimonial", label: "Testimonial" },
+                { value: "raw-footage", label: "Raw Footage" },
+                { value: "content", label: "Content" },
+                { value: "doctors", label: "Doctors" },
+                { value: "athletes", label: "Athletes" },
+              ].map((type) => (
+                <label
+                  key={type.value}
+                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                >
+                  <input
+                    type="radio"
+                    name="contentType"
+                    checked={editingTags.selectedTags.includes(type.value)}
+                    onChange={() => toggleTag(type.value)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <span className="ml-3 text-sm font-medium text-gray-700">
+                    {type.label}
+                  </span>
                 </label>
               ))
             )}

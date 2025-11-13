@@ -3,8 +3,8 @@ import { useState, useRef, useEffect } from "react";
 
 interface FilterBarProps {
   filters: {
-    contentType: "all" | "testimonial" | "raw-footage" | "content";
-    mediaType: "all" | "video" | "image";
+    contentType: string[];
+    mediaType: string[];
     sports: string[];
     ailments: string[];
     search: string;
@@ -39,23 +39,31 @@ export default function FilterBar({
   }, []);
 
   const hasActiveFilters =
-    filters.contentType !== "all" ||
-    filters.mediaType !== "all" ||
+    filters.contentType.length > 0 ||
+    filters.mediaType.length > 0 ||
     filters.sports.length > 0 ||
     filters.ailments.length > 0 ||
     filters.search !== "";
 
   const getContentTypeLabel = () => {
-    if (filters.contentType === "testimonial") return "Testimonials";
-    if (filters.contentType === "raw-footage") return "Raw Footage";
-    if (filters.contentType === "content") return "Content";
-    return "Content Type";
+    if (filters.contentType.length === 0) return "Content Type";
+    if (filters.contentType.length === 1) {
+      const type = filters.contentType[0];
+      if (type === "testimonial") return "Testimonials";
+      if (type === "raw-footage") return "Raw Footage";
+      if (type === "content") return "Content";
+      if (type === "doctors") return "Doctors";
+      if (type === "athletes") return "Athletes";
+    }
+    return `Content Type (${filters.contentType.length})`;
   };
 
   const getMediaTypeLabel = () => {
-    if (filters.mediaType === "video") return "Videos";
-    if (filters.mediaType === "image") return "Images";
-    return "Media Type";
+    if (filters.mediaType.length === 0) return "Media Type";
+    if (filters.mediaType.length === 1) {
+      return filters.mediaType[0] === "video" ? "Videos" : "Images";
+    }
+    return `Media Type (${filters.mediaType.length})`;
   };
 
   const getSportLabel = () => {
@@ -120,28 +128,29 @@ export default function FilterBar({
           {openDropdown === "content" && (
             <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[200px] z-50">
               {[
-                { value: "all", label: "All Content" },
                 { value: "testimonial", label: "Testimonials" },
                 { value: "raw-footage", label: "Raw Footage" },
                 { value: "content", label: "Content" },
+                { value: "doctors", label: "Doctors" },
+                { value: "athletes", label: "Athletes" },
               ].map((option) => (
-                <button
+                <label
                   key={option.value}
-                  onClick={() => {
-                    onFilterChange({ ...filters, contentType: option.value as typeof filters.contentType });
-                    setOpenDropdown(null);
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 cursor-pointer"
                 >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    filters.contentType === option.value ? "border-blue-600" : "border-gray-300"
-                  }`}>
-                    {filters.contentType === option.value && (
-                      <div className="w-2 h-2 rounded-full bg-blue-600" />
-                    )}
-                  </div>
+                  <input
+                    type="checkbox"
+                    checked={filters.contentType.includes(option.value)}
+                    onChange={(e) => {
+                      const newContentTypes = e.target.checked
+                        ? [...filters.contentType, option.value]
+                        : filters.contentType.filter((t) => t !== option.value);
+                      onFilterChange({ ...filters, contentType: newContentTypes });
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
                   <span className="text-gray-700">{option.label}</span>
-                </button>
+                </label>
               ))}
             </div>
           )}
@@ -164,27 +173,26 @@ export default function FilterBar({
           {openDropdown === "media" && (
             <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[200px] z-50">
               {[
-                { value: "all", label: "All Media" },
                 { value: "video", label: "Videos" },
                 { value: "image", label: "Images" },
               ].map((option) => (
-                <button
+                <label
                   key={option.value}
-                  onClick={() => {
-                    onFilterChange({ ...filters, mediaType: option.value as typeof filters.mediaType });
-                    setOpenDropdown(null);
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 cursor-pointer"
                 >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    filters.mediaType === option.value ? "border-blue-600" : "border-gray-300"
-                  }`}>
-                    {filters.mediaType === option.value && (
-                      <div className="w-2 h-2 rounded-full bg-blue-600" />
-                    )}
-                  </div>
+                  <input
+                    type="checkbox"
+                    checked={filters.mediaType.includes(option.value)}
+                    onChange={(e) => {
+                      const newMediaTypes = e.target.checked
+                        ? [...filters.mediaType, option.value]
+                        : filters.mediaType.filter((t) => t !== option.value);
+                      onFilterChange({ ...filters, mediaType: newMediaTypes });
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
                   <span className="text-gray-700">{option.label}</span>
-                </button>
+                </label>
               ))}
             </div>
           )}

@@ -15,8 +15,8 @@ export default function DatabasePage() {
 
   // Filter state
   const [filters, setFilters] = useState({
-    contentType: "all" as "all" | "testimonial" | "raw-footage" | "content",
-    mediaType: "all" as "all" | "video" | "image",
+    contentType: [] as string[],
+    mediaType: [] as string[],
     sports: [] as string[],
     ailments: [] as string[],
     search: "",
@@ -57,14 +57,14 @@ export default function DatabasePage() {
   const filteredContent = content.filter((item) => {
     // Content type filter
     if (
-      filters.contentType !== "all" &&
-      item.contentType !== filters.contentType
+      filters.contentType.length > 0 &&
+      !filters.contentType.includes(item.contentType)
     ) {
       return false;
     }
 
     // Media type filter
-    if (filters.mediaType !== "all" && item.mediaType !== filters.mediaType) {
+    if (filters.mediaType.length > 0 && !filters.mediaType.includes(item.mediaType)) {
       return false;
     }
 
@@ -103,8 +103,8 @@ export default function DatabasePage() {
 
   const handleClearFilters = () => {
     setFilters({
-      contentType: "all",
-      mediaType: "all",
+      contentType: [],
+      mediaType: [],
       sports: [],
       ailments: [],
       search: "",
@@ -150,8 +150,8 @@ export default function DatabasePage() {
         ) : filteredContent.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-400 text-lg mb-4">No content found</p>
-            {(filters.contentType !== "all" ||
-              filters.mediaType !== "all" ||
+            {(filters.contentType.length > 0 ||
+              filters.mediaType.length > 0 ||
               filters.sports.length > 0 ||
               filters.ailments.length > 0 ||
               filters.search) && (

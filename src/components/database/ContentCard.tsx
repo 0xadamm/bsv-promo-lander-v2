@@ -44,7 +44,24 @@ export default function ContentCard({
 
     try {
       const url = content.mediaUrls[0];
-      const response = await fetch(url);
+
+      // Extract filename from URL or use content title
+      const urlParts = url.split('/');
+      let filename = urlParts[urlParts.length - 1];
+
+      // Clean up filename and ensure it has proper extension
+      if (!filename || filename.includes('?')) {
+        const extension = content.mediaType === 'video' ? 'mp4' : 'jpg';
+        filename = `${content.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.${extension}`;
+      }
+
+      // Use fetch with no-cors mode to download
+      const response = await fetch(url, { mode: 'cors' });
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
       const blob = await response.blob();
 
       // Create a temporary URL for the blob
@@ -53,21 +70,18 @@ export default function ContentCard({
       // Create a temporary anchor element and trigger download
       const link = document.createElement('a');
       link.href = blobUrl;
-
-      // Extract filename from URL or use content title
-      const urlParts = url.split('/');
-      const filename = urlParts[urlParts.length - 1] || `${content.title}.${content.mediaType === 'video' ? 'mp4' : 'jpg'}`;
       link.download = filename;
 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      // Clean up the blob URL
-      window.URL.revokeObjectURL(blobUrl);
+      // Clean up the blob URL after a short delay
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
     } catch (error) {
       console.error('Download failed:', error);
-      alert('Failed to download content. Please try again.');
+      // Fallback: open in new tab if download fails
+      window.open(content.mediaUrls[0], '_blank');
     }
   };
 
@@ -156,7 +170,13 @@ export default function ContentCard({
         >
           {content.contentType === "testimonial"
             ? "Testimonial"
-            : "Raw Footage"}
+            : content.contentType === "raw-footage"
+            ? "Raw Footage"
+            : content.contentType === "doctors"
+            ? "Doctors"
+            : content.contentType === "athletes"
+            ? "Athletes"
+            : "Content"}
         </span>
       </div>
 
