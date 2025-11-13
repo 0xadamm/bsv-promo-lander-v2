@@ -100,6 +100,7 @@ async function migrateContent() {
           sports: [], // Will be tagged later through admin
           ailments: [], // Will be tagged later through admin
           source: source,
+          published: true,
           featured: false,
           priority: 0,
           publishedAt: new Date(blob.uploadedAt),
