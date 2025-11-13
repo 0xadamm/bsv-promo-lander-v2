@@ -28,7 +28,7 @@ export default function NewContent() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    contentType: "testimonial" as "testimonial" | "raw-footage" | "content" | "doctors" | "athletes",
+    contentType: "testimonial" as "testimonial" | "raw-footage" | "content" | "doctors" | "athlete",
     mediaType: "video" as "image" | "video",
     sports: [] as string[],
     ailments: [] as string[],
@@ -438,7 +438,7 @@ export default function NewContent() {
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    contentType: e.target.value as "testimonial" | "raw-footage" | "content" | "doctors" | "athletes",
+                    contentType: e.target.value as "testimonial" | "raw-footage" | "content" | "doctors" | "athlete",
                   })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -447,7 +447,7 @@ export default function NewContent() {
                 <option value="raw-footage">Raw Footage</option>
                 <option value="content">Content</option>
                 <option value="doctors">Doctors</option>
-                <option value="athletes">Athletes</option>
+                <option value="athlete">Athletes</option>
               </select>
             </div>
 

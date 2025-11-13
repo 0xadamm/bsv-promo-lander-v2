@@ -370,7 +370,7 @@ export default function ContentEditor() {
                   <option value="raw-footage">Raw Footage</option>
                   <option value="content">Content</option>
                   <option value="doctors">Doctors</option>
-                  <option value="athletes">Athletes</option>
+                  <option value="athlete">Athletes</option>
                 </select>
               </div>
               <div>

@@ -49,7 +49,9 @@ export default function ContentManager() {
     position: { top: number; left: number };
   } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [openFilterDropdown, setOpenFilterDropdown] = useState<string | null>(null);
+  const [openFilterDropdown, setOpenFilterDropdown] = useState<string | null>(
+    null
+  );
   const filterDropdownRef = useRef<HTMLDivElement>(null);
 
   // Filters
@@ -92,7 +94,10 @@ export default function ContentManager() {
   // Handle click outside dropdown for tag editor
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setEditingTags(null);
       }
     };
@@ -104,7 +109,10 @@ export default function ContentManager() {
   // Handle click outside dropdown for filters
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+      if (
+        filterDropdownRef.current &&
+        !filterDropdownRef.current.contains(event.target as Node)
+      ) {
         setOpenFilterDropdown(null);
       }
     };
@@ -120,12 +128,18 @@ export default function ContentManager() {
   // Apply filters
   const filteredContent = allContent.filter((content) => {
     // Content Type filter
-    if (filters.contentType.length > 0 && !filters.contentType.includes(content.contentType)) {
+    if (
+      filters.contentType.length > 0 &&
+      !filters.contentType.includes(content.contentType)
+    ) {
       return false;
     }
 
     // Media Type filter
-    if (filters.mediaType.length > 0 && !filters.mediaType.includes(content.mediaType)) {
+    if (
+      filters.mediaType.length > 0 &&
+      !filters.mediaType.includes(content.mediaType)
+    ) {
       return false;
     }
 
@@ -135,7 +149,10 @@ export default function ContentManager() {
     }
 
     // Ailment filter
-    if (filters.ailment !== "all" && !content.ailments.includes(filters.ailment)) {
+    if (
+      filters.ailment !== "all" &&
+      !content.ailments.includes(filters.ailment)
+    ) {
       return false;
     }
 
@@ -143,7 +160,9 @@ export default function ContentManager() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const titleMatch = content.title.toLowerCase().includes(searchLower);
-      const descMatch = content.description?.toLowerCase().includes(searchLower);
+      const descMatch = content.description
+        ?.toLowerCase()
+        .includes(searchLower);
 
       if (!titleMatch && !descMatch) {
         return false;
@@ -188,7 +207,9 @@ export default function ContentManager() {
       type,
       selectedTags: [...currentTags],
       position: {
-        top: showAbove ? rect.top - Math.min(dropdownHeight, spaceAbove) - 8 : rect.bottom + 8,
+        top: showAbove
+          ? rect.top - Math.min(dropdownHeight, spaceAbove) - 8
+          : rect.bottom + 8,
         left: rect.left,
       },
     });
@@ -198,11 +219,12 @@ export default function ContentManager() {
     if (!editingTags) return;
 
     // For contentType, only allow single selection (radio behavior)
-    const newSelectedTags = editingTags.type === "contentType"
-      ? [slug]
-      : editingTags.selectedTags.includes(slug)
-      ? editingTags.selectedTags.filter((s) => s !== slug)
-      : [...editingTags.selectedTags, slug];
+    const newSelectedTags =
+      editingTags.type === "contentType"
+        ? [slug]
+        : editingTags.selectedTags.includes(slug)
+        ? editingTags.selectedTags.filter((s) => s !== slug)
+        : [...editingTags.selectedTags, slug];
 
     // Update local state immediately for responsive UI
     setEditingTags({
@@ -291,7 +313,9 @@ export default function ContentManager() {
             <input
               type="text"
               value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, search: e.target.value })
+              }
               placeholder="Title, description..."
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
@@ -300,18 +324,36 @@ export default function ContentManager() {
           {/* Content Type */}
           <div className="relative" ref={filterDropdownRef}>
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Content Type {filters.contentType.length > 0 && `(${filters.contentType.length})`}
+              Content Type{" "}
+              {filters.contentType.length > 0 &&
+                `(${filters.contentType.length})`}
             </label>
             <button
               type="button"
-              onClick={() => setOpenFilterDropdown(openFilterDropdown === "contentType" ? null : "contentType")}
+              onClick={() =>
+                setOpenFilterDropdown(
+                  openFilterDropdown === "contentType" ? null : "contentType"
+                )
+              }
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-left flex items-center justify-between bg-white hover:bg-gray-50"
             >
               <span className="text-gray-700">
-                {filters.contentType.length === 0 ? "All Types" : `${filters.contentType.length} selected`}
+                {filters.contentType.length === 0
+                  ? "All Types"
+                  : `${filters.contentType.length} selected`}
               </span>
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg
+                className="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
             {openFilterDropdown === "contentType" && (
@@ -321,7 +363,7 @@ export default function ContentManager() {
                   { value: "raw-footage", label: "Raw Footage" },
                   { value: "content", label: "Content" },
                   { value: "doctors", label: "Doctors" },
-                  { value: "athletes", label: "Athletes" },
+                  { value: "athlete", label: "Athlete" },
                 ].map((option) => (
                   <label
                     key={option.value}
@@ -333,7 +375,9 @@ export default function ContentManager() {
                       onChange={(e) => {
                         const newTypes = e.target.checked
                           ? [...filters.contentType, option.value]
-                          : filters.contentType.filter((t) => t !== option.value);
+                          : filters.contentType.filter(
+                              (t) => t !== option.value
+                            );
                         setFilters({ ...filters, contentType: newTypes });
                       }}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-2"
@@ -348,18 +392,35 @@ export default function ContentManager() {
           {/* Media Type */}
           <div className="relative">
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Media Type {filters.mediaType.length > 0 && `(${filters.mediaType.length})`}
+              Media Type{" "}
+              {filters.mediaType.length > 0 && `(${filters.mediaType.length})`}
             </label>
             <button
               type="button"
-              onClick={() => setOpenFilterDropdown(openFilterDropdown === "mediaType" ? null : "mediaType")}
+              onClick={() =>
+                setOpenFilterDropdown(
+                  openFilterDropdown === "mediaType" ? null : "mediaType"
+                )
+              }
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-left flex items-center justify-between bg-white hover:bg-gray-50"
             >
               <span className="text-gray-700">
-                {filters.mediaType.length === 0 ? "All Media" : `${filters.mediaType.length} selected`}
+                {filters.mediaType.length === 0
+                  ? "All Media"
+                  : `${filters.mediaType.length} selected`}
               </span>
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg
+                className="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
             {openFilterDropdown === "mediaType" && (
@@ -397,7 +458,9 @@ export default function ContentManager() {
             </label>
             <select
               value={filters.sport}
-              onChange={(e) => setFilters({ ...filters, sport: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, sport: e.target.value })
+              }
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Sports</option>
@@ -416,7 +479,9 @@ export default function ContentManager() {
             </label>
             <select
               value={filters.ailment}
-              onChange={(e) => setFilters({ ...filters, ailment: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, ailment: e.target.value })
+              }
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Ailments</option>
@@ -475,7 +540,7 @@ export default function ContentManager() {
           <div>
             <span className="font-medium text-gray-900">Athletes:</span>{" "}
             <span className="text-gray-600">
-              {allContent.filter((c) => c.contentType === "athletes").length}
+              {allContent.filter((c) => c.contentType === "athlete").length}
             </span>
           </div>
           <div>
@@ -541,7 +606,9 @@ export default function ContentManager() {
                           // Check if thumbnailUrl is actually an image (not a video file)
                           const isValidThumbnail =
                             content.thumbnailUrl &&
-                            !content.thumbnailUrl.match(/\.(mp4|mov|avi|webm|mkv)$/i);
+                            !content.thumbnailUrl.match(
+                              /\.(mp4|mov|avi|webm|mkv)$/i
+                            );
 
                           if (content.mediaType === "video") {
                             const videoUrl = content.mediaUrls[0];
@@ -562,7 +629,8 @@ export default function ContentManager() {
                                     preload="metadata"
                                     playsInline
                                     onLoadedMetadata={(e) => {
-                                      const video = e.target as HTMLVideoElement;
+                                      const video =
+                                        e.target as HTMLVideoElement;
                                       video.currentTime = 0.1;
                                     }}
                                   />
@@ -580,11 +648,16 @@ export default function ContentManager() {
                                 </div>
                               </div>
                             );
-                          } else if (content.thumbnailUrl || content.mediaUrls[0]) {
+                          } else if (
+                            content.thumbnailUrl ||
+                            content.mediaUrls[0]
+                          ) {
                             return (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
-                                src={content.thumbnailUrl || content.mediaUrls[0]}
+                                src={
+                                  content.thumbnailUrl || content.mediaUrls[0]
+                                }
                                 alt={content.title}
                                 className="h-12 w-12 rounded object-cover"
                               />
@@ -621,7 +694,9 @@ export default function ContentManager() {
                     className="px-6 py-4 whitespace-nowrap cursor-pointer hover:bg-gray-100"
                     onClick={(e) => {
                       e.stopPropagation();
-                      openTagEditor(e, content._id, "contentType", [content.contentType]);
+                      openTagEditor(e, content._id, "contentType", [
+                        content.contentType,
+                      ]);
                     }}
                   >
                     <div className="flex flex-col gap-1">
@@ -695,7 +770,12 @@ export default function ContentManager() {
                     className="px-6 py-4 cursor-pointer hover:bg-gray-100"
                     onClick={(e) => {
                       e.stopPropagation();
-                      openTagEditor(e, content._id, "ailments", content.ailments);
+                      openTagEditor(
+                        e,
+                        content._id,
+                        "ailments",
+                        content.ailments
+                      );
                     }}
                   >
                     <div className="flex flex-wrap gap-1 items-center">
@@ -779,88 +859,91 @@ export default function ContentManager() {
         >
           <div className="px-4 py-2 border-b border-gray-200">
             <h3 className="text-sm font-semibold text-gray-900">
-              Edit {editingTags.type === "sports" ? "Sports" : editingTags.type === "ailments" ? "Ailments" : "Content Type"}
+              Edit{" "}
+              {editingTags.type === "sports"
+                ? "Sports"
+                : editingTags.type === "ailments"
+                ? "Ailments"
+                : "Content Type"}
             </h3>
           </div>
 
           <div className="py-2">
-            {editingTags.type === "sports" ? (
-              sports.map((sport) => (
-                <label
-                  key={sport.slug}
-                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={editingTags.selectedTags.includes(sport.slug)}
-                    onChange={() => toggleTag(sport.slug)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <span
-                    className="ml-3 text-sm font-medium"
-                    style={{ color: sport.color || "#000" }}
+            {editingTags.type === "sports"
+              ? sports.map((sport) => (
+                  <label
+                    key={sport.slug}
+                    className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
                   >
-                    {sport.name}
-                  </span>
-                  {sport.color && (
-                    <div
-                      className="ml-auto w-4 h-4 rounded-full"
-                      style={{ backgroundColor: sport.color }}
+                    <input
+                      type="checkbox"
+                      checked={editingTags.selectedTags.includes(sport.slug)}
+                      onChange={() => toggleTag(sport.slug)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                  )}
-                </label>
-              ))
-            ) : editingTags.type === "ailments" ? (
-              ailments.map((ailment) => (
-                <label
-                  key={ailment.slug}
-                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={editingTags.selectedTags.includes(ailment.slug)}
-                    onChange={() => toggleTag(ailment.slug)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <span
-                    className="ml-3 text-sm font-medium"
-                    style={{ color: ailment.color || "#000" }}
+                    <span
+                      className="ml-3 text-sm font-medium"
+                      style={{ color: sport.color || "#000" }}
+                    >
+                      {sport.name}
+                    </span>
+                    {sport.color && (
+                      <div
+                        className="ml-auto w-4 h-4 rounded-full"
+                        style={{ backgroundColor: sport.color }}
+                      />
+                    )}
+                  </label>
+                ))
+              : editingTags.type === "ailments"
+              ? ailments.map((ailment) => (
+                  <label
+                    key={ailment.slug}
+                    className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
                   >
-                    {ailment.name}
-                  </span>
-                  {ailment.color && (
-                    <div
-                      className="ml-auto w-4 h-4 rounded-full"
-                      style={{ backgroundColor: ailment.color }}
+                    <input
+                      type="checkbox"
+                      checked={editingTags.selectedTags.includes(ailment.slug)}
+                      onChange={() => toggleTag(ailment.slug)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                  )}
-                </label>
-              ))
-            ) : (
-              [
-                { value: "testimonial", label: "Testimonial" },
-                { value: "raw-footage", label: "Raw Footage" },
-                { value: "content", label: "Content" },
-                { value: "doctors", label: "Doctors" },
-                { value: "athletes", label: "Athletes" },
-              ].map((type) => (
-                <label
-                  key={type.value}
-                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    name="contentType"
-                    checked={editingTags.selectedTags.includes(type.value)}
-                    onChange={() => toggleTag(type.value)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                  />
-                  <span className="ml-3 text-sm font-medium text-gray-700">
-                    {type.label}
-                  </span>
-                </label>
-              ))
-            )}
+                    <span
+                      className="ml-3 text-sm font-medium"
+                      style={{ color: ailment.color || "#000" }}
+                    >
+                      {ailment.name}
+                    </span>
+                    {ailment.color && (
+                      <div
+                        className="ml-auto w-4 h-4 rounded-full"
+                        style={{ backgroundColor: ailment.color }}
+                      />
+                    )}
+                  </label>
+                ))
+              : [
+                  { value: "testimonial", label: "Testimonial" },
+                  { value: "raw-footage", label: "Raw Footage" },
+                  { value: "content", label: "Content" },
+                  { value: "doctors", label: "Doctors" },
+                  { value: "athlete", label: "Athlete" },
+                ].map((type) => (
+                  <label
+                    key={type.value}
+                    className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name="contentType"
+                      checked={editingTags.selectedTags.includes(type.value)}
+                      onChange={() => toggleTag(type.value)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <span className="ml-3 text-sm font-medium text-gray-700">
+                      {type.label}
+                    </span>
+                  </label>
+                ))}
           </div>
         </div>
       )}

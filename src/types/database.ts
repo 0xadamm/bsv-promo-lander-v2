@@ -8,7 +8,7 @@ export interface Content {
   description?: string;
 
   // Content Type
-  contentType: "testimonial" | "raw-footage" | "content" | "doctors" | "athletes";
+  contentType: "testimonial" | "raw-footage" | "content" | "doctors" | "athlete";
 
   // Media
   mediaType: "image" | "video";
@@ -97,7 +97,7 @@ export interface PaginatedResponse<T> {
 
 // Query Types
 export interface ContentQuery {
-  contentType?: "testimonial" | "raw-footage" | "content" | "doctors" | "athletes";
+  contentType?: "testimonial" | "raw-footage" | "content" | "doctors" | "athlete";
   sport?: string;
   ailment?: string;
   featured?: boolean;

@@ -174,7 +174,7 @@ export default function ContentCard({
             ? "Raw Footage"
             : content.contentType === "doctors"
             ? "Doctors"
-            : content.contentType === "athletes"
+            : content.contentType === "athlete"
             ? "Athletes"
             : "Content"}
         </span>

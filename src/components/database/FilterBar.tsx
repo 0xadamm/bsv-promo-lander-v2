@@ -53,7 +53,7 @@ export default function FilterBar({
       if (type === "raw-footage") return "Raw Footage";
       if (type === "content") return "Content";
       if (type === "doctors") return "Doctors";
-      if (type === "athletes") return "Athletes";
+      if (type === "athlete") return "Athletes";
     }
     return `Content Type (${filters.contentType.length})`;
   };
@@ -132,7 +132,7 @@ export default function FilterBar({
                 { value: "raw-footage", label: "Raw Footage" },
                 { value: "content", label: "Content" },
                 { value: "doctors", label: "Doctors" },
-                { value: "athletes", label: "Athletes" },
+                { value: "athlete", label: "Athletes" },
               ].map((option) => (
                 <label
                   key={option.value}
