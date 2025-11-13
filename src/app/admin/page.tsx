@@ -13,6 +13,7 @@ export default async function AdminDashboard() {
 
   const testimonials = allContent.filter((c) => c.contentType === "testimonial");
   const rawFootage = allContent.filter((c) => c.contentType === "raw-footage");
+  const contentItems = allContent.filter((c) => c.contentType === "content");
   const videos = allContent.filter((c) => c.mediaType === "video");
   const images = allContent.filter((c) => c.mediaType === "image");
 
@@ -59,7 +60,7 @@ export default async function AdminDashboard() {
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-600">
-            {testimonials.length} testimonials, {rawFootage.length} raw footage
+            {testimonials.length} testimonials, {rawFootage.length} raw footage, {contentItems.length} content
           </div>
         </div>
 

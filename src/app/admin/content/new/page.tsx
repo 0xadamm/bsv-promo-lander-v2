@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface Sport {
   slug: string;
@@ -16,30 +16,29 @@ interface Ailment {
   color?: string;
 }
 
-interface ContentItem {
-  _id: string;
-  title: string;
-  description?: string;
-  contentType: "testimonial" | "raw-footage" | "content";
-  mediaType: "image" | "video";
-  mediaUrls: string[];
-  sports: string[];
-  ailments: string[];
-  athleteName?: string;
-  featured: boolean;
-  priority: number;
-}
-
-export default function ContentEditor() {
-  const params = useParams();
+export default function NewContent() {
   const router = useRouter();
-  const contentId = params?.id as string;
 
-  const [content, setContent] = useState<ContentItem | null>(null);
   const [sports, setSports] = useState<Sport[]>([]);
   const [ailments, setAilments] = useState<Ailment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [creating, setCreating] = useState(false);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    contentType: "testimonial" as "testimonial" | "raw-footage" | "content",
+    mediaType: "video" as "image" | "video",
+    sports: [] as string[],
+    ailments: [] as string[],
+    featured: false,
+    priority: 0,
+  });
+
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [showAddSport, setShowAddSport] = useState(false);
   const [showAddAilment, setShowAddAilment] = useState(false);
   const [newSport, setNewSport] = useState({ name: "", color: "#003ebf" });
@@ -52,31 +51,22 @@ export default function ContentEditor() {
 
   useEffect(() => {
     fetchData();
-  }, [contentId]);
+  }, []);
 
   async function fetchData() {
     try {
-      const [contentRes, sportsRes, ailmentsRes] = await Promise.all([
-        fetch(`/api/content/${contentId}`),
+      const [sportsRes, ailmentsRes] = await Promise.all([
         fetch("/api/sports"),
         fetch("/api/ailments"),
       ]);
 
-      const [contentData, sportsData, ailmentsData] = await Promise.all([
-        contentRes.json(),
+      const [sportsData, ailmentsData] = await Promise.all([
         sportsRes.json(),
         ailmentsRes.json(),
       ]);
 
-      if (contentData.success) {
-        setContent(contentData.data);
-      }
-      if (sportsData.success) {
-        setSports(sportsData.data);
-      }
-      if (ailmentsData.success) {
-        setAilments(ailmentsData.data);
-      }
+      if (sportsData.success) setSports(sportsData.data);
+      if (ailmentsData.success) setAilments(ailmentsData.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -84,63 +74,127 @@ export default function ContentEditor() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!content) return;
+  async function handleFileUpload() {
+    if (!selectedFile) {
+      alert("Please select a file first");
+      return;
+    }
 
-    setSaving(true);
+    setUploading(true);
 
     try {
-      const res = await fetch(`/api/content/${contentId}`, {
-        method: "PUT",
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", selectedFile);
+      formDataUpload.append("folder", "content");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formDataUpload,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setUploadedFiles([...uploadedFiles, data.data.url]);
+        setSelectedFile(null);
+
+        // Auto-detect media type from file
+        const fileType = selectedFile.type;
+        if (fileType.startsWith("video/")) {
+          setFormData({ ...formData, mediaType: "video" });
+        } else if (fileType.startsWith("image/")) {
+          setFormData({ ...formData, mediaType: "image" });
+        }
+
+        alert("File uploaded successfully!");
+      } else {
+        alert("Error uploading file: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Error uploading file");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (uploadedFiles.length === 0) {
+      alert("Please upload at least one file");
+      return;
+    }
+
+    setCreating(true);
+
+    try {
+      const res = await fetch("/api/content", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: content.title,
-          description: content.description,
-          contentType: content.contentType,
-          mediaType: content.mediaType,
-          sports: content.sports,
-          ailments: content.ailments,
-          featured: content.featured,
-          priority: content.priority,
+          ...formData,
+          mediaUrls: uploadedFiles,
+          thumbnailUrl: uploadedFiles[0], // Use first file as thumbnail
         }),
       });
 
       const data = await res.json();
 
       if (data.success) {
-        alert("Content updated successfully!");
+        alert("Content created successfully!");
         router.push("/admin/content");
       } else {
-        alert("Error updating content: " + (data.error || "Unknown error"));
+        alert("Error creating content: " + (data.error || "Unknown error"));
       }
     } catch (error) {
-      console.error("Error updating content:", error);
-      alert("Error updating content");
+      console.error("Error creating content:", error);
+      alert("Error creating content");
     } finally {
-      setSaving(false);
+      setCreating(false);
     }
   }
 
   function toggleSport(slug: string) {
-    if (!content) return;
-    const sports = content.sports.includes(slug)
-      ? content.sports.filter((s) => s !== slug)
-      : [...content.sports, slug];
-    setContent({ ...content, sports });
+    const sports = formData.sports.includes(slug)
+      ? formData.sports.filter((s) => s !== slug)
+      : [...formData.sports, slug];
+    setFormData({ ...formData, sports });
   }
 
   function toggleAilment(slug: string) {
-    if (!content) return;
-    const ailments = content.ailments.includes(slug)
-      ? content.ailments.filter((a) => a !== slug)
-      : [...content.ailments, slug];
-    setContent({ ...content, ailments });
+    const ailments = formData.ailments.includes(slug)
+      ? formData.ailments.filter((a) => a !== slug)
+      : [...formData.ailments, slug];
+    setFormData({ ...formData, ailments });
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(true);
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      setSelectedFile(files[0]);
+    }
+  }
+
+  function handleFileInputClick() {
+    document.getElementById("file-input")?.click();
   }
 
   async function handleCreateSport(e: React.FormEvent) {
     e.preventDefault();
-    if (!content) return;
 
     try {
       const res = await fetch("/api/sports", {
@@ -156,7 +210,7 @@ export default function ContentEditor() {
         setNewSport({ name: "", color: "#003ebf" });
         setShowAddSport(false);
         // Auto-select the newly created sport
-        setContent({ ...content, sports: [...content.sports, data.data.slug] });
+        setFormData({ ...formData, sports: [...formData.sports, data.data.slug] });
       } else {
         alert("Error creating sport: " + (data.error || "Unknown error"));
       }
@@ -168,7 +222,6 @@ export default function ContentEditor() {
 
   async function handleCreateAilment(e: React.FormEvent) {
     e.preventDefault();
-    if (!content) return;
 
     try {
       const res = await fetch("/api/ailments", {
@@ -189,9 +242,9 @@ export default function ContentEditor() {
         });
         setShowAddAilment(false);
         // Auto-select the newly created ailment
-        setContent({
-          ...content,
-          ailments: [...content.ailments, data.data.slug],
+        setFormData({
+          ...formData,
+          ailments: [...formData.ailments, data.data.slug],
         });
       } else {
         alert("Error creating ailment: " + (data.error || "Unknown error"));
@@ -206,79 +259,137 @@ export default function ContentEditor() {
     return <div className="text-center py-12">Loading...</div>;
   }
 
-  if (!content) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-red-600">Content not found</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Edit Content</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Create New Content</h1>
         <p className="mt-1 text-sm text-gray-600">
-          Update content details, tags, and metadata
+          Upload media and add content details
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex gap-6">
-        {/* Left Column - Media Preview */}
-        <div className="w-2/5 flex-shrink-0">
-          <div className="bg-white rounded-lg shadow p-6 sticky top-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Media Preview</h2>
-              {content.mediaUrls[0] && (
-                <a
-                  href={content.mediaUrls[0]}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* File Upload */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Upload Media
+          </h2>
+
+          <div className="space-y-4">
+            {/* Drag and Drop Area */}
+            <div
+              onClick={handleFileInputClick}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                isDragging
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+              }`}
+            >
+              <input
+                id="file-input"
+                type="file"
+                accept="image/*,video/*"
+                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                className="hidden"
+              />
+              <div className="flex flex-col items-center">
+                <svg
+                  className={`w-12 h-12 mb-3 ${
+                    isDragging ? "text-blue-500" : "text-gray-400"
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                  Download
-                </a>
-              )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  {isDragging ? "Drop file here" : "Drag and drop file here"}
+                </p>
+                <p className="text-xs text-gray-500 mb-2">or click to browse</p>
+                <p className="text-xs text-gray-400">
+                  Images (JPG, PNG, WebP, GIF) up to 10MB
+                  <br />
+                  Videos (MP4, WebM, MOV) up to 100MB
+                </p>
+              </div>
             </div>
-            {content.mediaType === "video" && content.mediaUrls[0] && (
-              <video
-                src={content.mediaUrls[0]}
-                controls
-                className="w-full rounded-lg"
-              />
+
+            {selectedFile && (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    {selectedFile.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleFileUpload}
+                  disabled={uploading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                >
+                  {uploading ? "Uploading..." : "Upload"}
+                </button>
+              </div>
             )}
-            {content.mediaType === "image" && content.mediaUrls[0] && (
-              <img
-                src={content.mediaUrls[0]}
-                alt={content.title}
-                className="w-full rounded-lg"
-              />
-            )}
-            {!content.mediaUrls[0] && (
-              <div className="text-gray-500 text-sm">
-                No media available
+
+            {/* Uploaded Files */}
+            {uploadedFiles.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Uploaded Files ({uploadedFiles.length})
+                </p>
+                <div className="space-y-2">
+                  {uploadedFiles.map((url, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-md"
+                    >
+                      <svg
+                        className="w-5 h-5 text-green-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <p className="flex-1 text-sm text-gray-700 truncate">
+                        {url.split("/").pop()}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
+                        }
+                        className="text-red-600 hover:text-red-700 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Column - Form */}
-        <div className="flex-1 space-y-6">
         {/* Basic Info */}
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">
@@ -292,11 +403,12 @@ export default function ContentEditor() {
             <input
               type="text"
               required
-              value={content.title}
+              value={formData.title}
               onChange={(e) =>
-                setContent({ ...content, title: e.target.value })
+                setFormData({ ...formData, title: e.target.value })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g., Frank Mir UFC Testimonial"
             />
           </div>
 
@@ -305,13 +417,13 @@ export default function ContentEditor() {
               Description
             </label>
             <textarea
-              value={content.description || ""}
+              value={formData.description}
               onChange={(e) =>
-                setContent({ ...content, description: e.target.value })
+                setFormData({ ...formData, description: e.target.value })
               }
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Add a description for this content..."
+              placeholder="Add a description..."
             />
           </div>
 
@@ -322,10 +434,10 @@ export default function ContentEditor() {
               </label>
               <select
                 required
-                value={content.contentType}
+                value={formData.contentType}
                 onChange={(e) =>
-                  setContent({
-                    ...content,
+                  setFormData({
+                    ...formData,
                     contentType: e.target.value as "testimonial" | "raw-footage" | "content",
                   })
                 }
@@ -336,16 +448,17 @@ export default function ContentEditor() {
                 <option value="content">Content</option>
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Media Type *
               </label>
               <select
                 required
-                value={content.mediaType}
+                value={formData.mediaType}
                 onChange={(e) =>
-                  setContent({
-                    ...content,
+                  setFormData({
+                    ...formData,
                     mediaType: e.target.value as "image" | "video",
                   })
                 }
@@ -441,12 +554,12 @@ export default function ContentEditor() {
                   type="button"
                   onClick={() => toggleSport(sport.slug)}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    content.sports.includes(sport.slug)
+                    formData.sports.includes(sport.slug)
                       ? "bg-green-600 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                   style={
-                    content.sports.includes(sport.slug) && sport.color
+                    formData.sports.includes(sport.slug) && sport.color
                       ? {
                           backgroundColor: sport.color,
                           color: "white",
@@ -554,30 +667,46 @@ export default function ContentEditor() {
               No ailments available. Click "+ Add New Ailment" above to create one.
             </p>
           ) : (
-            <div className="flex flex-wrap gap-2">
-              {ailments.map((ailment) => (
-                <button
-                  key={ailment.slug}
-                  type="button"
-                  onClick={() => toggleAilment(ailment.slug)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    content.ailments.includes(ailment.slug)
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  style={
-                    content.ailments.includes(ailment.slug) &&
-                    ailment.color
-                      ? {
-                          backgroundColor: ailment.color,
-                          color: "white",
-                        }
-                      : {}
-                  }
-                >
-                  {ailment.name}
-                </button>
-              ))}
+            <div className="space-y-3">
+              {["joint", "muscle", "recovery", "general"].map((category) => {
+                const categoryAilments = ailments.filter(
+                  (a) => a.category === category
+                );
+                if (categoryAilments.length === 0) return null;
+
+                return (
+                  <div key={category}>
+                    <h3 className="text-xs font-medium text-gray-500 uppercase mb-2">
+                      {category}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {categoryAilments.map((ailment) => (
+                        <button
+                          key={ailment.slug}
+                          type="button"
+                          onClick={() => toggleAilment(ailment.slug)}
+                          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                            formData.ailments.includes(ailment.slug)
+                              ? "bg-purple-600 text-white"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                          style={
+                            formData.ailments.includes(ailment.slug) &&
+                            ailment.color
+                              ? {
+                                  backgroundColor: ailment.color,
+                                  color: "white",
+                                }
+                              : {}
+                          }
+                        >
+                          {ailment.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -590,13 +719,16 @@ export default function ContentEditor() {
             <input
               type="checkbox"
               id="featured"
-              checked={content.featured}
+              checked={formData.featured}
               onChange={(e) =>
-                setContent({ ...content, featured: e.target.checked })
+                setFormData({ ...formData, featured: e.target.checked })
               }
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label htmlFor="featured" className="text-sm font-medium text-gray-700">
+            <label
+              htmlFor="featured"
+              className="text-sm font-medium text-gray-700"
+            >
               Featured content (show prominently on database page)
             </label>
           </div>
@@ -607,9 +739,12 @@ export default function ContentEditor() {
             </label>
             <input
               type="number"
-              value={content.priority}
+              value={formData.priority}
               onChange={(e) =>
-                setContent({ ...content, priority: parseInt(e.target.value) || 0 })
+                setFormData({
+                  ...formData,
+                  priority: parseInt(e.target.value) || 0,
+                })
               }
               className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
@@ -620,13 +755,13 @@ export default function ContentEditor() {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 sticky bottom-0 bg-white p-4 border-t border-gray-200">
           <button
             type="submit"
-            disabled={saving}
+            disabled={creating || uploadedFiles.length === 0}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? "Saving..." : "Save Changes"}
+            {creating ? "Creating..." : "Create Content"}
           </button>
           <button
             type="button"
@@ -635,7 +770,6 @@ export default function ContentEditor() {
           >
             Cancel
           </button>
-        </div>
         </div>
       </form>
     </div>

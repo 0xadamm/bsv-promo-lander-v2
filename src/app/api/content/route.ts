@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
       contentType: searchParams.get("contentType") as
         | "testimonial"
         | "raw-footage"
+        | "content"
         | undefined,
       sport: searchParams.get("sport") || undefined,
       ailment: searchParams.get("ailment") || undefined,

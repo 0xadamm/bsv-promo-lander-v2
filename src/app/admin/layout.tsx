@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminNav from "@/components/admin/AdminNav";
 
 export default function AdminLayout({
   children,
@@ -30,32 +31,7 @@ export default function AdminLayout({
         <div className="flex gap-8">
           {/* Sidebar Navigation */}
           <aside className="w-64 flex-shrink-0">
-            <nav className="space-y-1">
-              <Link
-                href="/admin"
-                className="flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/admin/content"
-                className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
-              >
-                Content
-              </Link>
-              <Link
-                href="/admin/sports"
-                className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
-              >
-                Sports
-              </Link>
-              <Link
-                href="/admin/ailments"
-                className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
-              >
-                Ailments
-              </Link>
-            </nav>
+            <AdminNav />
           </aside>
 
           {/* Main Content */}

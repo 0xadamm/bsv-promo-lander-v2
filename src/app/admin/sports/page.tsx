@@ -18,9 +18,15 @@ export default function SportsManager() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    color: "#3B82F6",
+    color: "#003ebf",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    description: "",
+    color: "#003ebf",
+  });
 
   useEffect(() => {
     fetchSports();
@@ -55,7 +61,7 @@ export default function SportsManager() {
 
       if (data.success) {
         await fetchSports();
-        setFormData({ name: "", description: "", color: "#3B82F6" });
+        setFormData({ name: "", description: "", color: "#003ebf" });
         setShowForm(false);
       } else {
         alert("Error creating sport: " + (data.error || "Unknown error"));
@@ -63,6 +69,48 @@ export default function SportsManager() {
     } catch (error) {
       console.error("Error creating sport:", error);
       alert("Error creating sport");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function startEditing(sport: Sport) {
+    setEditingSlug(sport.slug);
+    setEditFormData({
+      name: sport.name,
+      description: sport.description || "",
+      color: sport.color || "#003ebf",
+    });
+    setShowForm(false); // Close the add form if open
+  }
+
+  function cancelEditing() {
+    setEditingSlug(null);
+    setEditFormData({ name: "", description: "", color: "#003ebf" });
+  }
+
+  async function handleUpdate(e: React.FormEvent, slug: string) {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/sports/${slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editFormData),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        await fetchSports();
+        cancelEditing();
+      } else {
+        alert("Error updating sport: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error updating sport:", error);
+      alert("Error updating sport");
     } finally {
       setSubmitting(false);
     }
@@ -169,7 +217,7 @@ export default function SportsManager() {
                     setFormData({ ...formData, color: e.target.value })
                   }
                   className="px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 font-mono text-sm"
-                  placeholder="#3B82F6"
+                  placeholder="#003ebf"
                 />
                 <span
                   className="px-3 py-1 rounded-full text-sm font-medium"
@@ -224,45 +272,151 @@ export default function SportsManager() {
         ) : (
           <div className="divide-y divide-gray-200">
             {sports.map((sport) => (
-              <div
-                key={sport.slug}
-                className="px-6 py-4 flex items-center justify-between hover:bg-gray-50"
-              >
-                <div className="flex items-center gap-4">
-                  <span
-                    className="px-3 py-1 rounded-full text-sm font-medium"
-                    style={
-                      sport.color
-                        ? {
-                            backgroundColor: sport.color + "20",
-                            color: sport.color,
+              <div key={sport.slug}>
+                {editingSlug === sport.slug ? (
+                  // Edit Form
+                  <div className="px-6 py-4 bg-blue-50">
+                    <form onSubmit={(e) => handleUpdate(e, sport.slug)} className="space-y-4">
+                      <h3 className="text-md font-semibold text-gray-900 mb-3">
+                        Edit Sport
+                      </h3>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editFormData.name}
+                          onChange={(e) =>
+                            setEditFormData({ ...editFormData, name: e.target.value })
                           }
-                        : {}
-                    }
-                  >
-                    {sport.name}
-                  </span>
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">
-                      {sport.name}
-                    </div>
-                    {sport.description && (
-                      <div className="text-xs text-gray-500">
-                        {sport.description}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                        />
                       </div>
-                    )}
-                    <div className="text-xs text-gray-400 mt-1">
-                      Slug: {sport.slug}
-                      {sport.color && ` • Color: ${sport.color}`}
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Description
+                        </label>
+                        <textarea
+                          value={editFormData.description}
+                          onChange={(e) =>
+                            setEditFormData({ ...editFormData, description: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                          rows={2}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Tag Color
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            value={editFormData.color}
+                            onChange={(e) =>
+                              setEditFormData({ ...editFormData, color: e.target.value })
+                            }
+                            className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={editFormData.color}
+                            onChange={(e) =>
+                              setEditFormData({ ...editFormData, color: e.target.value })
+                            }
+                            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 font-mono text-sm"
+                          />
+                          <span
+                            className="px-3 py-1 rounded-full text-sm font-medium"
+                            style={{
+                              backgroundColor: editFormData.color + "20",
+                              color: editFormData.color,
+                            }}
+                          >
+                            Preview
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submitting ? "Updating..." : "Update Sport"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  // Display Mode
+                  <div
+                    onClick={() => startEditing(sport)}
+                    className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span
+                        className="px-3 py-1 rounded-full text-sm font-medium"
+                        style={
+                          sport.color
+                            ? {
+                                backgroundColor: sport.color + "20",
+                                color: sport.color,
+                              }
+                            : {}
+                        }
+                      >
+                        {sport.name}
+                      </span>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {sport.name}
+                        </div>
+                        {sport.description && (
+                          <div className="text-xs text-gray-500">
+                            {sport.description}
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-400 mt-1">
+                          Slug: {sport.slug}
+                          {sport.color && ` • Color: ${sport.color}`}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startEditing(sport);
+                        }}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(sport.slug);
+                        }}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                </div>
-                <button
-                  onClick={() => handleDelete(sport.slug)}
-                  className="text-red-600 hover:text-red-700 text-sm"
-                >
-                  Delete
-                </button>
+                )}
               </div>
             ))}
           </div>

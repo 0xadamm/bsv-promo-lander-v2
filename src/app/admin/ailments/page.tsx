@@ -23,6 +23,13 @@ export default function AilmentsManager() {
     color: "#8B5CF6",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    description: "",
+    category: "general" as Ailment["category"],
+    color: "#8B5CF6",
+  });
 
   useEffect(() => {
     fetchAilments();
@@ -75,6 +82,54 @@ export default function AilmentsManager() {
     }
   }
 
+  function startEditing(ailment: Ailment) {
+    setEditingSlug(ailment.slug);
+    setEditFormData({
+      name: ailment.name,
+      description: ailment.description,
+      category: ailment.category,
+      color: ailment.color || "#8B5CF6",
+    });
+    setShowForm(false); // Close the add form if open
+  }
+
+  function cancelEditing() {
+    setEditingSlug(null);
+    setEditFormData({
+      name: "",
+      description: "",
+      category: "general",
+      color: "#8B5CF6",
+    });
+  }
+
+  async function handleUpdate(e: React.FormEvent, slug: string) {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/ailments/${slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editFormData),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        await fetchAilments();
+        cancelEditing();
+      } else {
+        alert("Error updating ailment: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error updating ailment:", error);
+      alert("Error updating ailment");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function handleDelete(slug: string) {
     if (!confirm("Are you sure you want to delete this ailment?")) return;
 
@@ -95,14 +150,6 @@ export default function AilmentsManager() {
       alert("Error deleting ailment");
     }
   }
-
-  // Group by category
-  const groupedAilments = {
-    joint: ailments.filter((a) => a.category === "joint"),
-    muscle: ailments.filter((a) => a.category === "muscle"),
-    recovery: ailments.filter((a) => a.category === "recovery"),
-    general: ailments.filter((a) => a.category === "general"),
-  };
 
   if (loading) {
     return <div className="text-center py-12">Loading...</div>;
@@ -169,28 +216,6 @@ export default function AilmentsManager() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category *
-              </label>
-              <select
-                required
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    category: e.target.value as Ailment["category"],
-                  })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
-              >
-                <option value="general">General</option>
-                <option value="joint">Joint</option>
-                <option value="muscle">Muscle</option>
-                <option value="recovery">Recovery</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Tag Color
               </label>
               <div className="flex items-center gap-3">
@@ -243,26 +268,121 @@ export default function AilmentsManager() {
         </div>
       )}
 
-      {/* Ailments by Category */}
-      <div className="space-y-6">
-        {Object.entries(groupedAilments).map(([category, categoryAilments]) => (
-          <div key={category} className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <h2 className="text-lg font-semibold text-gray-900 capitalize">
-                {category} ({categoryAilments.length})
-              </h2>
-            </div>
+      {/* Ailments List */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            All Ailments ({ailments.length})
+          </h2>
+        </div>
 
-            {categoryAilments.length === 0 ? (
-              <div className="px-6 py-8 text-center text-gray-500">
-                No {category} ailments yet
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-200">
-                {categoryAilments.map((ailment) => (
+        {ailments.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No ailments yet</p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="mt-4 text-purple-600 hover:text-purple-700"
+            >
+              Create your first ailment →
+            </button>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {ailments.map((ailment) => (
+              <div key={ailment.slug}>
+                {editingSlug === ailment.slug ? (
+                  // Edit Form
+                  <div className="px-6 py-4 bg-blue-50">
+                    <form onSubmit={(e) => handleUpdate(e, ailment.slug)} className="space-y-4">
+                      <h3 className="text-md font-semibold text-gray-900 mb-3">
+                        Edit Ailment
+                      </h3>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editFormData.name}
+                          onChange={(e) =>
+                            setEditFormData({ ...editFormData, name: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Description *
+                        </label>
+                        <textarea
+                          required
+                          value={editFormData.description}
+                          onChange={(e) =>
+                            setEditFormData({ ...editFormData, description: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+                          rows={2}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Tag Color
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            value={editFormData.color}
+                            onChange={(e) =>
+                              setEditFormData({ ...editFormData, color: e.target.value })
+                            }
+                            className="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={editFormData.color}
+                            onChange={(e) =>
+                              setEditFormData({ ...editFormData, color: e.target.value })
+                            }
+                            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 font-mono text-sm"
+                          />
+                          <span
+                            className="px-3 py-1 rounded-full text-sm font-medium"
+                            style={{
+                              backgroundColor: editFormData.color + "20",
+                              color: editFormData.color,
+                            }}
+                          >
+                            Preview
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submitting ? "Updating..." : "Update Ailment"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  // Display Mode
                   <div
-                    key={ailment.slug}
-                    className="px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+                    onClick={() => startEditing(ailment)}
+                    className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
                   >
                     <div className="flex items-center gap-4">
                       <span
@@ -291,31 +411,33 @@ export default function AilmentsManager() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDelete(ailment.slug)}
-                      className="text-red-600 hover:text-red-700 text-sm"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startEditing(ailment);
+                        }}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(ailment.slug);
+                        }}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
-            )}
+            ))}
           </div>
-        ))}
+        )}
       </div>
-
-      {ailments.length === 0 && (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <p className="text-gray-500">No ailments yet</p>
-          <button
-            onClick={() => setShowForm(true)}
-            className="mt-4 text-purple-600 hover:text-purple-700"
-          >
-            Create your first ailment →
-          </button>
-        </div>
-      )}
     </div>
   );
 }

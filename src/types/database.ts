@@ -8,10 +8,10 @@ export interface Content {
   description?: string;
 
   // Content Type
-  contentType: "testimonial" | "raw-footage";
+  contentType: "testimonial" | "raw-footage" | "content";
 
   // Media
-  mediaType: "image" | "video" | "text";
+  mediaType: "image" | "video";
   mediaUrls: string[]; // Vercel Blob URLs
   thumbnailUrl?: string;
 
@@ -98,7 +98,7 @@ export interface PaginatedResponse<T> {
 
 // Query Types
 export interface ContentQuery {
-  contentType?: "testimonial" | "raw-footage";
+  contentType?: "testimonial" | "raw-footage" | "content";
   sport?: string;
   ailment?: string;
   featured?: boolean;

@@ -1,19 +1,141 @@
-import Link from "next/link";
-import { getAllContent } from "@/lib/db/content";
-import { listSports } from "@/lib/db/sports";
-import { listAilments } from "@/lib/db/ailments";
+"use client";
 
-export default async function ContentManager() {
-  const [allContent, sports, ailments] = await Promise.all([
-    getAllContent(),
-    listSports(),
-    listAilments(),
-  ]);
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+
+interface ContentItem {
+  _id: string;
+  slug: string;
+  title: string;
+  description?: string;
+  contentType: string;
+  mediaType: "image" | "video";
+  mediaUrls: string[];
+  thumbnailUrl?: string;
+  sports: string[];
+  ailments: string[];
+  athleteName?: string;
+  source?: string;
+  featured: boolean;
+  priority: number;
+  publishedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Sport {
+  slug: string;
+  name: string;
+  color?: string;
+}
+
+interface Ailment {
+  slug: string;
+  name: string;
+  category: string;
+  color?: string;
+}
+
+export default function ContentManager() {
+  const router = useRouter();
+  const [allContent, setAllContent] = useState<ContentItem[]>([]);
+  const [sports, setSports] = useState<Sport[]>([]);
+  const [ailments, setAilments] = useState<Ailment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Filters
+  const [filters, setFilters] = useState({
+    contentType: "all" as "all" | "testimonial" | "raw-footage" | "content",
+    mediaType: "all" as "all" | "video" | "image",
+    sport: "all",
+    ailment: "all",
+    search: "",
+  });
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [contentRes, sportsRes, ailmentsRes] = await Promise.all([
+          fetch("/api/content?limit=1000"),
+          fetch("/api/sports"),
+          fetch("/api/ailments"),
+        ]);
+
+        const [contentData, sportsData, ailmentsData] = await Promise.all([
+          contentRes.json(),
+          sportsRes.json(),
+          ailmentsRes.json(),
+        ]);
+
+        if (contentData.success) setAllContent(contentData.data);
+        if (sportsData.success) setSports(sportsData.data);
+        if (ailmentsData.success) setAilments(ailmentsData.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  // Apply filters
+  const filteredContent = allContent.filter((content) => {
+    // Content Type filter
+    if (filters.contentType !== "all" && content.contentType !== filters.contentType) {
+      return false;
+    }
+
+    // Media Type filter
+    if (filters.mediaType !== "all" && content.mediaType !== filters.mediaType) {
+      return false;
+    }
+
+    // Sport filter
+    if (filters.sport !== "all" && !content.sports.includes(filters.sport)) {
+      return false;
+    }
+
+    // Ailment filter
+    if (filters.ailment !== "all" && !content.ailments.includes(filters.ailment)) {
+      return false;
+    }
+
+    // Search filter (title, description, athlete name)
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const titleMatch = content.title.toLowerCase().includes(searchLower);
+      const descMatch = content.description?.toLowerCase().includes(searchLower);
+      const athleteMatch = content.athleteName?.toLowerCase().includes(searchLower);
+
+      if (!titleMatch && !descMatch && !athleteMatch) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   // Sort by most recent first
-  const sortedContent = allContent.sort(
+  const sortedContent = [...filteredContent].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
+
+  function resetFilters() {
+    setFilters({
+      contentType: "all",
+      mediaType: "all",
+      sport: "all",
+      ailment: "all",
+      search: "",
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -33,6 +155,126 @@ export default async function ContentManager() {
         </Link>
       </div>
 
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-900">Filters</h2>
+          <button
+            onClick={resetFilters}
+            className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Reset All
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* Search */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Search
+            </label>
+            <input
+              type="text"
+              value={filters.search}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              placeholder="Title, description..."
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Content Type */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Content Type
+            </label>
+            <select
+              value={filters.contentType}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  contentType: e.target.value as typeof filters.contentType,
+                })
+              }
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="all">All Types</option>
+              <option value="testimonial">Testimonial</option>
+              <option value="raw-footage">Raw Footage</option>
+              <option value="content">Content</option>
+            </select>
+          </div>
+
+          {/* Media Type */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Media Type
+            </label>
+            <select
+              value={filters.mediaType}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  mediaType: e.target.value as typeof filters.mediaType,
+                })
+              }
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="all">All Media</option>
+              <option value="video">Video</option>
+              <option value="image">Image</option>
+            </select>
+          </div>
+
+          {/* Sport */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Sport
+            </label>
+            <select
+              value={filters.sport}
+              onChange={(e) => setFilters({ ...filters, sport: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="all">All Sports</option>
+              {sports.map((sport) => (
+                <option key={sport.slug} value={sport.slug}>
+                  {sport.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Ailment */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Ailment
+            </label>
+            <select
+              value={filters.ailment}
+              onChange={(e) => setFilters({ ...filters, ailment: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="all">All Ailments</option>
+              {ailments.map((ailment) => (
+                <option key={ailment.slug} value={ailment.slug}>
+                  {ailment.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Active Filters Count */}
+        {(filters.contentType !== "all" ||
+          filters.mediaType !== "all" ||
+          filters.sport !== "all" ||
+          filters.ailment !== "all" ||
+          filters.search) && (
+          <div className="mt-3 text-xs text-gray-600">
+            Showing {sortedContent.length} of {allContent.length} items
+          </div>
+        )}
+      </div>
+
       {/* Stats Bar */}
       <div className="bg-white rounded-lg shadow p-4">
         <div className="flex items-center gap-6 text-sm">
@@ -50,6 +292,12 @@ export default async function ContentManager() {
             <span className="font-medium text-gray-900">Raw Footage:</span>{" "}
             <span className="text-gray-600">
               {allContent.filter((c) => c.contentType === "raw-footage").length}
+            </span>
+          </div>
+          <div>
+            <span className="font-medium text-gray-900">Content:</span>{" "}
+            <span className="text-gray-600">
+              {allContent.filter((c) => c.contentType === "content").length}
             </span>
           </div>
           <div>
@@ -102,35 +350,42 @@ export default async function ContentManager() {
               );
 
               return (
-                <tr key={content._id.toString()} className="hover:bg-gray-50">
+                <tr
+                  key={content._id}
+                  onClick={() => router.push(`/admin/content/${content._id}`)}
+                  className="hover:bg-gray-50 cursor-pointer"
+                >
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       {/* Thumbnail */}
-                      <div className="h-10 w-10 flex-shrink-0 mr-3">
-                        {content.mediaType === "video" ? (
-                          <div className="h-10 w-10 bg-gray-200 rounded flex items-center justify-center">
-                            <svg
-                              className="w-6 h-6 text-gray-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                      <div className="h-12 w-12 flex-shrink-0 mr-3">
+                        {content.thumbnailUrl ? (
+                          content.mediaType === "video" ? (
+                            <div className="relative h-12 w-12 bg-gray-200 rounded overflow-hidden">
+                              <img
+                                src={content.thumbnailUrl}
+                                alt={content.title}
+                                className="h-full w-full object-cover"
                               />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                          </div>
+                              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                                <svg
+                                  className="w-6 h-6 text-white"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
+                            </div>
+                          ) : (
+                            <img
+                              src={content.thumbnailUrl}
+                              alt={content.title}
+                              className="h-12 w-12 rounded object-cover"
+                            />
+                          )
                         ) : (
-                          <div className="h-10 w-10 bg-gray-200 rounded flex items-center justify-center">
+                          <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
                             <svg
                               className="w-6 h-6 text-gray-500"
                               fill="none"
@@ -222,8 +477,9 @@ export default async function ContentManager() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link
-                      href={`/admin/content/${content._id.toString()}`}
+                      href={`/admin/content/${content._id}`}
                       className="text-blue-600 hover:text-blue-900"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       Edit
                     </Link>

@@ -5,11 +5,11 @@ export const contentSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
 
-  contentType: z.enum(["testimonial", "raw-footage"], {
+  contentType: z.enum(["testimonial", "raw-footage", "content"], {
     required_error: "Content type is required",
   }),
 
-  mediaType: z.enum(["image", "video", "text"], {
+  mediaType: z.enum(["image", "video"], {
     required_error: "Media type is required",
   }),
   mediaUrls: z.array(z.string().url("Invalid media URL")).min(1, "At least one media URL is required"),
