@@ -1,5 +1,6 @@
 import { Content, Sport, Ailment } from "@/types/database";
 import TagBadge from "./TagBadge";
+import { useRef, useState } from "react";
 
 interface ContentCardProps {
   content: Content;
@@ -14,10 +15,34 @@ export default function ContentCard({
   ailments,
   onClick,
 }: ContentCardProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
+
   const contentSports = sports.filter((s) => content.sports.includes(s.slug));
   const contentAilments = ailments.filter((a) =>
     content.ailments.includes(a.slug)
   );
+
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    if (videoRef.current && content.mediaType === "video") {
+      // Unmute and play the video
+      videoRef.current.muted = false;
+      videoRef.current.play().catch(() => {
+        // Ignore play errors (e.g., if video not loaded)
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    if (videoRef.current && content.mediaType === "video") {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      // Mute again for next hover
+      videoRef.current.muted = true;
+    }
+  };
 
   // Check if thumbnailUrl is actually an image (not a video file)
   const isValidThumbnail =
@@ -88,6 +113,8 @@ export default function ContentCard({
   return (
     <div
       onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={`group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer ${aspectRatioClass}`}
     >
       {/* Background Media - Full Card */}
@@ -103,12 +130,14 @@ export default function ContentCard({
           ) : (
             <>
               <video
+                ref={videoRef}
                 src={content.mediaUrls[0]}
                 poster={content.thumbnailUrl || undefined}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 preload="metadata"
                 muted
                 playsInline
+                loop
                 onLoadedMetadata={(e) => {
                   // Force seek to first frame to show thumbnail on mobile
                   const video = e.currentTarget;
@@ -158,7 +187,7 @@ export default function ContentCard({
 
       {/* Video Play Overlay */}
       {content.mediaType === "video" && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovering ? "opacity-0" : "opacity-100"}`}>
           <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 group-hover:scale-110 transition-transform">
             <svg
               className="w-8 h-8 text-blue-600"
@@ -242,8 +271,8 @@ export default function ContentCard({
         </div>
       </div>
 
-      {/* Hover Overlay with Description */}
-      {content.description && (
+      {/* Hover Overlay with Description - Only for images */}
+      {content.description && content.mediaType === "image" && (
         <div className="absolute inset-0 bg-blue-600/95 backdrop-blur-sm text-white p-6 flex flex-col justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
           <h3 className="font-bold text-xl mb-3">{content.title}</h3>
           <p className="text-sm text-white/90 line-clamp-6 mb-4">
