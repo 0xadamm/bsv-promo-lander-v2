@@ -7,7 +7,13 @@ import { ZodError } from "zod";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category") || undefined;
+    const categoryParam = searchParams.get("category");
+
+    // Validate category is one of the allowed values
+    const validCategories = ["joint", "muscle", "recovery", "general"] as const;
+    const category = categoryParam && validCategories.includes(categoryParam as typeof validCategories[number])
+      ? (categoryParam as typeof validCategories[number])
+      : undefined;
 
     const ailments = await listAilments(category);
 
